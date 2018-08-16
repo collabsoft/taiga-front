@@ -61,7 +61,7 @@ class ConfirmService extends taiga.Service
         # Render content
         el.find(".title").text(title) if title
         el.find(".subtitle").text(subtitle) if subtitle
-        el.find(".message").text(message) if message
+        el.find(".message").html(message) if message
 
         # Assign event handlers
         el.on "click.confirm-dialog", ".button-green", debounce 2000, (event) =>
@@ -86,8 +86,10 @@ class ConfirmService extends taiga.Service
 
         return defered.promise
 
-    askOnDelete: (title, message) ->
-        return @.ask(title, @translate.instant("NOTIFICATION.ASK_DELETE"), message)
+    askOnDelete: (title, message, subtitle) ->
+        if not subtitle?
+            subtitle = @translate.instant("NOTIFICATION.ASK_DELETE")
+        return @.ask(title, subtitle, message)
 
     askChoice: (title, subtitle, choices, replacement, warning, lightboxSelector=".lightbox-ask-choice") ->
         defered = @q.defer()

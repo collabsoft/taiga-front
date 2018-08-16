@@ -27,6 +27,10 @@ class CardController
         tasks = @.item.getIn(['model', 'tasks'])
         return tasks and tasks.size > 0
 
+    hasMultipleAssignedUsers: () ->
+        assignedUsers = @.item.getIn(['model', 'assigned_users'])
+        return assignedUsers and assignedUsers.size > 1
+
     hasVisibleAttachments: () ->
         return @.item.get('images').size > 0
 
@@ -39,11 +43,11 @@ class CardController
     closedTasksPercent: () ->
         return @.getClosedTasks().size * 100 / @.item.getIn(['model', 'tasks']).size
 
-    getPermissionsKey: () ->
-        if @.type == 'task'
-            return 'modify_task'
-        else
-            return 'modify_us'
+    getModifyPermisionKey: () ->
+        return  if @.type == 'task' then 'modify_task' else 'modify_us'
+
+    getDeletePermisionKey: () ->
+        return  if @.type == 'task' then 'delete_task' else 'delete_us'
 
     _setVisibility: () ->
         visibility = {
@@ -83,6 +87,8 @@ class CardController
     getNavKey: () ->
         if @.type == 'task'
             return 'project-tasks-detail'
+        else if @.type == 'issue'
+            return 'project-issues-detail'
         else
             return 'project-userstories-detail'
 

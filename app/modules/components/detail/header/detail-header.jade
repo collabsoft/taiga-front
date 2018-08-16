@@ -1,4 +1,4 @@
-.detail-title-wrapper.e2e-story-header
+.detail-title-wrapper.e2e-story-header(ng-class="{readonly: !vm.permissions.canEdit}")
     h2.detail-title-text.ng-animate-disabled(
         ng-show="!vm.editMode"
         ng-hide="vm.editMode"
@@ -19,7 +19,12 @@
             ng-click="vm.editSubject(true)"
         )
             tg-svg.detail-edit.e2e-detail-edit(svg-icon="icon-edit")
-
+        tg-due-date(
+            due-date="vm.item.due_date"
+            is-closed="vm.item.is_closed"
+            ng-if="vm.item.due_date"
+            obj-type="{{ vm.objType }}"
+        )
     .edit-title-wrapper(ng-if="vm.editMode")
         input.edit-title-input.e2e-title-input(
             type="text"
@@ -38,14 +43,26 @@
             )
 
 //- User Story belongs to epic
-.belong-to-epics-wrapper(ng-if="vm.item.epics")
-    span(translate="US.OWNER_US")
-    tg-belong-to-epics(
-        ng-if="::vm.item.epics"
-        epics="::vm.item.epics"
-        format="text"
+.belong-to-epics-wrapper(ng-if="vm.item._name == 'userstories' && vm.project.is_epics_activated")
+    .related-to-epics
+        tg-belong-to-epics(
+            epics="::vm.item.epics"
+            item="::vm.item"
+            format="text"
+        )
+    //- User Story relate to Epic
+    a.relate-to-epic-button.ng-animate-disabled(
+        ng-if="vm.permissions.canEdit"
+        href=""
+        title="{{'US.RELATE_TO_EPIC' | translate}}"
+        ng-click="vm.relateToEpic(vm.item)"
     )
-
+        tg-svg(
+            svg-icon="icon-epics"
+            svg-title-translate="US.RELATE_TO_EPIC"
+        )
+        span.relate-to-epic-text(translate="US.RELATE_TO_EPIC")
+ 
 //- Task belongs to US
 .task-belongs-to(
     ng-if="vm.item.user_story_extra_info"

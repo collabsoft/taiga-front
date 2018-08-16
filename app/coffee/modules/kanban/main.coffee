@@ -31,6 +31,7 @@ bindOnce = @.taiga.bindOnce
 groupBy = @.taiga.groupBy
 timeout = @.taiga.timeout
 bindMethods = @.taiga.bindMethods
+debounceLeading = @.taiga.debounceLeading
 
 module = angular.module("taigaKanban")
 
@@ -151,30 +152,63 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
             @.refreshTagsColors().then () =>
                 @kanbanUserstoriesService.replaceModel(us)
 
+        @scope.$on "kanban:us:deleted", (event, us) =>
+            @.filtersReloadContent()
+
         @scope.$on("assigned-to:added", @.onAssignedToChanged)
+        @scope.$on("assigned-user:added", @.onAssignedUsersChanged)
+        @scope.$on("assigned-user:deleted", @.onAssignedUsersDeleted)
         @scope.$on("kanban:us:move", @.moveUs)
         @scope.$on("kanban:show-userstories-for-status", @.loadUserStoriesForStatus)
         @scope.$on("kanban:hide-userstories-for-status", @.hideUserStoriesForStatus)
 
     addNewUs: (type, statusId) ->
         switch type
-            when "standard" then @rootscope.$broadcast("usform:new",
-                                                       @scope.projectId, statusId, @scope.usStatusList)
+            when "standard" then  @rootscope.$broadcast("genericform:new",
+                {
+                    'objType': 'us',
+                    'project': @scope.project,
+                    'statusId': statusId
+                })
             when "bulk" then @rootscope.$broadcast("usform:bulk",
                                                    @scope.projectId, statusId)
 
     editUs: (id) ->
         us = @kanbanUserstoriesService.getUs(id)
-        us = us.set('loading', true)
+        us = us.set('loading-edit', true)
         @kanbanUserstoriesService.replace(us)
 
         @rs.userstories.getByRef(us.getIn(['model', 'project']), us.getIn(['model', 'ref']))
-         .then (editingUserStory) =>
-            @rs2.attachments.list("us", us.get('id'), us.getIn(['model', 'project'])).then (attachments) =>
-                @rootscope.$broadcast("usform:edit", editingUserStory, attachments.toJS())
+        .then (editingUserStory) =>
+            @rs2.attachments.list(
+                "us", us.get('id'), us.getIn(['model', 'project'])).then (attachments) =>
+                    @rootscope.$broadcast("genericform:edit", {
+                        'objType': 'us',
+                        'obj': editingUserStory,
+                        'statusList': @scope.usStatusList,
+                        'attachments': attachments.toJS()
+                    })
 
-                us = us.set('loading', false)
+                us = us.set('loading-edit', false)
                 @kanbanUserstoriesService.replace(us)
+
+    deleteUs: (id) ->
+        us = @kanbanUserstoriesService.getUs(id)
+        us = us.set('loading-delete', true)
+
+        @rs.userstories.getByRef(us.getIn(['model', 'project']), us.getIn(['model', 'ref']))
+        .then (deletingUserStory) =>
+            us = us.set('loading-delete', false)
+            title = @translate.instant("US.TITLE_DELETE_ACTION")
+            message = deletingUserStory.subject
+            @confirm.askOnDelete(title, message).then (askResponse) =>
+                promise = @repo.remove(deletingUserStory)
+                promise.then =>
+                    @scope.$broadcast("kanban:us:deleted")
+                    askResponse.finish()
+                promise.then null, ->
+                    askResponse.finish(false)
+                    @confirm.notify("error")
 
     showPlaceHolder: (statusId) ->
         if @scope.usStatusList[0].id == statusId &&
@@ -194,6 +228,10 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
         @rootscope.$broadcast("assigned-to:add", us)
 
+    changeUsAssignedUsers: (id) ->
+        us = @kanbanUserstoriesService.getUsModel(id)
+        @rootscope.$broadcast("assigned-user:add", us)
+
     onAssignedToChanged: (ctx, userid, usModel) ->
         usModel.assigned_to = userid
 
@@ -202,6 +240,39 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         @repo.save(usModel).then =>
             @.generateFilters()
             if @.isFilterDataTypeSelected('assigned_to') || @.isFilterDataTypeSelected('role')
+                @.filtersReloadContent()
+
+    onAssignedUsersChanged: (ctx, userid, usModel) ->
+        assignedUsers = _.clone(usModel.assigned_users, false)
+        assignedUsers.push(userid)
+        assignedUsers = _.uniq(assignedUsers)
+        usModel.assigned_users = assignedUsers
+        if not usModel.assigned_to
+            usModel.assigned_to = userid
+        @kanbanUserstoriesService.replaceModel(usModel)
+
+        @repo.save(usModel).then =>
+            @.generateFilters()
+            if @.isFilterDataTypeSelected('assigned_users') || @.isFilterDataTypeSelected('role')
+                @.filtersReloadContent()
+
+    onAssignedUsersDeleted: (ctx, userid, usModel) ->
+        assignedUsersIds = _.clone(usModel.assigned_users, false)
+        assignedUsersIds = _.pull(assignedUsersIds, userid)
+        assignedUsersIds = _.uniq(assignedUsersIds)
+        usModel.assigned_users = assignedUsersIds
+
+        # Update as
+        if usModel.assigned_to not in assignedUsersIds and assignedUsersIds.length > 0
+            usModel.assigned_to = assignedUsersIds[0]
+        if assignedUsersIds.length == 0
+            usModel.assigned_to = null
+
+        @kanbanUserstoriesService.replaceModel(usModel)
+
+        @repo.save(usModel).then =>
+            @.generateFilters()
+            if @.isFilterDataTypeSelected('assigned_users') || @.isFilterDataTypeSelected('role')
                 @.filtersReloadContent()
 
     refreshTagsColors: ->
@@ -284,8 +355,9 @@ class KanbanController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
     initializeSubscription: ->
         routingKey1 = "changes.project.#{@scope.projectId}.userstories"
-        @events.subscribe @scope, routingKey1, (message) =>
-            @.loadUserstories()
+        randomTimeout = taiga.randomInt(700, 1000)
+        @events.subscribe @scope, routingKey1, debounceLeading(randomTimeout, (message) =>
+            @.loadUserstories())
 
     loadInitialData: ->
         project = @.loadProject()

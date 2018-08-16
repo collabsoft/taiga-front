@@ -54,6 +54,12 @@ section.issues-table.basic-table(ng-class="{empty: !issues.length}")
                     title="{{issue.blocked_note}}"
                 ) {{'ISSUES.TABLE.BLOCKED' | translate}}
                 span(ng-bind-html="issue.subject | emojify")
+                tg-due-date(
+                    due-date="issue.due_date"
+                    is-closed="us.is_closed"
+                    ng-if="issue.due_date"
+                    obj-type="issue"
+                )
 
 
         div.issue-field(tg-issue-status-inline-edition="issue")

@@ -14,6 +14,16 @@
     include history-templates/history-milestone
 
 .diff-wrapper(
+    ng-if="vm.type == 'priority'"
+)
+    include history-templates/history-priority
+
+.diff-wrapper(
+    ng-if="vm.type == 'severity'"
+)
+    include history-templates/history-severity
+
+.diff-wrapper(
     ng-if="vm.type == 'status'"
 )
     include history-templates/history-status
@@ -32,6 +42,16 @@
     ng-if="vm.type == 'assigned_to'"
 )
     include history-templates/history-assigned
+
+.diff-wrapper(
+    ng-if="vm.type == 'assigned_users'"
+)
+    include history-templates/history-assigned-users
+
+.diff-wrapper(
+    ng-if="vm.type == 'due_date'"
+)
+    include history-templates/history-due-date
 
 .diff-wrapper(
     ng-if="vm.type == 'tags'"

@@ -79,6 +79,9 @@
     .card-owner-info {
         align-items: center;
         display: flex;
+        &.multiple .card-owner-avatar img {
+            margin-right: .45rem;
+        }
     }
     .card-owner-avatar {
         line-height: 0;
@@ -119,6 +122,14 @@
             fill: currentColor;
         }
     }
+    .card-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 0 0 .5rem;
+    }
+    .card-delete:hover {
+        color: $red-light;
+    }
     .icon {
         @include svg-size(1.2rem);
         display: inline-block;
@@ -129,7 +140,7 @@
         align-items: center;
         cursor: pointer;
         display: flex;
-        padding: .6rem 1rem;
+        padding: .6rem .5rem;
     }
 }
 
@@ -149,6 +160,15 @@
     font-size: 14px;
     justify-content: space-between;
     padding: 0 1rem .5rem;
+    .card-status-tag {
+        font-size: .75rem;
+        height: .1rem;
+        line-height: .1rem;
+        padding: 0 .5em 0 0;
+    }
+    .card-estimation.not-estimated {
+        font-size: .8125rem;
+    }
 }
 
 .card-statistics {
@@ -168,6 +188,12 @@
         }
         &.card-iocaine {
             cursor: help;
+        }
+        &.card-votes {
+            margin-left: .2rem;
+        }
+        &.card-due-date {
+            margin-left: .1rem;
         }
     }
     .icon {

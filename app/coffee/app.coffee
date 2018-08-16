@@ -385,6 +385,12 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
             section: "admin"
         }
     )
+    $routeProvider.when("/project/:pslug/admin/project-values/due-dates",
+        {
+            templateUrl: "admin/admin-project-values-due-dates.html",
+            section: "admin"
+        }
+    )
     $routeProvider.when("/project/:pslug/admin/memberships",
         {
             templateUrl: "admin/admin-memberships.html",
@@ -451,6 +457,8 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
         {templateUrl: "user/user-change-password.html"})
     $routeProvider.when("/user-settings/mail-notifications",
         {templateUrl: "user/mail-notifications.html"})
+    $routeProvider.when("/user-settings/live-notifications",
+        {templateUrl: "user/live-notifications.html"})
     $routeProvider.when("/change-email/:email_token",
         {templateUrl: "user/change-email.html"})
     $routeProvider.when("/cancel-account/:cancel_token",
@@ -751,7 +759,7 @@ i18nInit = (lang, $translate) ->
 
 
 init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $navUrls, appMetaService,
-        loaderService, navigationBarService, errorHandlingService, lightboxService) ->
+        loaderService, navigationBarService, errorHandlingService, lightboxService, $tgConfig) ->
     $log.debug("Initialize application")
 
     $rootscope.$on '$translatePartialLoaderStructureChanged', () ->
@@ -780,6 +788,9 @@ init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $na
     $rootscope.$on "$translateChangeEnd", (e, ctx) ->
         lang = ctx.language
         i18nInit(lang, $translate)
+        # RTL
+        rtlLanguages = $tgConfig.get("rtlLanguages", [])
+        $rootscope.isRTL = rtlLanguages.indexOf(lang) > -1
 
     # bluebird
     Promise.setScheduler (cb) ->
@@ -790,7 +801,7 @@ init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $na
     # Load user
     if $auth.isAuthenticated()
         user = $auth.getUser()
-
+        $auth.showTerms()
     # Analytics
     $analytics.initialize()
 
@@ -928,5 +939,6 @@ module.run([
     "tgNavigationBarService",
     "tgErrorHandlingService",
     "lightboxService",
+    "$tgConfig",
     init
 ])

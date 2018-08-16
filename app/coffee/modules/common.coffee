@@ -29,9 +29,13 @@ module = angular.module("taigaCommon", [])
 #############################################################################
 ## Default datepicker config
 #############################################################################
-DataPickerConfig = ($translate) ->
+DataPickerConfig = ($translate, $config, $auth) ->
     return {
         get: () ->
+            user = $auth.getUser()
+            lang = user.lang || $translate.preferredLanguage()
+            rtlLanguages = $config.get("rtlLanguages", [])
+            isRTL = rtlLanguages.indexOf(lang) > -1
             return {
                 i18n: {
                     previousMonth: $translate.instant("COMMON.PICKERDATE.PREV_MONTH"),
@@ -69,13 +73,13 @@ DataPickerConfig = ($translate) ->
                         $translate.instant("COMMON.PICKERDATE.WEEK_DAYS_SHORT.SAT")
                     ]
                 },
-                isRTL: $translate.instant("COMMON.PICKERDATE.IS_RTL") == "true",
+                isRTL: isRTL,
                 firstDay: parseInt($translate.instant("COMMON.PICKERDATE.FIRST_DAY_OF_WEEK"), 10),
                 format: $translate.instant("COMMON.PICKERDATE.FORMAT")
             }
     }
 
-module.factory("tgDatePickerConfigService", ["$translate", DataPickerConfig])
+module.factory("tgDatePickerConfigService", ["$translate", "$tgConfig", "$tgAuth", DataPickerConfig])
 
 #############################################################################
 ## Get the selected text
@@ -292,7 +296,6 @@ class QueueModelTransformation extends taiga.Service
 
     save: (transformation) ->
         defered = @q.defer()
-
         @qqueue.add () =>
             obj = @.getObj()
             comment = obj.comment
@@ -373,7 +376,7 @@ module.directive("tgLightboxClose", [LightboxClose])
 
 Svg = () ->
     template = """
-    <svg class="{{ 'icon ' + svgIcon }}">
+    <svg class="{{ 'icon ' + svgIcon }}" style="fill: {{ svgFill }}">
         <use xlink:href="" ng-attr-xlink:href="{{ '#' + svgIcon }}">
             <title ng-if="svgTitle">{{svgTitle}}</title>
             <title ng-if="svgTitleTranslate">{{svgTitleTranslate | translate: svgTitleTranslateValues}}</title>
@@ -386,7 +389,8 @@ Svg = () ->
             svgIcon: "@",
             svgTitle: "@",
             svgTitleTranslate: "@",
-            svgTitleTranslateValues: "="
+            svgTitleTranslateValues: "=",
+            svgFill: "="
         },
         template: template
     }

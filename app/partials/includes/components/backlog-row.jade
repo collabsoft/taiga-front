@@ -27,6 +27,12 @@
             )
                 span(tg-bo-ref="us.ref")
                 span(ng-bind-html="us.subject | emojify")
+                tg-due-date(
+                    due-date="us.due_date"
+                    is-closed="us.is_closed"
+                    ng-if="us.due_date"
+                    obj-type="us"
+                )
                 tg-belong-to-epics(
                     format="pill"
                     ng-if="us.epics"

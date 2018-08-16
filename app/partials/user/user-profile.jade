@@ -16,7 +16,7 @@ div.wrapper(
         form
             .project-details-image(tg-user-avatar)
                 fieldset.image-container
-                    img.image(tg-avatar="user" alt="avatar")
+                    img.image(tg-avatar-big="user" alt="avatar")
                     .loading-overlay
                         img.loading-spinner(
                             src="/#{v}/svg/spinner-circle.svg",
@@ -115,6 +115,14 @@ div.wrapper(
                         type="submit"
                         title="{{'COMMON.SAVE' | translate}}",
                         translate="COMMON.SAVE"
+                    )
+
+                div.actions
+                    a.download-profile(
+                        href=""
+                        title="{{'USER_PROFILE.ACTION_DOWNLOAD_PROFILE' | translate}}"
+                        ng-click="ctrl.exportProfile()"
+                        translate="USER_PROFILE.ACTION_DOWNLOAD_PROFILE"
                     )
                     a.delete-account(
                         href=""

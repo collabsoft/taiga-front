@@ -266,6 +266,19 @@ getMatches = (string, regex, index) ->
 
     return matches
 
+randomInt = (start, end) ->
+    interval = end - start
+    return start + Math.floor(Math.random()*(interval+1))
+
+normalizeString = (string) ->
+    normalizedString = string
+    normalizedString = normalizedString.replace("Á", "A").replace("Ä", "A").replace("À", "A")
+    normalizedString = normalizedString.replace("É", "E").replace("Ë", "E").replace("È", "E")
+    normalizedString = normalizedString.replace("Í", "I").replace("Ï", "I").replace("Ì", "I")
+    normalizedString = normalizedString.replace("Ó", "O").replace("Ö", "O").replace("Ò", "O")
+    normalizedString = normalizedString.replace("Ú", "U").replace("Ü", "U").replace("Ù", "U")
+    return normalizedString
+
 taiga = @.taiga
 taiga.addClass = addClass
 taiga.nl2br = nl2br
@@ -297,3 +310,5 @@ taiga.patch = patch
 taiga.getRandomDefaultColor = getRandomDefaultColor
 taiga.getDefaulColorList = getDefaulColorList
 taiga.getMatches = getMatches
+taiga.randomInt = randomInt
+taiga.normalizeString = normalizeString

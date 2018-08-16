@@ -33,6 +33,7 @@ bindOnce = @.taiga.bindOnce
 debounceLeading = @.taiga.debounceLeading
 startswith = @.taiga.startswith
 bindMethods = @.taiga.bindMethods
+debounceLeading = @.taiga.debounceLeading
 
 module = angular.module("taigaIssues")
 
@@ -309,9 +310,8 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
     initializeSubscription: ->
         routingKey = "changes.project.#{@scope.projectId}.issues"
-        @events.subscribe @scope, routingKey, (message) =>
-            @.loadIssues()
-
+        @events.subscribe @scope, routingKey, debounceLeading(500, (message) =>
+            @.loadIssues())
 
     loadProject: ->
         project = @projectService.project.toJS()
@@ -367,7 +367,11 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
     # Functions used from templates
     addNewIssue: ->
-        @rootscope.$broadcast("issueform:new", @scope.project)
+        project = @projectService.project.toJS()
+        @rootscope.$broadcast("genericform:new", {
+            'objType': 'issue',
+            'project': project
+        })
 
     addIssuesInBulk: ->
         @rootscope.$broadcast("issueform:bulk", @scope.projectId)

@@ -47,7 +47,10 @@
         "RELATED_USERSTORIES": "Связанные пользовательские истории",
         "CARD": {
             "ASSIGN_TO": "Assign To",
-            "EDIT": "Edit card"
+            "EDIT": "Edit card",
+            "DELETE": "Delete card",
+            "DELETE_ISSUE": "Удалить запрос",
+            "DETACH_ISSUE_FROM_SPRINT": "Detach issue from sprint"
         },
         "FORM_ERRORS": {
             "DEFAULT_MESSAGE": "Кажется, это значение некорректно.",
@@ -78,7 +81,6 @@
         },
         "PICKERDATE": {
             "FORMAT": "DD MMM YYYY",
-            "IS_RTL": "false",
             "FIRST_DAY_OF_WEEK": "1",
             "PREV_MONTH": "Предыдущий Месяц",
             "NEXT_MONTH": "Следующий Месяц",
@@ -143,11 +145,14 @@
             "SEVERITY": "Важность",
             "PRIORITY": "Приоритет",
             "ASSIGNED_TO": "Назначено",
+            "ASSIGNED_USERS": "Assigned users",
             "POINTS": "Очки",
             "IS_BLOCKED": "заблокирован",
             "REF": "Ссылка",
             "VOTES": "Голоса",
-            "SPRINT": "Спринт"
+            "SPRINT": "Спринт",
+            "DUE_DATE": "Due date",
+            "DUE_DATE_REASON": "Due date reason"
         },
         "ROLES": {
             "ALL": "Все"
@@ -161,6 +166,14 @@
             "CONFIRM_UNASSIGNED": "Вы уверены что не хотите назначить ответственного?",
             "TITLE_ACTION_EDIT_ASSIGNMENT": "Изменить назначение",
             "SELF": "Назначено мне"
+        },
+        "DUE_DATE": {
+            "TITLE_ACTION_SET_DUE_DATE": "Set due date"
+        },
+        "ASSIGNED_USERS": {
+            "ADD": "Select assigned user",
+            "ADD_ASSIGNED": "Add assigned",
+            "TITLE_LIGHTBOX_DELETE_ASSIGNED": "Delete assigned..."
         },
         "STATUS": {
             "CLOSED": "Закрыт",
@@ -207,6 +220,7 @@
                 "PRIORITIES": "Приоритеты",
                 "TAGS": "Тэги",
                 "ASSIGNED_TO": "Назначено",
+                "ASSIGNED_USERS": "Assigned users",
                 "ROLE": "Роль",
                 "CREATED_BY": "Создано",
                 "CUSTOM_FILTERS": "Собственные фильтры",
@@ -600,6 +614,18 @@
             "MIXING_MERGE": "Объединить Тэги",
             "SELECTED": "Выбранные"
         },
+        "PROJECT_DUE_DATE_STATUS": {
+            "TITLE": "Due Dates",
+            "SUBTITLE": "Specify the due dates your user stories, tasks and issues will go through if selected",
+            "US_TITLE": "User Story Due Date status",
+            "ACTION_ADD_STATUS": "Добавить новый статус",
+            "TASK_TITLE": "Task Due Date status",
+            "ISSUE_TITLE": "Issue Due Date status",
+            "DAYS_TO_DUE_DATE": "Days to due date",
+            "BEFORE_AFTER": "Before/after",
+            "BEFORE": "Before",
+            "AFTER": "Past"
+        },
         "ROLES": {
             "PAGE_TITLE": "Роли - {{projectName}}",
             "WARNING_NO_ROLE": "Осторожнее: ни с какими ролями на вашем проекте участники не смогут оценить очки для пользовательских историй.",
@@ -700,7 +726,8 @@
             "LABEL_SEVERITY": "Значение важности по умолчанию"
         },
         "STATUS": {
-            "PLACEHOLDER_WRITE_STATUS_NAME": "Укажите название для нового статуса"
+            "PLACEHOLDER_WRITE_STATUS_NAME": "Укажите название для нового статуса",
+            "PLACEHOLDER_DAYS_TO_DUE_DATE": "Write a number of days to due date"
         },
         "TYPES": {
             "PLACEHOLDER_WRITE_NAME": "Введите имя нового элемента"
@@ -726,7 +753,8 @@
             "SEVERITIES": "Степени важности",
             "TYPES": "Типы",
             "CUSTOM_FIELDS": "Собственные поля",
-            "TAGS": "Тэги"
+            "TAGS": "Тэги",
+            "DUE_DATES": "Due dates"
         },
         "SUBMENU_ROLES": {
             "TITLE": "Роли",
@@ -884,7 +912,7 @@
             "INVITE": "Пригласить в проект",
             "SOLO_PROJECT": "Вы единственный пользователь в этом проекте",
             "INVITE_LATER": "(Вы сможете пригласить больше пользователей позже)",
-            "BACK": "Бэкенд разработчик",
+            "BACK": "Вернуться",
             "MAX_PRIVATE_PROJECTS": "К сожалению Вы исчерпали количество приватных проектов. Если Вы хотите увеличить текущий лимит, пожалуйста обратитесь к администратору.",
             "MAX_PUBLIC_PROJECTS": "К сожалению, Вы исчерпали количество публичных проектов. Если Вы хотите увеличить лимит, пожалуйста свяжитесь с администратором.",
             "PUBLIC_PROJECT": "Public Project",
@@ -928,7 +956,7 @@
             "PROJECT_SELECTOR": {
                 "NO_RESULTS": "It looks like nothing was found with your search criteria",
                 "ACTION_SEARCH": "поиск",
-                "ACTION_BACK": "Бэкенд разработчик"
+                "ACTION_BACK": "Вернуться"
             },
             "PROJECT_RESTRICTIONS": {
                 "PROJECT_MEMBERS_DESC_PRIVATE": "The project you are trying to import has {{members}} members including you, unfortunately, your current plan allows for a maximum of {{max_memberships}} members per private project. If you would like to increase that limit please contact the administrator.",
@@ -1017,7 +1045,7 @@
             "CONFIRM": "Вы уверены, что хотите удалить ваш аккаунт?",
             "CANCEL": "Вернуться к настройкам",
             "ACCEPT": "Удалить аккаунт",
-            "BLOCK_PROJECT": "Note that all the projects you own projects will be <strong>blocked</strong> after you delete your account. If you do want a project blocked, transfer ownership to another member of each project prior to deleting your account."
+            "BLOCK_PROJECT": "Note that all the projects you own projects will be <strong>blocked</strong> after you delete your account. If you do not want a project blocked, transfer ownership to another member of each project prior to deleting your account."
         },
         "DELETE_PROJECT": {
             "TITLE": "Удалить проект",
@@ -1039,9 +1067,6 @@
             "PLACEHOLDER_INVITATION_TEXT": "(Необязательно) Добавьте персональный текст в приглашение. Скажите что-нибудь приятное вашим новым участникам ;-)",
             "HELP_TEXT": "Если пользователи уже зарегистрированы в Тайге они добавятся автоматически. В противном случае им будет отправлено приглашение."
         },
-        "CREATE_ISSUE": {
-            "TITLE": "Добавить запрос"
-        },
         "FEEDBACK": {
             "TITLE": "Расскажи что-нибудь...",
             "COMMENT": "... ошибки, предложения, что-нибудь клёвое... или даже Ваш самый страшный кошмар с Taiga",
@@ -1060,22 +1085,26 @@
             "TITLE_ACTION_DELETE_SPRINT": "удалить спринт",
             "LAST_SPRINT_NAME": "последний этап sprint - <strong> {{lastSprint}} ;-) </strong>"
         },
-        "CREATE_EDIT_TASK": {
-            "TITLE": "Новая задача",
-            "PLACEHOLDER_SUBJECT": "Название задачи",
-            "PLACEHOLDER_STATUS": "Статус задачи",
-            "OPTION_UNASSIGNED": "Не назначено",
-            "PLACEHOLDER_SHORT_DESCRIPTION": "Введите краткое описание",
-            "ACTION_EDIT": "Редактировать задачу"
+        "CREATE_EDIT": {
+            "PLACEHOLDER_DESCRIPTION": "Please add descriptive text to help others better understand this {{ objName }}",
+            "NEW": "New {{ objName }}",
+            "EDIT": "Edit {{ objName }}",
+            "ADD_EXISTING": "Add {{ objName }} to {{ targetName }}",
+            "CONFIRM_CLOSE": "You have not saved changes.\nAre you sure you want to close the form?",
+            "EXISTING_OBJECT": "Existing {{ objName }}",
+            "NEW_OBJECT": "New {{ objName }}",
+            "CHOOSE_EXISTING": "Which {{ objName }}?"
         },
-        "CREATE_EDIT_US": {
-            "TITLE": "Новая ПИ",
-            "PLACEHOLDER_DESCRIPTION": "Пожалуйста, добавьте описание, чтобы другие лучше поняли эту ПИ",
-            "NEW_US": "Новая пользовательская история",
-            "EDIT_US": "Изменить пользовательскую историю"
+        "DELETE_DUE_DATE": {
+            "TITLE": "Delete due date",
+            "SUBTITLE": "Are you sure you want to delete this due date?"
         },
         "DELETE_SPRINT": {
             "TITLE": "Удалить спринт"
+        },
+        "REMOVE_RELATIONSHIP_WITH_EPIC": {
+            "TITLE": "Remove relationship with Epic",
+            "MESSAGE": "Are you sure you want to delete the relationship of this User Story with the Epic <strong>{{epicSubject}}</strong>"
         },
         "CREATE_MEMBER": {
             "PLACEHOLDER_INVITATION_TEXT": "(Необязательно) Добавьте персональный текст в приглашение. Скажите что-нибудь приятное вашим новым участникам ;-)",
@@ -1104,6 +1133,34 @@
             "WARNING": "Сообщение будет отправлено администраторам проекта",
             "PLACEHOLDER": "Напишите Ваше сообщение",
             "SEND": "Отправить"
+        },
+        "SET_DUE_DATE": {
+            "TITLE": "Set due date",
+            "PLACEHOLDER_DUE_DATE": "Select date",
+            "REASON_FOR_DUE_DATE": "Reason for the due date",
+            "PLACEHOLDER_REASON_FOR_DUE_DATE": "Why does this US need a due date?",
+            "SUGGESTIONS": {
+                "IN_ONE_WEEK": "In one week",
+                "IN_TWO_WEEKS": "In two weeks",
+                "IN_ONE_MONTH": "In one month",
+                "IN_THREE_MONTHS": "In three months"
+            },
+            "TITLE_ACTION_DELETE_DUE_DATE": "Delete due date"
+        },
+        "ADMIN_DUE_DATES": {
+            "TITLE_ACTION_DELETE_DUE_DATE": "Delete due date",
+            "SUBTITLE_ACTION_DELETE_DUE_DATE": "Are you sure you want to delete the due date status {{due_date_status_name}}?"
+        },
+        "RELATE_TO_EPIC": {
+            "TITLE": "Link to Epic",
+            "EXISTING_EPIC": "Existing epic",
+            "NEW_EPIC": "New epic",
+            "CHOOSE_PROJECT_FOR_CREATION": "Какой проект Вам нужен?",
+            "CHOOSE_PROJECT_FROM": "Какой проект Вам нужен?",
+            "SUBJECT": "Тема",
+            "CHOOSE_EPIC": "What's the epic?",
+            "FILTER_EPICS": "Filter epics",
+            "NO_EPICS_FOUND": "It looks like nothing was found with your search criteria"
         }
     },
     "EPIC": {
@@ -1111,16 +1168,16 @@
         "PAGE_DESCRIPTION": "Статус: {{epicStatus }}. Описание: {{epicDescription}}",
         "SECTION_NAME": "Epic",
         "TITLE_LIGHTBOX_UNLINK_RELATED_USERSTORY": "Открепить пользовательскую историю",
-        "MSG_LIGHTBOX_UNLINK_RELATED_USERSTORY": "Вы собираетесь удалить ссылку на прикрепленную пользовательскую историю '{{subject}}'",
+        "MSG_LIGHTBOX_UNLINK_RELATED_USERSTORY": "This action will remove the link to the related user story '{{subject}}'",
         "ERROR_UNLINK_RELATED_USERSTORY": "Мы не смогли открепить ссылку: {{errorMessage}}",
         "CREATE_RELATED_USERSTORIES": "Создать связь с",
         "NEW_USERSTORY": "Новая пользовательская история",
         "EXISTING_USERSTORY": "Существующая пользовательская история",
-        "CHOOSE_PROJECT_FOR_CREATION": "Какой проект Вам нужен?",
+        "CHOOSE_PROJECT_FOR_CREATION": "Which project?",
         "SUBJECT": "Тема",
         "SUBJECT_BULK_MODE": "Тема (массовое заполнение)",
-        "CHOOSE_PROJECT_FROM": "Какой проект Вам нужен?",
-        "CHOOSE_USERSTORY": "Опишите пользовательскую историю",
+        "CHOOSE_PROJECT_FROM": "Which project?",
+        "CHOOSE_USERSTORY": "Which user story?",
         "NO_USERSTORIES": "В проекте нет ни одной пользовательской истории. Пожалуйста выберите другой проект.",
         "NO_USERSTORIES_FOUND": "It looks like nothing was found with your search criteria",
         "FILTER_USERSTORIES": "Фильтровать ПИ",
@@ -1142,6 +1199,8 @@
         "LIGHTBOX_TITLE_BLOKING_US": "Блокирующая ПИ",
         "NOT_ESTIMATED": "Не оценено",
         "OWNER_US": "Эта пользовательская история принадлежит",
+        "RELATE_TO_EPIC": "Link to Epic",
+        "REMOVE_RELATIONSHIP_WITH_EPIC": "Remove Epic relationship",
         "TRIBE": {
             "PUBLISH": "Publish as Gig in Taiga Tribe",
             "PUBLISH_INFO": "Больше инфо",
@@ -1152,10 +1211,6 @@
             "SYNCHRONIZE_LINK": "synchronize with Taiga Tribe",
             "PUBLISH_MORE_INFO_TITLE": "Do you need somebody for this task?",
             "PUBLISH_MORE_INFO_TEXT": "<p>If you need help with a particular piece of work you can easily create gigs on<a href='http://taigatribe.com' title='Taiga Tribe'> Taiga Tribe </a> and receive help from all over the world. You will be able to control and manage the gig enjoying a great community eager to contribute.</p><p><a href='http://taigatribe.com' title='Taiga Tribe'> TaigaTribe </a>  was born as a Taiga sibling. Both platforms can live separately but we believe that there is much power in using them combined so we are making sure the integration works like a charm.</p>"
-        },
-        "FIELDS": {
-            "TEAM_REQUIREMENT": "Требование от Команды",
-            "CLIENT_REQUIREMENT": "Требование клиента"
         }
     },
     "COMMENTS": {
@@ -1192,14 +1247,19 @@
         "CLIENT_REQUIREMENT": "Требование клиента",
         "BLOCKED": "Заблокирован",
         "VALUES": {
+            "NOT_SET": "not set",
             "UNASSIGNED": "нет ответственного"
         },
         "FIELDS": {
             "SUBJECT": "название",
             "DESCRIPTION": "описание",
+            "PRIORITY": "приоритет",
+            "SEVERITY": "важность",
             "STATUS": "cтатус",
             "TYPE": "тип",
             "ASSIGNED_TO": "назначено на",
+            "ASSIGNED_USERS": "assigned users",
+            "DUE_DATE": "due date",
             "MILESTONE": "спринт",
             "COLOR": "цвет"
         }
@@ -1299,6 +1359,8 @@
         "SECTION_NAME": "Панель задач",
         "TITLE_ACTION_ADD": "Добавить новую Задачу",
         "TITLE_ACTION_ADD_BULK": "Добавить новые задачи пакетно",
+        "TITLE_ACTION_ADD_ISSUE": "Add a new Issue",
+        "TITLE_ACTION_ADD_ISSUE_BULK": "Add some new Issues in bulk",
         "TITLE_ACTION_ASSIGN": "Назначить задачу",
         "PLACEHOLDER_CARD_TITLE": "Это может быть задачей",
         "PLACEHOLDER_CARD_TEXT": "Разделяйте ПИ в задачи чтобы отслеживать их по отдельности",
@@ -1309,7 +1371,8 @@
             "TITLE_ACTION_FOLD_ROW": "Свернуть ряд",
             "TITLE_ACTION_UNFOLD_ROW": "Развернуть ряд",
             "FIELD_POINTS": "очков",
-            "ROW_UNASSIGED_TASKS_TITLE": "Не назначенные задачи"
+            "ROW_UNASSIGED_TASKS_TITLE": "Не назначенные задачи",
+            "ROW_ISSUES_TITLE": "Sprint Issues"
         },
         "CHARTS": {
             "XAXIS_LABEL": "Дней",
@@ -1343,7 +1406,9 @@
         "SAVED": "Oompa Loompas сохранил изменения!",
         "CLOSE": "закрыть уведомление",
         "MAIL": "Уведомления почтой",
-        "ASK_DELETE": "Вы уверены, что хотите удалить?"
+        "DESKTOP": "Desktop notifications using browser alerts",
+        "ASK_DELETE": "Вы уверены, что хотите удалить?",
+        "ASK_REMOVE_LINK": "Are you sure you want to remove the link?"
     },
     "CANCEL_ACCOUNT": {
         "TITLE": "Аннулировать ваш аккаунт",
@@ -1365,15 +1430,30 @@
         "SECTION_NAME": "Запрос",
         "ACTION_NEW_ISSUE": "+НОВЫЙ ЗАПРОС",
         "ACTION_PROMOTE_TO_US": "Повысить до пользовательской истории",
+        "ACTION_ATTACH_SPRINT": "Attach issue to Sprint",
+        "ACTION_DETACH_SPRINT": "Detach issue from Sprint",
         "PROMOTED": "Этот запрос был переделан в ПИ:",
         "EXTERNAL_REFERENCE": "Этот запрос был создан из",
         "GO_TO_EXTERNAL_REFERENCE": "Перейти в начало",
         "ACTION_DELETE": "Удалить запрос",
         "LIGHTBOX_TITLE_BLOKING_ISSUE": "Блокирующий запрос",
+        "LINK_TASKBOARD": "Панель задач",
+        "TITLE_LINK_TASKBOARD": "Перейти к панели задач",
+        "FILTER_SPRINTS": "Filter Sprints",
+        "CHOOSE_SPRINT": "Which Sprint?",
         "FIELDS": {
             "PRIORITY": "Приоритет",
             "SEVERITY": "Важность",
             "TYPE": "Тип"
+        },
+        "FILTER_ISSUES": "Filter Issues",
+        "CONFIRM_DETACH_FROM_SPRINT": {
+            "TITLE": "Detach issue from Sprint",
+            "MESSAGE": "You are about to detach the issue from the sprint"
+        },
+        "CONFIRM_CHANGE_FROM_SPRINT": {
+            "TITLE": "Attach issue to Sprint",
+            "MESSAGE": "<strong>This issue is currently attached to sprint {{ oldSprintName }}</strong>. You are about to detach it from that sprint and attach it instead to sprint <strong>{{ newSprintName }}.</strong>"
         },
         "CONFIRM_PROMOTE": {
             "TITLE": "Превратить этот запрос в новую пользовательскую историю",
@@ -1458,9 +1538,11 @@
             "SECTION_TITLE": "Настройки пользователя",
             "USER_PROFILE": "Профиль пользователя",
             "CHANGE_PASSWORD": "Изменить пароль",
-            "EMAIL_NOTIFICATIONS": "Уведомления почтой"
+            "EMAIL_NOTIFICATIONS": "Уведомления почтой",
+            "DESKTOP_NOTIFICATIONS": "Desktop notifications"
         },
         "NOTIFICATIONS": {
+            "LIVE_SECTION_NAME": "Desktop Notifications",
             "SECTION_NAME": "Уведомления почтой",
             "COLUMN_PROJECT": "Проект",
             "COLUMN_RECEIVE_ALL": "Получать все",
@@ -1474,6 +1556,7 @@
     "USER_PROFILE": {
         "ACTION_USE_GRAVATAR": "Использовать картинку по умолчанию",
         "ACTION_DELETE_ACCOUNT": "Удалить аккаунт",
+        "ACTION_DOWNLOAD_PROFILE": "Download Taiga profile",
         "CHANGE_EMAIL_SUCCESS": "<strong>Проверьте входящие письма!</strong><br />Мы послали письмо на ваш аккаунт<br />с инструкциями по установке вашего нового адреса.",
         "CHANGE_PHOTO": "Изменить фото",
         "FIELD": {
@@ -1568,7 +1651,10 @@
         "NEW_USER": "{{username}} присоединился к Taiga"
     },
     "LEGAL": {
-        "TERMS_OF_SERVICE_AND_PRIVACY_POLICY_AD": "<span>When creating a new account, you agree to our <br /></span><a href=\"{{ termsOfServiceUrl }}\" title=\"See terms of service\" target=\"_blank\">terms of service</a><span> and </span><a href=\"{{ privacyPolicyUrl }}\" title=\"See privacy policy\" target=\"_blank\">privacy policy</a>."
+        "TERMS_OF_SERVICE_AND_PRIVACY_POLICY_AD": "<span>When creating a new account, you agree to our </span><a href=\"{{ termsOfServiceUrl }}\" title=\"See terms of service\" target=\"_blank\">terms of service</a><span> and </span><a href=\"{{ privacyPolicyUrl }}\" title=\"See privacy policy\" target=\"_blank\">privacy policy</a>.",
+        "GDPR_ANNOUNCEMENT_TITLE": "General Data Protection Regulation (GDPR)",
+        "GDPR_ANNOUNCEMENT_DESCRIPTION": "You saw this comming, right? Updates to our Terms of Service",
+        "GDPR_ANNOUNCEMENT_INFOLINK": "Please read our announcement here"
     },
     "EXTERNAL_APP": {
         "PAGE_TITLE": "Внешнее приложение требующие аутентификации",
@@ -1581,7 +1667,7 @@
     "JOYRIDE": {
         "NAV": {
             "NEXT": "Следующий",
-            "BACK": "Бэкенд разработчик",
+            "BACK": "Вернуться",
             "SKIP": "Пропустить",
             "DONE": "Завершена"
         },

@@ -1,5 +1,143 @@
 # Changelog
 
+## Unreleased
+
+## 3.4.0 Pinus contorta (2018-08-13)
+
+### Features
+
+- Due dates administration (https://tree.taiga.io/project/taiga/issue/3069)
+- Issues to sprint (https://tree.taiga.io/project/taiga/issue/1181)
+- Link US to Epics - https://tree.taiga.io/project/taiga/issue/4732
+- New lightbox - https://tree.taiga.io/project/taiga/issue/3167
+
+## 3.3.16 (2018-08-08)
+
+- Fix another bug related with ordering US.
+
+## 3.3.15 (2018-08-06)
+
+### Misc
+
+- Filter by cards to find position in Kanban.
+
+## 3.3.14 (2018-08-06)
+
+### Misc
+
+- Move US to the end when status archived and hidden
+
+- Fix US order when move it
+
+## 3.3.13 (2018-07-05)
+
+### Misc
+
+- Add assigned users filters.
+
+- Minor bug fixes.
+
+## 3.3.12 (2018-06-27)
+
+### Misc
+
+- Temporary remove assigned users filters.
+
+## 3.3.11 (2018-06-27)
+
+### Misc
+
+- Fix debounce load US's
+- Fix RTL style bug
+
+## 3.3.10 (2018-06-21)
+
+### Misc
+
+- Fix style bug.
+
+## 3.3.9 (2018-06-21)
+
+### Misc
+
+- Update locales.
+
+- Improve RTL styles.
+
+## 3.3.8 (2018-06-14)
+
+### Features
+
+- Add Right-To-Left (RTL) support.
+
+### Misc
+
+- Update locales.
+
+## 3.3.7 (2018-05-31)
+
+### Misc
+
+- Fix bug unable to sign up when no privacyPolicyUrl or termsOfServiceUrl
+  settings were defined.
+
+- Update locales.
+
+## 3.3.6 (2018-05-24)
+
+### Misc
+
+- Minor bug fix regarding GDPR notification.
+
+## 3.3.5 (2018-05-24)
+
+### Misc
+
+- Update locales.
+
+## 3.3.4 (2018-05-24)
+
+### Misc
+
+- Add features to fulfill GDPR.
+
+## 3.3.3 (2018-05-10)
+
+### Misc
+
+- Add Persian (Iran) language.
+- Update locales.
+- Minor bug fixes.
+
+## 3.3.2 (2018-04-30)
+
+### Misc
+
+- Minor bug fixes.
+
+## 3.3.1 (2018-04-30)
+
+### Misc
+
+- Minor bug fixes.
+
+## 3.3.0 Picea mariana (2018-04-26)
+
+### Features
+
+- Add "live notifications" to Taiga:
+    - Add configuration in profile area.
+- Add "due date" in US, Tasks and Issues.
+- Add multiple assignement only in US.
+- Delete cards in Kanban and sprint Taskboard.
+
+## 3.2.3 (2018-04-04)
+
+### Misc
+
+- Minor bug fixes.
+- Update locales.
+
 ## 3.2.2 (2018-03-15)
 
 ### Misc
