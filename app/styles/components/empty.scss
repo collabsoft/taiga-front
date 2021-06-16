@@ -6,16 +6,20 @@
         width: 100%;
     }
     .title {
-        @include font-size(large);
-        text-transform: uppercase;
+        @include font-size(small);
+        @include font-type(bold);
+        color: $color-link-tertiary;
     }
     p {
-        @include font-type(light);
+        @include font-type(regular);
         margin: 0;
     }
     a {
-        @include font-type(light);
-        color: $primary;
+        @include font-type(regular);
+        color: $color-link-primary;
+    }
+    .btn-small {
+        margin: 1rem auto 2rem;
     }
 }
 

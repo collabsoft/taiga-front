@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -450,15 +445,20 @@ class BitbucketController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 module.controller("BitbucketController", BitbucketController)
 
 
-SelectInputText =  ->
+SelectInputText = ($translate, $confirm)->
     link = ($scope, $el, $attrs) ->
         $el.on "click", ".select-input-content", () ->
-            $el.find("input").select()
-            $el.find(".help-copy").addClass("visible")
+            source = $el.find("input")
+            if !source.val()
+                return
+
+            source.select()
+            document.execCommand 'copy'
+            $confirm.notify("success", $translate.instant("COMMON.COPIED_TO_CLIPBOARD"))
 
     return {link:link}
 
-module.directive("tgSelectInputText", SelectInputText)
+module.directive("tgSelectInputText", ["$translate", "$tgConfirm", SelectInputText])
 
 
 #############################################################################

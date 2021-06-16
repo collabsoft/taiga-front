@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: related-userstory-row.controller.spec.coffee
+# File: epics/related-userstories/related-userstory-row/related-userstory-row.controller.spec.coffee
 ###
 
 describe "RelatedUserstoryRow", ->
@@ -112,6 +112,7 @@ describe "RelatedUserstoryRow", ->
 
     it "delete related userstory success", (done) ->
         RelatedUserstoryRowCtrl.epic = Immutable.fromJS({
+            subject: "SampleEpic"
             id: 123
         })
         RelatedUserstoryRowCtrl.userstory = Immutable.fromJS({
@@ -125,11 +126,11 @@ describe "RelatedUserstoryRow", ->
             finish: sinon.spy()
         }
 
-        mocks.translate.instant.withArgs("EPIC.TITLE_LIGHTBOX_UNLINK_RELATED_USERSTORY").returns("title")
-        mocks.translate.instant.withArgs("EPIC.MSG_LIGHTBOX_UNLINK_RELATED_USERSTORY", {subject: "Deleting"}).returns("message")
+        mocks.translate.instant.withArgs("LIGHTBOX.REMOVE_RELATIONSHIP_WITH_EPIC.TITLE").returns("title")
+        mocks.translate.instant.withArgs("LIGHTBOX.REMOVE_RELATIONSHIP_WITH_EPIC.MESSAGE", {epicSubject: "SampleEpic"}).returns("message")
 
-        mocks.tgConfirm.askOnDelete = sinon.stub()
-        mocks.tgConfirm.askOnDelete.withArgs("title", "message").promise().resolve(askResponse)
+        mocks.tgConfirm.ask = sinon.stub()
+        mocks.tgConfirm.ask.withArgs("title").promise().resolve(askResponse)
 
         promise = mocks.tgResources.epics.deleteRelatedUserstory.withArgs(123, 124).promise().resolve(true)
         RelatedUserstoryRowCtrl.onDeleteRelatedUserstory().then () ->
@@ -139,6 +140,7 @@ describe "RelatedUserstoryRow", ->
 
     it "delete related userstory error", (done) ->
         RelatedUserstoryRowCtrl.epic = Immutable.fromJS({
+            epicSubject: "SampleEpic"
             id: 123
         })
         RelatedUserstoryRowCtrl.userstory = Immutable.fromJS({
@@ -152,12 +154,12 @@ describe "RelatedUserstoryRow", ->
             finish: sinon.spy()
         }
 
-        mocks.translate.instant.withArgs("EPIC.TITLE_LIGHTBOX_UNLINK_RELATED_USERSTORY").returns("title")
-        mocks.translate.instant.withArgs("EPIC.MSG_LIGHTBOX_UNLINK_RELATED_USERSTORY", {subject: "Deleting"}).returns("message")
-        mocks.translate.instant.withArgs("EPIC.ERROR_UNLINK_RELATED_USERSTORY", {errorMessage: "message"}).returns("error message")
+        mocks.translate.instant.withArgs("LIGHTBOX.REMOVE_RELATIONSHIP_WITH_EPIC.TITLE").returns("title")
+        mocks.translate.instant.withArgs("LIGHTBOX.REMOVE_RELATIONSHIP_WITH_EPIC.MESSAGE", {epicSubject: "SampleEpic"}).returns("message")
+        mocks.translate.instant.withArgs("EPIC.ERROR_UNLINK_RELATED_USERSTORY").returns("error message")
 
-        mocks.tgConfirm.askOnDelete = sinon.stub()
-        mocks.tgConfirm.askOnDelete.withArgs("title", "message").promise().resolve(askResponse)
+        mocks.tgConfirm.ask = sinon.stub()
+        mocks.tgConfirm.ask.withArgs("title").promise().resolve(askResponse)
 
         promise = mocks.tgResources.epics.deleteRelatedUserstory.withArgs(123, 124).promise().reject(new Error("error"))
         RelatedUserstoryRowCtrl.onDeleteRelatedUserstory().then () ->

@@ -9,7 +9,7 @@
         position: relative;
 
         &:hover {
-            background: rgba($primary, .1);
+            background: rgba($color-link-primary, .1);
             transition: background .3s ease-in;
         }
         &:first-child {
@@ -38,21 +38,26 @@
         justify-content: center;
     }
     &-description {
-        @include font-type(light);
+        @include font-type(regular);
         margin-bottom: 0;
         a {
-            color: $primary;
+            color: $color-link-primary;
             margin-left: .3rem;
         }
     }
     &-url {
         margin-top: .5rem;
     }
-    &-input {
-        vertical-align: middle;
+    &-input-holder {
+        display: flex;
+        max-width: 20rem;
+
+        .import-project-input {
+            margin-right: .5rem;
+        }
     }
     &-button {
-        background: $primary;
+        background: $color-link-primary;
         color: $white;
         padding: .4rem 1rem;
     }

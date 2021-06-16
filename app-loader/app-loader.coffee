@@ -6,9 +6,9 @@ window.taigaConfig = {
     "tribeHost": null,
     "eventsMaxMissedHeartbeats": 5,
     "eventsHeartbeatIntervalTime": 60000,
-    "debug": true,
+    "debug": false,
     "defaultLanguage": "en",
-    "themes": ["taiga", "material-design", "high-contrast"],
+    "themes": ["taiga", "taiga-legacy", "material-design", "high-contrast"],
     "defaultTheme": "taiga",
     "publicRegisterEnabled": true,
     "feedbackEnabled": true,
@@ -16,7 +16,10 @@ window.taigaConfig = {
     "privacyPolicyUrl": null,
     "termsOfServiceUrl": null,
     "maxUploadFileSize": null,
-    "importers": [],
+    "enableAsanaImporter": false,
+    "enableGithubImporter": false,
+    "enableJiraImporter": false,
+    "enableTrelloImporter": false,
     "contribPlugins": []
 }
 
@@ -51,8 +54,8 @@ loadPlugin = (pluginPath) ->
             else
                 resolve()
 
-        fail = (a, errorStr, e) ->
-            console.error("error loading", pluginPath, e)
+        fail = (jqXHR, textStatus, errorThrown) ->
+            console.error("Error loading plugin", pluginPath, errorThrown)
 
         $.getJSON(pluginPath).then(success, fail)
 
@@ -82,3 +85,4 @@ promise.always ->
         ljs.load "/#{window._version}/js/app.js", ->
             emojisPromise.then ->
                 angular.bootstrap(document, ['taiga'])
+

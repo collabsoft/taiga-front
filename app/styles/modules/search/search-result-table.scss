@@ -1,5 +1,5 @@
 .search-result-table {
-    border-top: 1px solid $whitish;
+    border-top: 1px solid $color-gray400;
     .row {
         align-items: center;
         display: flex;
@@ -7,58 +7,49 @@
         padding: .5rem;
 
         .ref {
-            flex-basis: 30px;
-            flex-grow: 1;
-            padding: 0 1rem;
+            color: $color-link-primary;
+            margin-right: .5rem;
         }
         .user-stories {
-            flex-basis: 300px;
-            flex-grow: 10;
-            flex-shrink: 1;
+            overflow: hidden;
+            padding-right: 1rem;
+            width: 100%;
         }
         .status,
         .points,
         .sprint {
-            flex-basis: 150px;
+            flex: 0 0 150px;
             flex-grow: 0;
+            max-width: 150px;
             padding: 0 1rem;
             text-align: center;
         }
         .assigned-to {
-            flex-basis: 150px;
-            flex-grow: 0;
+            flex: 0 0 150px;
+            max-width: 150px;
             padding: 0 1rem;
         }
     }
-    .row-selected {
-        background: lighten($primary, 60%);
-        transition: background .2s ease-in;
-    }
 
-      // TODO: refactor xaviju
+    // TODO: refactor xaviju
     .user-story-name {
+        a {
+            color: $color-black600;
+        }
         input {
             vertical-align: top;
         }
         span {
             display: inline-block;
-            max-width: 70%;
+            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .icon {
-            @include font-size(medium);
-            color: $gray-light;
-            &:hover {
-                color: $grayer;
-                transition: color .3s linear;
-            }
-        }
     }
     .table-main {
         @include font-size(small);
-        border-bottom: 1px solid $whitish;
+        border-bottom: 1px solid $color-gray400;
     }
     .status,
     .points,
@@ -83,5 +74,5 @@
 }
 
 .search-result-table-header {
-    @include font-type(bold);
+    @include font-type(medium);
 }

@@ -17,8 +17,13 @@ html(lang="en", ng-attr-dir="{{ isRTL ? 'rtl' : 'ltr' }}")
         //- PRERENDER SERVICE: This is to know when the page is completely loaded.
         script(type='text/javascript').
             window.prerenderReady = false;
+            window.TAIGA_VERSION = '#{v}';
+            window.TAIGA_USER_PILOT_TOKEN = '#{userpilotToken}'
+            window._taigaAvailableThemes = !{availableThemes};
 
     body(tg-main, ng-class="{'rtl': isRTL}")
+        tg-legacy
+
         div(tg-navigation-bar, ng-if="!errorHandling.showingError")
         div(ng-if="!errorHandling.showingError")
             div.master(ng-view)
@@ -38,17 +43,46 @@ html(lang="en", ng-attr-dir="{{ isRTL ? 'rtl' : 'ltr' }}")
             include partials/includes/modules/lightbox-generic-error
         div.lightbox.lightbox-generic-loading
             include partials/includes/modules/lightbox-generic-loading
+        div.lightbox.lightbox-generic-delete
+            include partials/includes/modules/lightbox-generic-delete
 
         include partials/includes/modules/loader
 
         include partials/includes/components/notification-message
 
-        div(tg-joy-ride)
         div(tg-live-announcement)
-        div(tg-terms-announcement)
 
         script(src="/#{v}/js/libs.js")
         script(src="/#{v}/js/templates.js")
         script(src="/#{v}/js/app-loader.js")
+
+        // load userpilot library if required
+        if userpilotToken
+            script(src="https://js.userpilot.io/#{userpilotToken}/latest.js")
+
+        // zendesk
+        if zendeskToken
+            script(id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=#{zendeskToken}")
+            script(type='text/javascript').
+                window.zESettings = {
+                    webWidget: {
+                        chat: {
+                            suppress: true
+                        },
+                        contactForm: {
+                            suppress: true
+                        },
+                        helpCenter: {
+                            suppress: true
+                        },
+                        talk: {
+                            suppress: true
+                        },
+                        answerBot: {
+                            suppress: true
+                        }
+                    }
+                }
+
         include svg/sprite.svg
         include svg/editor.svg

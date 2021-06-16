@@ -14,16 +14,18 @@ div.wrapper.memberships(
         .header-with-actions
             header
                 include ../includes/components/mainTitle
-                tg-no-more-memberships-explanation(ng-if="canAddUsers == false", project="project")
+                .header-message(ng-if="canAddUsers == false")
+                    tg-no-more-memberships-explanation(project="project", owner-email="projectOwnerEmail")
 
-            .action-buttons
-                button.button-green(
+            .action-buttons(
+                    ng-if="canAddUsers == true"
+                )
+                button.btn-small(
+                    variant="primary"
                     translate="ADMIN.MEMBERSHIPS.ADD_BUTTON"
                     title="{{ ADMIN.MEMBERSHIPS.ADD_BUTTON_TITLE | translate }}",
                     ng-click="ctrl.addNewMembers()"
-                    ng-disabled="canAddUsers == false"
                 )
-
 
         include ../includes/modules/admin/admin-membership-table
 

@@ -3,7 +3,7 @@
     @include profile-form;
     .looking-for-people,
     .get-feedback {
-        @include font-type(light);
+        @include font-type(regular);
         border-bottom: 1px solid $whitish;
         padding: 1rem 0;
     }
@@ -47,13 +47,31 @@
     .private-or-public {
         @include font-size(x-small);
         color: $gray-light;
-        margin-bottom: 2rem;
+        display: flex;
         svg {
             @include svg-size(1.1rem);
             fill: $gray-light;
             margin-right: .5rem;
             vertical-align: middle;
         }
+    }
+    .tags-container {
+        align-items: flex-end;
+        column-gap: .5rem;
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: .25rem;
+        row-gap: .5rem;
+        width: 100%;
+        .tag {
+            @include font-size(small);
+            align-items: center;
+            display: inline-flex;
+            min-height: 2rem;
+        }
+    }
+    .button-full {
+        width: 100%;
     }
 }
 .project-privacy-settings {
@@ -66,10 +84,10 @@
             margin-right: .5rem;
         }
     }
-    input[type="radio"] {
+    input[type='radio'] {
         display: none;
     }
-    input[type="text"] {
+    input[type='text'] {
         display: none;
     }
     label {
@@ -78,7 +96,7 @@
         text-align: center;
         transition: all .2s linear;
         &:hover {
-            background: rgba($primary-light, .4);
+            background: rgba($color-link-primary, .4);
             color: $grayer;
             svg {
                 fill: $grayer;
@@ -91,21 +109,28 @@
             vertical-align: middle;
         }
     }
+    .privacy-project + label {
+        @include font-type(regular);
+        display: inline-flex;
+        width: 100%;
+    }
     .privacy-project:checked {
         + label {
-            background: $primary-light;
-            color: $white;
+            @include font-type(regular);
+            background: $color-link-primary;
+            color: $color-white;
             svg {
                 @include svg-size(1.1rem);
-                fill: $white;
+                fill: $color-white;
             }
         }
-        ~input[type="text"] {
+        ~input[type='text'] {
             display: block;
         }
     }
     .privacy-project[disabled] {
         + label {
+            @include font-type(regular);
             background: $mass-white;
             box-shadow: none;
             color: $gray-light;
@@ -119,28 +144,29 @@
     }
 }
 tg-admin-project-restrictions {
+    .setting-project-warning {
+        @include font-size(small);
+        background: $color-gray200;
+        border: 2px solid $color-link-red;
+        display: flex;
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    .icon-alert {
+        fill: $color-link-red;
+        flex-grow: 1;
+        flex-shrink: 0;
+        height: 1rem;
+        margin-right: .5rem;
+        margin-top: .15rem;
+        vertical-align: middle;
+        width: 1rem;
+    }
     p {
-        @include font-size(x-small);
-        text-align: center;
-    }
-    a {
-        color: $primary;
-    }
-    span {
-        display: block;
-    }
-    span:first-child {
-        &::before {
-            border: 1px solid $red-light;
-            border-radius: 6px;
-            color: $red-light;
-            content: '!';
+        margin-bottom: 0;
+        a {
+            color: $color-link-primary;
             display: inline-block;
-            height: 12px;
-            line-height: 12px;
-            margin-right: .5rem;
-            text-align: center;
-            width: 12px;
         }
     }
 }
@@ -151,9 +177,9 @@ tg-admin-project-restrictions {
     justify-content: space-between;
     padding-top: 1rem;
     a {
-        color: $primary;
+        color: $color-link-primary;
         &:hover {
-            color: $primary-light;
+            color: $color-link-primary;
             transition: color .2s;
         }
     }
@@ -168,7 +194,7 @@ tg-admin-project-restrictions {
         color: $gray-light;
     }
     .owner-name {
-        @include font-type(bold);
+        @include font-type(medium);
     }
     .owner-avatar {
         width: 2.5rem;

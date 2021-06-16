@@ -1,5 +1,5 @@
 .login-form-container(tg-login)
-    form.login-form
+    form.login-form(ng-if="defaultLoginEnabled")
         fieldset
             input(
                 type="text"
@@ -28,22 +28,23 @@
                 title="{{'LOGIN_COMMON.TITLE_LINK_FORGOT_PASSWORD' | translate}}"
                 translate="LOGIN_COMMON.LINK_FORGOT_PASSWORD"
             )
-            
+
             tg-capslock
 
-        fieldset
-            button.button-green.submit-button(
+        fieldset.end
+            button.btn-small.full(
+                variant="primary"
                 type="submit"
                 title="{{'LOGIN_COMMON.ACTION_SIGN_IN' | translate}}"
                 translate="LOGIN_COMMON.ACTION_SIGN_IN"
             )
 
-        .contrib-plugins-wrapper(ng-if="contribPlugins.length")
-            label(translate="LOGIN_COMMON.ALT_LOGIN")
+    .contrib-plugins-wrapper(ng-if="authPlugins.length")
+        label(translate="LOGIN_COMMON.ALT_LOGIN", ng-if="defaultLoginEnabled")
 
-            fieldset(
-                ng-repeat="plugin in contribPlugins|filter:{type: 'auth'}"
-                ng-include="plugin.template"
-            )
+        fieldset(
+            ng-repeat="plugin in authPlugins"
+            ng-include="plugin.template"
+        )
 
     tg-public-register-message

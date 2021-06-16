@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -26,7 +21,7 @@ taiga = @.taiga
 
 generateHash = taiga.generateHash
 
-resourceProvider = ($repo, $model, $storage) ->
+resourceProvider = ($repo, $model, $storage, $http, $urls) ->
     service = {}
 
     service.get = (projectId, sprintId) ->
@@ -57,9 +52,24 @@ resourceProvider = ($repo, $model, $storage) ->
                 open: parseInt(headers("Taiga-Info-Total-Opened-Milestones"), 10)
             }
 
+    service.moveUserStoriesMilestone = (currentMilestoneId, projectId, milestoneId, data) ->
+        url = $urls.resolve("move-userstories-to-milestone", currentMilestoneId)
+        params = {project_id: projectId, milestone_id: milestoneId, bulk_stories: data}
+        return $http.post(url, params)
+
+    service.moveTasksMilestone = (currentMilestoneId, projectId, milestoneId, data) ->
+        url = $urls.resolve("move-tasks-to-milestone", currentMilestoneId)
+        params = {project_id: projectId, milestone_id: milestoneId, bulk_tasks: data}
+        return $http.post(url, params)
+
+    service.moveIssuesMilestone = (currentMilestoneId, projectId, milestoneId, data) ->
+        url = $urls.resolve("move-issues-to-milestone", currentMilestoneId)
+        params = {project_id: projectId, milestone_id: milestoneId, bulk_issues: data}
+        return $http.post(url, params)
 
     return (instance) ->
         instance.sprints = service
 
 module = angular.module("taigaResources")
-module.factory("$tgSprintsResourcesProvider", ["$tgRepo", "$tgModel", "$tgStorage", resourceProvider])
+module.factory("$tgSprintsResourcesProvider",
+["$tgRepo", "$tgModel", "$tgStorage", "$tgHttp", "$tgUrls", resourceProvider])

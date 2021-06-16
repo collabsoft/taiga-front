@@ -7,7 +7,6 @@ section
     .admin-tags-section-wrapper
         form.add-tag-container.new-value.hidden
             tg-color-selector.color-column(
-                is-color-required="false"
                 init-color="newValue.color"
                 on-select-color="newValue.color = color"
             )
@@ -17,6 +16,7 @@ section
                     name="tag"
                     type="text"
                     placeholder="{{'ADMIN.TYPES.PLACEHOLDER_WRITE_NAME' | translate}}",
+                    tg-auto-select
                     ng-model="newValue.tag"
                     data-required="true"
                     data-maxlength="255"
@@ -26,7 +26,7 @@ section
                 a.add-new.e2e-save(href="")
                     tg-svg(
                         title="{{'COMMON.ADD' | translate}}",
-                        svg-icon="icon-save"
+                        svg-icon="icon-check-empty"
                     )
                 a.delete-new(href="")
                     tg-svg(
@@ -86,7 +86,7 @@ section
                                 .current-color.empty-color(ng-if="!tag.color")
 
                             .status-name
-                                span(tg-bo-html="tag.name")
+                                span(ng-bind-html="tag.name | emojify")
 
                             .options-column
                                 a.mix-tags(href="")
@@ -111,7 +111,6 @@ section
 
                         .row.tag-row.table-main.edition.hidden
                             tg-color-selector.color-column(
-                                is-color-required="false"
                                 ng-model="tag"
                                 init-color="tag.color"
                                 on-select-color="tag.color = color"
@@ -131,7 +130,7 @@ section
                                 a.save.e2e-save(href="")
                                     tg-svg(
                                         title="{{'COMMON.SAVE' | translate}}"
-                                        svg-icon="icon-save"
+                                        svg-icon="icon-check-empty"
                                      )
                                 a.cancel(href="")
                                     tg-svg(
@@ -158,7 +157,7 @@ section
                                 )
 
                             .status-name
-                                span(tg-bo-html="tag.name")
+                                span(ng-bind-html="tag.name | emojify")
 
                             .mixing-options-column(
                                 ng-if="mixingTags.toTag === tag.name"
@@ -167,13 +166,13 @@ section
                                 .mixing-help-text(
                                     translate="ADMIN.PROJECT_VALUES_TAGS.MIXING_HELP_TEXT"
                                 )
-                                a.mixing-confirm.button-green(
-                                    href=""
+                                button.mixing-confirm.btn-small(
+                                    variant="primary"
                                     ng-if="mixingTags.fromTags.length"
                                     translate="ADMIN.PROJECT_VALUES_TAGS.MIXING_MERGE"
                                 )
-                                a.mixing-cancel.button-gray(
-                                    href=""
+                                button.mixing-cancel.btn-small(
+                                    variant="secondary"
                                     translate="COMMON.CANCEL"
                                 )
 

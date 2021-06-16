@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -59,9 +54,9 @@ class UserSettingsController extends mixOf(taiga.Controller, taiga.PageMixin)
 
         if !@scope.user
             @errorHandlingService.permissionDenied()
-
-        @scope.lang = @getLan()
-        @scope.theme = @getTheme()
+        else
+            @scope.lang = @getLan()
+            @scope.theme = @getTheme()
 
         maxFileSize = @config.get("maxUploadFileSize", null)
         if maxFileSize
@@ -73,7 +68,9 @@ class UserSettingsController extends mixOf(taiga.Controller, taiga.PageMixin)
         promise.then null, @.onInitialDataError.bind(@)
 
     loadInitialData: ->
-        @scope.availableThemes = @config.get("themes", [])
+        compiledThemes = window._taigaAvailableThemes
+        @scope.availableThemes = @config.get("themes", []).filter (theme) =>
+            return compiledThemes.includes(theme)
 
         return @rs.locales.list().then (locales) =>
             @scope.locales = locales
@@ -87,9 +84,16 @@ class UserSettingsController extends mixOf(taiga.Controller, taiga.PageMixin)
                @translate.preferredLanguage()
 
     getTheme: ->
-        return @scope.user.theme ||
+        compiledThemes = window._taigaAvailableThemes
+
+        theme = @scope.user.theme ||
                @config.get("defaultTheme") ||
                "taiga"
+
+        if !compiledThemes.includes(theme)
+            theme = "taiga"
+
+        return theme
 
     exportProfile: ->
         onSuccess = (result) ->
@@ -101,6 +105,17 @@ class UserSettingsController extends mixOf(taiga.Controller, taiga.PageMixin)
                 @confirm.notify("error", response.data._error_message)
 
         @auth.exportProfile().then(onSuccess, onError)
+
+    verifyEmail: ->
+        onSuccess = (result) =>
+            text = @translate.instant("USER_PROFILE.VERIFY_EMAIL_SUCCESS")
+            @confirm.notify("success", text)
+
+        onError = (response) =>
+            if response.data?._error_message
+                @confirm.notify("error", response.data._error_message)
+
+        @auth.sendVerificationEmail().then(onSuccess, onError)
 
 
 module.controller("UserSettingsController", UserSettingsController)
@@ -170,7 +185,8 @@ UserAvatarDirective = ($auth, $model, $rs, $confirm) ->
             $confirm.notify('error', response.data._error_message)
 
         # Change photo
-        $el.on "click", ".js-change-avatar", ->
+        $el.on "click", ".js-change-avatar", (e) ->
+            e.preventDefault()
             $el.find("#avatar-field").click()
 
         $el.on "change", "#avatar-field", (event) ->

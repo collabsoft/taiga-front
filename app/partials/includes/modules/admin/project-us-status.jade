@@ -2,7 +2,10 @@ section.project-us-status
 
     div.project-values-title
         h2 {{ sectionName | translate }}
-        a.button.button-gray.show-add-new(href="", title="{{'ADMIN.US_STATUS.ACTION_ADD_STATUS' | translate}}")
+        button.btn-small.show-add-new(
+            variant="primary"
+            title="{{'ADMIN.US_STATUS.ACTION_ADD_STATUS' | translate}}"
+        )
             span(translate="ADMIN.US_STATUS.ACTION_ADD_STATUS")
 
     div.colors-table
@@ -13,7 +16,6 @@ section.project-us-status
                 div.status-slug(translate="COMMON.FIELDS.SLUG")
                 div.is-closed-column(translate="ADMIN.US_STATUS.IS_CLOSED_COLUMN")
                 div.is-archived-column(translate="ADMIN.US_STATUS.IS_ARCHIVED_COLUMN")
-                div.status-wip-limit(translate="ADMIN.US_STATUS.WIP_LIMIT_COLUMN")
                 div.options-column
 
         div.table-main
@@ -21,7 +23,7 @@ section.project-us-status
                 div(ng-repeat="value in values", tg-bind-scope)
                     form(tg-bind-scope)
                         div.row.table-main.visualization
-                            tg-svg(svg-icon="icon-drag")
+                            tg-svg(svg-icon="icon-draggable")
 
                             div.color-column
                                 div.current-color(ng-style="{background: value.color}")
@@ -44,9 +46,6 @@ section.project-us-status
                                     svg-icon="icon-check"
                                 )
 
-                            div.status-wip-limit
-                                span(ng-hide="value.is_archived") {{ value.wip_limit }}
-
                             div.options-column
                                 a.edit-value(href="")
                                     tg-svg(
@@ -60,9 +59,11 @@ section.project-us-status
                                     )
 
                         div.row.table-main.edition.hidden
-                            .color-column(tg-color-selection, ng-model="value")
-                                .current-color(ng-style="{background: value.color}")
-                                include ../../components/select-color
+                            .color-column
+                                tg-color-selector(
+                                    init-color="value.color"
+                                    on-select-color="value.color = color"
+                                )
 
 
                             .status-name
@@ -91,27 +92,19 @@ section.project-us-status
                                     ng-options="e.id as e.name | translate for e in [{'id':true, 'name':'COMMON.YES'},{'id':false, 'name': 'COMMON.NO'}]"
                                 )
 
-                            .status-wip-limit
-                                input(
-                                    name="wip_limit"
-                                    type="number"
-                                    ng-hide="value.is_archived"
-                                    ng-model="value.wip_limit"
-                                    data-type="digits"
-                                    placeholder="{{'ADMIN.US_STATUS.WIP_LIMIT_COLUMN' | translate}}"
-                                )
-
                             .options-column
                                 a.save.e2e-save(href="", title="{{'COMMON.SAVE' | translate}}")
-                                    tg-svg(svg-icon="icon-save")
-                            a.cancel(href="", title="{{'COMMON.CANCEL' | translate}}")
-                                tg-svg(svg-icon="icon-close")
+                                    tg-svg(svg-icon="icon-check-empty")
+                                a.cancel(href="", title="{{'COMMON.CANCEL' | translate}}")
+                                    tg-svg(svg-icon="icon-close")
 
             form
                 div.row.table-main.new-value.hidden
-                    div.color-column(tg-color-selection, ng-model="newValue")
-                        div.current-color(ng-style="{background: newValue.color}")
-                        include ../../components/select-color
+                    div.color-column
+                        tg-color-selector(
+                            init-color="newValue.color"
+                            on-select-color="newValue.color = color"
+                        )
 
                     div.status-name
                         input(
@@ -139,19 +132,9 @@ section.project-us-status
                             ng-options="e.id as e.name | translate for e in [{'id':true, 'name':'COMMON.YES'},{'id':false, 'name': 'COMMON.NO'}]"
                         )
 
-                    div.status-wip-limit
-                        input(
-                            name="wip_limit"
-                            type="number"
-                            ng-hide="newValue.is_archived"
-                            ng-model="newValue.wip_limit"
-                            data-type="digits"
-                            placeholder="{{'ADMIN.US_STATUS.WIP_LIMIT_COLUMN' | translate}}"
-                        )
-
                     div.options-column
                         a.add-new.e2e-save(href="", title="{{'COMMON.ADD' | translate}}")
-                            tg-svg(svg-icon="icon-save")
+                            tg-svg(svg-icon="icon-check-empty")
 
                         a.delete-new(href="", title="{{'COMMON.CANCEL' | translate}}")
-                            tg-svg(svg-icon="icon-trash")
+                            tg-svg(svg-icon="icon-close")

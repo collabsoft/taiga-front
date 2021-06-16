@@ -38,9 +38,8 @@ div.wrapper.roles(
                                 ng-model="gitlab.webhooks_url"
                                 placeholder="{{'ADMIN.THIRD_PARTIES.PAYLOAD_URL' | translate}}"
                             )
-                            .option-wrapper.select-input-content
+                            .option-wrapper.select-input-content(title="{{'COMMON.COPY_TO_CLIPBOARD' | translate}}")
                                 tg-svg(svg-icon="icon-clipboard")
-                        .help-copy(translate="COMMON.COPY_TO_CLIPBOARD")
 
             fieldset
                 label(for="valid-origin-ips", translate="ADMIN.THIRD_PARTIES.VALID_IPS")
@@ -53,14 +52,15 @@ div.wrapper.roles(
                     placeholder="{{'ADMIN.GITLAB.INFO_VERIFYING_IP' | translate}}"
                 )
 
-            button.button-green.submit-button(
+            button.btn-small(
+                variant="primary"
                 type="submit"
                 title="{{'COMMON.SAVE' | translate}}"
                 translate="COMMON.SAVE"
             )
 
         a.help-button(
-            href="https://tree.taiga.io/support/integrations/gitlab-integration/"
+            href="https://taigaio.github.io/taiga-doc/dist/integrations-gitlab.html"
             target="_blank"
         )
             tg-svg(svg-icon="icon-question")

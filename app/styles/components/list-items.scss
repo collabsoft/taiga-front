@@ -3,19 +3,20 @@
 // Common styles for all list items
 @mixin list-itemtype-common {
     @include list-itemtype-track;
-    border-bottom: 1px solid $whitish;
+    border-bottom: 1px solid $color-gray400;
     display: flex;
     padding: .5rem;
-    padding-right: 0;
-    h2 {
-        @include font-type(text);
-        line-height: 1.4;
-        margin-bottom: 0;
+    .list-itemtype-data-title {
+        color: $color-black600;
+        margin-block-start: .25rem;
         text-transform: none;
     }
-    p {
-        @include font-type(light);
-        margin-bottom: 0;
+    .list-itemtype-data-meta {
+        align-items: center;
+        column-gap: .25rem;
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: .25rem;
     }
     .list-itemtype-avatar {
         flex-basis: 3rem;
@@ -23,30 +24,39 @@
         margin-right: .75rem;
         min-width: 3rem;
         img {
+            border-radius: 50%;
             width: 100%;
         }
+    }
+    .ticket-status {
+        margin-right: .25rem;
     }
 }
 
 .list-itemtype-project {
     @include list-itemtype-common;
     justify-content: space-between;
-    &.blocked-project {
-        .list-itemtype-track,
-        .list-itemtype-project-image,
-        .list-itemtype-project-name,
-        .list-itemtype-project-description {
-            opacity: .4;
-        }
-    }
-    h2 {
+    .list-itemtype-data-title {
         @include font-size(large);
+        align-items: center;
+        display: flex;
+        gap: .25rem;
     }
     .icon-blocked-project {
         @include svg-size(.75rem);
     }
+    .icon {
+        fill: $grey-70;
+        stroke: $grey-70;
+    }
     .list-itemtype-project-data-wrapper {
         display: flex;
+        .icon-private {
+            fill: $gray-light;
+            height: 22px;
+            margin-left: .5rem;
+            width: 22px;
+        }
     }
     .list-itemtype-project-image {
         flex-shrink: 0;
@@ -79,44 +89,22 @@
 .list-itemtype-ticket {
     @include list-itemtype-common;
     position: relative;
-    &.blocked-project {
-        .ticket-project,
-        .ticket-type,
-        .ticket-status,
-        .ticket-id,
-        .list-itemtype-avatar,
-        .list-itemtype-track,
-        .ticket-title {
-            opacity: .4;
-        }
-        .icon-blocked-project {
-            @include svg-size();
-            margin-left: .25rem;
-        }
-    }
-    h2 {
-        @include font-size(medium);
-    }
-    .ticket-type,
-    .ticket-project {
-        margin-right: .3rem;
-    }
     .ticket-type {
-        margin-left: .3rem;
+        color: $color-link-tertiary;
         text-transform: uppercase;
     }
     .ticket-project {
-        color: $gray-light;
+        color: $default-tags;
     }
     .list-itemtype-ticket-data {
         flex: 1;
         margin-right: 1rem;
     }
     .ticket-id {
-        color: $gray-light;
+        color: $color-link-primary;
     }
     .ticket-blocked {
-        color: $red;
+        color: $color-link-red;
         margin-right: .25rem;
     }
 }
@@ -124,12 +112,8 @@
 
 .list-itemtype-user {
     @include list-itemtype-common;
-    h2 {
-        @include font-size(large);
-    }
     .extra-info {
         @include font-size(small);
-        @include font-type(light);
         margin-top: .25rem;
     }
 }

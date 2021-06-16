@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -65,14 +60,14 @@ class AuthService extends taiga.Service
                  "$tgHttp",
                  "$tgUrls",
                  "$tgConfig",
+                 "$tgUserPilot",
                  "$translate",
                  "tgCurrentUserService",
                  "tgThemeService",
-                 "$tgAnalytics",
-                 "tgTermsAnnouncementService"]
+                 "$tgAnalytics"]
 
-    constructor: (@rootscope, @storage, @model, @rs, @http, @urls, @config, @translate, @currentUserService,
-                  @themeService, @analytics, @termsAnnouncementService) ->
+    constructor: (@rootscope, @storage, @model, @rs, @http, @urls, @config, @userpilot, @translate, @currentUserService,
+                  @themeService, @analytics) ->
         super()
 
         userModel = @.getUser()
@@ -89,7 +84,13 @@ class AuthService extends taiga.Service
         @analytics.setUserId()
 
     _getUserTheme: ->
-        return @rootscope.user?.theme || @config.get("defaultTheme") || "taiga" # load on index.jade
+        compiledThemes = window._taigaAvailableThemes
+        defaultTheme = @config.get("defaultTheme") || "taiga"
+
+        if !_.includes(@config.get("themes"), @rootscope.user?.theme) || !compiledThemes.includes(@rootscope.user?.theme)
+            return defaultTheme
+
+        return @rootscope.user?.theme
 
     _setTheme: ->
         newTheme = @._getUserTheme()
@@ -239,11 +240,9 @@ class AuthService extends taiga.Service
         url = @urls.resolve("users-export")
         return @http.post(url)
 
-    showTerms: (data) ->
-        user = @.getUser()
-        if not user or user.read_new_terms
-            return
-        @termsAnnouncementService.show()
+    sendVerificationEmail: () ->
+        url = @urls.resolve("user-send-verification-email")
+        return @http.post(url)
 
 module.service("$tgAuth", AuthService)
 
@@ -284,8 +283,10 @@ module.directive("tgPublicRegisterMessage", ["$tgConfig", "$tgNavUrls", "$routeP
 LoginDirective = ($auth, $confirm, $location, $config, $routeParams, $navUrls, $events, $translate, $window, $analytics) ->
     link = ($scope, $el, $attrs) ->
         form = new checksley.Form($el.find("form.login-form"))
+        $scope.defaultLoginEnabled = $config.get("defaultLoginEnabled", true)
 
-        if $routeParams['next'] and $routeParams['next'] != $navUrls.resolve("login")
+        # ignore next param if is the login or discover page
+        if $routeParams['next'] and $routeParams['next']  != $navUrls.resolve("login") and !$routeParams['next'].startsWith("%2Fdiscover")
             $scope.nextUrl = decodeURIComponent($routeParams['next'])
         else
             $scope.nextUrl = $navUrls.resolve("home")
@@ -296,8 +297,6 @@ LoginDirective = ($auth, $confirm, $location, $config, $routeParams, $navUrls, $
         onSuccess = (response) ->
             $events.setupConnection()
             $analytics.trackEvent("auth", "login", "user login", 1)
-
-            $auth.showTerms()
 
             if $scope.nextUrl.indexOf('http') == 0
                 $window.location.href = $scope.nextUrl
@@ -399,6 +398,16 @@ module.directive("tgRegister", ["$tgAuth", "$tgConfirm", "$tgLocation", "$tgNavU
 
 
 #############################################################################
+## Register Options Directive
+#############################################################################
+
+RegisterOptionsDirective = () ->
+    return { }
+
+module.directive("tgRegisterOptions", [RegisterOptionsDirective])
+
+
+#############################################################################
 ## Forgot Password Directive
 #############################################################################
 
@@ -456,8 +465,11 @@ ChangePasswordFromRecoveryDirective = ($auth, $confirm, $location, $params, $nav
         else
             $location.path($navUrls.resolve("login"))
 
-            text = $translate.instant("CHANGE_PASSWORD_RECOVERY_FORM.ERROR")
-            $confirm.notify("light-error",text)
+            text = ''
+            text = response.data.token.map((message) ->
+                return "#{text} #{message}"
+            )
+            $confirm.notify("light-error", text)
 
         form = $el.find("form").checksley()
 
@@ -468,7 +480,10 @@ ChangePasswordFromRecoveryDirective = ($auth, $confirm, $location, $params, $nav
             $confirm.success(text)
 
         onErrorSubmit = (response) ->
-            text = $translate.instant("CHANGE_PASSWORD_RECOVERY_FORM.ERROR")
+            text = ''
+            text = response.data.password.map((message) ->
+                return "#{text} #{message}"
+            )
             $confirm.notify("light-error", text)
 
         submit = debounce 2000, (event) =>
@@ -554,8 +569,10 @@ InvitationDirective = ($auth, $confirm, $location, $config, $params, $navUrls, $
             $analytics.trackEvent("auth", "invitationAccept", "invitation accept with new user", 1)
 
             $location.path($navUrls.resolve("project", {project: $scope.invitation.project_slug}))
-            $confirm.notify("success", "You've successfully joined this project",
-                                       "Welcome to #{_.escape($scope.invitation.project_name)}")
+            text = $translate.instant("INVITATION_LOGIN_FORM.SUCCESS", {
+                "project_name": $scope.invitation.project_name
+            })
+            $confirm.notify("success", text)
 
         onErrorSubmitRegister = (response) ->
             if response.data._error_message
@@ -586,6 +603,56 @@ module.directive("tgInvitation", ["$tgAuth", "$tgConfirm", "$tgLocation", "$tgCo
 
 
 #############################################################################
+## Verify Email
+#############################################################################
+
+VerifyEmailDirective = ($repo, $model, $auth, $confirm, $location, $params, $navUrls, $translate) ->
+    link = ($scope, $el, $attrs) ->
+        $scope.data = {}
+        $scope.data.email_token = $params.email_token
+        form = $el.find("form").checksley()
+
+        onSuccessSubmit = (response) ->
+            if $auth.isAuthenticated()
+                $repo.queryOne("users", $auth.getUser().id).then (data) =>
+                    $auth.setUser(data)
+                $location.url($navUrls.resolve("home"))
+            else
+                $location.url($navUrls.resolve("login"))
+
+            text = $translate.instant("VERIFY_EMAIL_FORM.SUCCESS")
+            $confirm.success(text)
+
+        onErrorSubmit = (response) ->
+            text = $translate.instant("COMMON.GENERIC_ERROR", {error: response.data._error_message})
+
+            $confirm.notify("light-error", text)
+
+        submit = ->
+            if not form.validate()
+                return
+
+            promise = $auth.changeEmail($scope.data)
+            promise.then(onSuccessSubmit, onErrorSubmit)
+
+        $el.on "submit", (event) ->
+            event.preventDefault()
+            submit()
+
+        $el.on "click", "a.ng-submit-form", (event) ->
+            event.preventDefault()
+            submit()
+
+        $scope.$on "$destroy", ->
+            $el.off()
+
+    return {link:link}
+
+module.directive("tgVerifyEmail", ["$tgRepo", "$tgModel", "$tgAuth", "$tgConfirm", "$tgLocation",
+                                   "$routeParams", "$tgNavUrls", "$translate", VerifyEmailDirective])
+
+
+#############################################################################
 ## Change Email
 #############################################################################
 
@@ -599,11 +666,9 @@ ChangeEmailDirective = ($repo, $model, $auth, $confirm, $location, $params, $nav
             if $auth.isAuthenticated()
                 $repo.queryOne("users", $auth.getUser().id).then (data) =>
                     $auth.setUser(data)
-                    $location.path($navUrls.resolve("home"))
-                    $location.replace()
+                $location.url($navUrls.resolve("home"))
             else
-                $location.path($navUrls.resolve("login"))
-                $location.replace()
+                $location.url($navUrls.resolve("login"))
 
             text = $translate.instant("CHANGE_EMAIL_FORM.SUCCESS")
             $confirm.success(text)
@@ -624,7 +689,7 @@ ChangeEmailDirective = ($repo, $model, $auth, $confirm, $location, $params, $nav
             event.preventDefault()
             submit()
 
-        $el.on "click", "a.button-change-email", (event) ->
+        $el.on "click", "a.ng-submit-form", (event) ->
             event.preventDefault()
             submit()
 

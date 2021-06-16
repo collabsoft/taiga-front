@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: add-members.controller.coffee
+# File: invite-members/invite-members-form/invite-members-form.controller.coffee
 ###
 
 taiga = @.taiga
@@ -39,7 +39,7 @@ class InviteMembersFormController
     _areRolesValidated: () ->
         Object.defineProperty @, 'areRolesValidated', {
             get: () =>
-                roleIds = _.filter Object.values(@.rolesValues), (it) -> return it
+                roleIds = _.filter _.values(@.rolesValues), (it) -> return it
                 return roleIds.length == @.contactsToInvite.size + @.emailsToInvite.size
         }
 
@@ -76,6 +76,8 @@ class InviteMembersFormController
                 @.loading = false
                 if response.data._error_message
                     @confirm.notify("error", response.data._error_message)
+                else if response.data.__all__
+                    @confirm.notify("error", response.data.__all__[0])
 
 
 angular.module("taigaAdmin").controller("InviteMembersFormCtrl", InviteMembersFormController)

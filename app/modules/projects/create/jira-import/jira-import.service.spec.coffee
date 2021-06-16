@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: jira-import.controller.spec.coffee
+# File: projects/create/jira-import/jira-import.service.spec.coffee
 ###
 
 describe "tgJiraImportService", ->
     $provide = null
+    $rootScope = null
+    $q = null
     service = null
     mocks = {}
 
@@ -57,8 +59,10 @@ describe "tgJiraImportService", ->
             return null
 
     _inject = ->
-        inject (_tgJiraImportService_) ->
+        inject (_tgJiraImportService_, _$rootScope_, _$q_) ->
             service = _tgJiraImportService_
+            $rootScope = _$rootScope_
+            $q = _$q_
 
     _setup = ->
         _mocks()
@@ -105,11 +109,15 @@ describe "tgJiraImportService", ->
             }
         }
 
-        mocks.resources.jiraImporter.getAuthUrl.promise("http://test").resolve(response)
+        getAuthUrlDeferred = $q.defer()
+        mocks.resources.jiraImporter.getAuthUrl.withArgs("http://test").returns(getAuthUrlDeferred.promise)
+        getAuthUrlDeferred.resolve(response)
 
-        service.getAuthUrl().then (url) ->
+        service.getAuthUrl('http://test').then (url) ->
             expect(url).to.be.equal("url123")
             done()
+
+        $rootScope.$apply()
 
     it "authorize", (done) ->
         service.setToken(123, 'http://test')
@@ -122,8 +130,12 @@ describe "tgJiraImportService", ->
             }
         }
 
-        mocks.resources.jiraImporter.authorize.withArgs().promise().resolve(response)
+        authorizeDeferred = $q.defer()
+        mocks.resources.jiraImporter.authorize.returns(authorizeDeferred.promise)
+        authorizeDeferred.resolve(response)
 
         service.authorize().then (token) ->
             expect(token).to.be.deep.equal({url: "http://test", token: "token123"})
             done()
+
+        $rootScope.$apply()

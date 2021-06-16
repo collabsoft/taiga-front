@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,35 +14,44 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: modules/components/wysiwyg/comment-wysiwyg.directive.coffee
+# File: components/wysiwyg/comment-wysiwyg.directive.coffee
 ###
 
-CommentWysiwyg = (attachmentsFullService) ->
+CommentWysiwyg = ($modelTransform, $rootscope, attachmentsFullService) ->
     link = ($scope, $el, $attrs) ->
         $scope.editableDescription = false
 
         $scope.saveComment = (description, cb) ->
             $scope.content = ''
             $scope.vm.type.comment = description
-            $scope.vm.onAddComment({callback: cb})
+
+            transform = $modelTransform.save (item) -> return
+            transform.then ->
+                if $scope.vm.onAddComment
+                    $scope.vm.onAddComment()
+                $rootscope.$broadcast("object:updated")
+            transform.finally(cb)
 
         types = {
             epics: "epic",
             userstories: "us",
+            userstory: "us",
             issues: "issue",
-            tasks: "task"
+            tasks: "task",
+            epic: "epic",
+            us: "us"
+            issue: "issue",
+            task: "task",
         }
-
-        uploadFile = (file, cb) ->
-            return attachmentsFullService.addAttachment($scope.vm.projectId, $scope.vm.type.id, types[$scope.vm.type._name], file, true, true).then (result) ->
-                cb(result.getIn(['file', 'name']), result.getIn(['file', 'url']))
 
         $scope.onChange = (markdown) ->
             $scope.vm.type.comment = markdown
 
-        $scope.uploadFiles = (files, cb) ->
-            for file in files
-                uploadFile(file, cb)
+        $scope.uploadFiles = (file, cb) ->
+            return attachmentsFullService.addAttachment($scope.vm.project.id, $scope.vm.type.id, types[$scope.vm.type._name], file, true, true).then (result) ->
+                cb({
+                    default: result.getIn(['file', 'url'])
+                })
 
         $scope.content = ''
 
@@ -64,15 +68,20 @@ CommentWysiwyg = (attachmentsFullService) ->
                 <tg-wysiwyg
                     required
                     not-persist
-                    placeholder='{{"COMMENTS.TYPE_NEW_COMMENT" | translate}}'
+                    project="vm.project"
+                    placeholder="'COMMENTS.TYPE_NEW_COMMENT '| translate"
                     storage-key='storageKey'
                     content='content'
                     on-save='saveComment(text, cb)'
-                    on-upload-file='uploadFiles(files, cb)'>
+                    on-upload-file='uploadFiles'>
                 </tg-wysiwyg>
             </div>
         """
     }
 
 angular.module("taigaComponents")
-    .directive("tgCommentWysiwyg", ["tgAttachmentsFullService", CommentWysiwyg])
+    .directive("tgCommentWysiwyg", [
+        "$tgQueueModelTransformation",
+        "$rootScope",
+        "tgAttachmentsFullService",
+        CommentWysiwyg])

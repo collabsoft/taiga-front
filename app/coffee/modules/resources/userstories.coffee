@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -25,6 +20,8 @@
 taiga = @.taiga
 
 generateHash = taiga.generateHash
+
+hashShowTags = 'backlog-tags'
 
 resourceProvider = ($repo, $http, $urls, $storage, $q) ->
     service = {}
@@ -70,11 +67,12 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
 
         return $repo.queryMany("userstories", params)
 
-    service.bulkCreate = (projectId, status, bulk) ->
+    service.bulkCreate = (projectId, status, bulk, swimlane) ->
         data = {
             project_id: projectId
             status_id: status
             bulk_stories: bulk
+            swimlane_id: swimlane
         }
 
         url = $urls.resolve("bulk-create-us")
@@ -107,9 +105,23 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
         params = {project_id: projectId, milestone_id: milestoneId, bulk_stories: data}
         return $http.post(url, params)
 
-    service.bulkUpdateKanbanOrder = (projectId, statusId, data) ->
+    service.bulkUpdateKanbanOrder = (projectId, statusId, swimlaneId, afterUserstoryId, beforeUserstoryId, bulkUserstories) ->
         url = $urls.resolve("bulk-update-us-kanban-order")
-        params = {project_id: projectId, status_id: statusId, bulk_stories: data}
+        params = {
+            project_id: projectId,
+            status_id: statusId,
+            bulk_userstories: bulkUserstories
+        }
+
+        if afterUserstoryId
+            params.after_userstory_id = afterUserstoryId
+
+        else if  beforeUserstoryId
+            params.before_userstory_id = beforeUserstoryId
+
+        if swimlaneId
+            params.swimlane_id = swimlaneId
+
         return $http.post(url, params)
 
     service.listValues = (projectId, type) ->
@@ -122,6 +134,14 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
         url = $urls.resolve("#{type}-create-default")
         return $http.post(url, data)
 
+    service.editStatus = (statusId, wip_limit) ->
+        url = $urls.resolve("userstory-statuses")
+        url = "#{url}/#{statusId}"
+        params = {
+            wip_limit
+        }
+        return $http.patch(url, params)
+
     service.storeQueryParams = (projectId, params) ->
         ns = "#{projectId}:#{hashSuffix}"
         hash = generateHash([projectId, ns])
@@ -132,13 +152,15 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
         hash = generateHash([projectId, ns])
         return $storage.get(hash) or {}
 
-    service.storeShowTags = (projectId, showTags) ->
-        hash = generateHash([projectId, 'showTags'])
-        $storage.set(hash, showTags)
+    service.storeShowTags = (projectId, params) ->
+        ns = "#{projectId}:#{hashShowTags}"
+        hash = generateHash([projectId, ns])
+        $storage.set(hash, params)
 
     service.getShowTags = (projectId) ->
-        hash = generateHash([projectId, 'showTags'])
-        return $storage.get(hash) or null
+        ns = "#{projectId}:#{hashShowTags}"
+        hash = generateHash([projectId, ns])
+        return $storage.get(hash)
 
     return (instance) ->
         instance.userstories = service

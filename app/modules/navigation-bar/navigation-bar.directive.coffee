@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,10 +14,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: navigation-bar.directive.coffee
+# File: navigation-bar/navigation-bar.directive.coffee
 ###
 
-NavigationBarDirective = (currentUserService, navigationBarService, locationService, navUrlsService, config) ->
+NavigationBarDirective = (currentUserService, navigationBarService, locationService, navUrlsService, config, feedbackService) ->
     link = (scope, el, attrs, ctrl) ->
         scope.vm = {}
 
@@ -26,18 +26,61 @@ NavigationBarDirective = (currentUserService, navigationBarService, locationServ
         taiga.defineImmutableProperty(scope.vm, "isEnabledHeader", () -> navigationBarService.isEnabledHeader())
 
         scope.vm.publicRegisterEnabled = config.get("publicRegisterEnabled")
-        scope.vm.supportUrl = config.get("supportUrl")
+        scope.vm.customSupportUrl = config.get("supportUrl")
+        scope.vm.isFeedbackEnabled = config.get("feedbackEnabled")
+
+        loadUserPilot = () =>
+            userPilotIframe = document.querySelector('#userpilot-resource-centre-frame')
+
+            if userPilotIframe
+                scope.$applyAsync () =>
+                    userPilotIframeDocument = userPilotIframe.contentWindow.document.body
+                    widget = userPilotIframeDocument.querySelector('#widget-title')
+
+                    if widget
+                        scope.vm.userPilotTitle = widget.innerText
+                        clearInterval(userPilotInterval)
+
+        attempts = 10
+
+        if window.TAIGA_USER_PILOT_TOKEN
+            scope.vm.userPilotTitle = 'Help center'
+            scope.vm.userpilotEnabled = true
+
+            userPilotInterval = setInterval () =>
+                loadUserPilot()
+                attempts--
+
+                if !attempts
+                    clearInterval(userPilotInterval)
+            , 1000
 
         scope.vm.login = ->
             nextUrl = encodeURIComponent(locationService.url())
             locationService.url(navUrlsService.resolve("login"))
             locationService.search({next: nextUrl})
 
+        scope.vm.sendFeedback = () ->
+            feedbackService.sendFeedback()
+
+        window._taigaSendFeedback = scope.vm.sendFeedback
+
         scope.$on "$routeChangeSuccess", () ->
-            if locationService.path() == "/"
-                scope.vm.active = true
-            else
-                scope.vm.active = false
+            scope.vm.active = null
+            path = locationService.path()
+
+            switch path
+                when "/"
+                    scope.vm.active = 'dashboard'
+                when "/discover"
+                    scope.vm.active = 'discover'
+                when "/notifications"
+                    scope.vm.active = 'notifications'
+                when "/projects/"
+                    scope.vm.active = 'projects'
+                else
+                    if path.startsWith('/project')
+                        scope.vm.active = 'project'
 
     directive = {
         templateUrl: "navigation-bar/navigation-bar.html"
@@ -52,7 +95,8 @@ NavigationBarDirective.$inject = [
     "tgNavigationBarService",
     "$tgLocation",
     "$tgNavUrls",
-    "$tgConfig"
+    "$tgConfig",
+    "tgFeedbackService"
 ]
 
 angular.module("taigaNavigationBar").directive("tgNavigationBar", NavigationBarDirective)

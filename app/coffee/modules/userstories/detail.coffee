@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -54,17 +49,24 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         "tgErrorHandlingService",
         "$tgConfig",
         "tgProjectService",
-        "tgWysiwygService"
+        "tgWysiwygService",
+        "tgAttachmentsFullService",
+        "$tgModel",
+        "$sce"
     ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @params, @q, @location,
                   @log, @appMetaService, @navUrls, @analytics, @translate, @modelTransform,
-                  @errorHandlingService, @configService, @projectService, @wysiwigService) ->
+                  @errorHandlingService, @configService, @projectService, @wysiwigService,
+                  @attachmentsFullService, @tgmodel, @sce) ->
         bindMethods(@)
 
         @scope.usRef = @params.usref
         @scope.sectionName = @translate.instant("US.SECTION_NAME")
         @scope.tribeEnabled = @configService.config.tribeHost
+        @scope.attachmentsReady = false
+        @scope.$on "attachments:loaded", () =>
+            @scope.attachmentsReady = true
 
         @.initializeEventHandlers()
 
@@ -88,10 +90,13 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
             userStorySubject: @scope.us.subject
             projectName: @scope.project.name
         })
+
+        descriptionHtml = @sce.getTrustedHtml(@wysiwigService.getHTML(@scope.us.description) or "")
+
         description = @translate.instant("US.PAGE_DESCRIPTION", {
             userStoryStatus: @scope.statusById[@scope.us.status]?.name or "--"
             userStoryPoints: @scope.us.total_points
-            userStoryDescription: angular.element(@wysiwigService.getHTML(@scope.us.description) or "").text()
+            userStoryDescription: angular.element(descriptionHtml).text()
             userStoryClosedTasks: closedTasks
             userStoryTotalTasks: totalTasks
             userStoryProgressPercentage: progressPercentage
@@ -99,8 +104,15 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
 
         @appMetaService.setAll(title, description)
 
+    loadAttachments: ->
+        @attachmentsFullService.loadAttachments('us', @scope.usId, @scope.projectId)
+
     initializeEventHandlers: ->
+        @scope.relateToEpic = (us) =>
+            @scope.$broadcast("relate-to-epic:add", us)
+
         @scope.$on "related-tasks:update", =>
+            @.loadTasks()
             @scope.tasks = _.clone(@scope.tasks, false)
             allClosed = _.every @scope.tasks, (task) -> return task.is_closed
 
@@ -110,20 +122,27 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         @scope.$on "attachment:create", =>
             @analytics.trackEvent("attachment", "create", "create attachment on userstory", 1)
 
+        @scope.$on "task:reorder", (event, task, newIndex) =>
+            @.reorderTask(task, newIndex)
+
         @scope.$on "comment:new", =>
             @.loadUs()
 
     initializeOnDeleteGoToUrl: ->
         ctx = {project: @scope.project.slug}
         @scope.onDeleteGoToUrl = @navUrls.resolve("project", ctx)
-        if @scope.project.is_backlog_activated
-            if @scope.us.milestone
-                ctx.sprint = @scope.sprint.slug
-                @scope.onDeleteGoToUrl = @navUrls.resolve("project-taskboard", ctx)
-            else
-                @scope.onDeleteGoToUrl = @navUrls.resolve("project-backlog", ctx)
-        else if @scope.project.is_kanban_activated
+
+        if @params["kanban-status"] && @scope.project.is_kanban_activated
             @scope.onDeleteGoToUrl = @navUrls.resolve("project-kanban", ctx)
+
+        else
+            if @scope.project.is_backlog_activated
+                if @scope.us.milestone
+                    ctx.sprint = @scope.sprint.slug
+                    @scope.onDeleteGoToUrl = @navUrls.resolve("project-taskboard", ctx)
+                else
+                    @scope.onDeleteGoToUrl = @navUrls.resolve("project-backlog", ctx)
+
 
     loadProject: ->
         project = @projectService.project.toJS()
@@ -164,9 +183,18 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
 
 
         return @rs.userstories.getByRef(@scope.projectId, @params.usref).then (us) =>
+            @rootscope.$broadcast("userstory:loaded", us)
+
             @scope.us = us
             @scope.usId = us.id
             @scope.commentModel = us
+
+            @.loadAttachments()
+
+            window.legacyChannel.next({
+                type: 'SET_DETAIL_OBJ',
+                value: us._attrs
+            })
 
             @modelTransform.setObject(@scope, 'us')
 
@@ -233,15 +261,59 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         return @rs.userstories.unwatch(@scope.usId).then(onSuccess, onError)
 
     onTribeInfo: ->
-            publishTitle = @translate.instant("US.TRIBE.PUBLISH_MORE_INFO_TITLE")
-            image = $('<img />')
-                .attr({
-                    'src': "/#{window._version}/images/monster-fight.png",
-                    'alt': @translate.instant("US.TRIBE.PUBLISH_MORE_INFO_TITLE")
-                })
-            text = @translate.instant("US.TRIBE.PUBLISH_MORE_INFO_TEXT")
-            publishDesc = $('<div></div>').append(image).append(text)
-            @confirm.success(publishTitle, publishDesc)
+        publishTitle = @translate.instant("US.TRIBE.PUBLISH_MORE_INFO_TITLE")
+        image = $('<img />')
+            .attr({
+                'src': "/#{window._version}/images/monster-fight.png",
+                'alt': @translate.instant("US.TRIBE.PUBLISH_MORE_INFO_TITLE")
+            })
+        text = @translate.instant("US.TRIBE.PUBLISH_MORE_INFO_TEXT")
+        publishDesc = $('<div></div>').append(image).append(text)
+        @confirm.success(publishTitle, publishDesc)
+
+    reorderTask: (task, newIndex) ->
+        orderList = {}
+        @scope.tasks.forEach (it) ->
+            orderList[it.id] = it.us_order
+
+        withoutMoved = @scope.tasks.filter (it) -> it.id != task.id
+        beforeDestination = withoutMoved.slice(0, newIndex)
+        afterDestination = withoutMoved.slice(newIndex)
+
+        previous = beforeDestination[beforeDestination.length - 1]
+        newOrder = if !previous then 0 else previous.us_order + 1
+
+        orderList[task.id] = newOrder
+
+        previousWithTheSameOrder = beforeDestination.filter (it) ->
+            it.us_order == previous.us_order
+
+        setOrders = _.fromPairs previousWithTheSameOrder.map((it) ->
+            [it.id, it.us_order]
+        )
+
+        afterDestination.forEach (it) -> orderList[it.id] = it.us_order + 1
+
+        @scope.tasks =  _.map(@scope.tasks, (it) ->
+            it.us_order = orderList[it.id]
+            return it
+        )
+        @scope.tasks = _.sortBy(@scope.tasks, "us_order")
+
+        data = {
+            us_order: newOrder,
+            version: task.version
+        }
+
+        return @rs.tasks.reorder(task.id, data, setOrders).then (newTask) =>
+            newTask = @tgmodel.make_model("tasks", newTask)
+
+            @scope.tasks =  _.map(@scope.tasks, (it) ->
+                return if it.id == newTask.id then newTask else it
+            )
+            @rootscope.$broadcast("related-tasks:reordered")
+
+
 
 module.controller("UserStoryDetailController", UserStoryDetailController)
 

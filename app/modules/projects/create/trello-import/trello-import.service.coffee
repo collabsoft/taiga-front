@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,15 +14,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: trello-import.service.coffee
+# File: projects/create/trello-import/trello-import.service.coffee
 ###
 
 class TrelloImportService extends taiga.Service
     @.$inject = [
-        'tgResources'
+        'tgResources',
+        '$q'
     ]
 
-    constructor: (@resources) ->
+    constructor: (@resources, @q) ->
         @.projects = Immutable.List()
         @.projectUsers = Immutable.List()
         @.token = null
@@ -40,13 +41,13 @@ class TrelloImportService extends taiga.Service
         return @resources.trelloImporter.importProject(@.token, name, description, projectId, userBindings, keepExternalReference, isPrivate)
 
     getAuthUrl: () ->
-        return new Promise (resolve) =>
+        return @q (resolve) =>
             @resources.trelloImporter.getAuthUrl().then (response) =>
                 @.authUrl = response.data.url
                 resolve(@.authUrl)
 
     authorize: (verifyCode) ->
-        return new Promise (resolve, reject) =>
+        return @q (resolve, reject) =>
             @resources.trelloImporter.authorize(verifyCode).then ((response) =>
                 @.token = response.data.token
                 resolve(@.token)

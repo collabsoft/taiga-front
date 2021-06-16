@@ -1,39 +1,43 @@
 .home-wrapper {
     display: flex;
-    @include breakpoint(tablet) {
-        flex-direction: column;
-    }
-    @include breakpoint(mobile) {
+    @include until($desktop) {
         flex-direction: column;
     }
     .duty-summary {
         flex: 1;
-        margin-right: 2rem;
+        @include until($widescreen) {
+            flex-direction: column;
+        }
     }
     .dashboard-container {
         display: flex;
         flex-direction: row;
-        @include breakpoint(laptop) {
-            flex-direction: column;
+        margin-right: 1.5rem;
+        @include until ($desktop) {
+            margin-right: 0;
         }
-        @include breakpoint(tablet) {
-            flex-direction: column;
-        }
-        @include breakpoint(mobile) {
+        @include mobile {
             flex-direction: column;
         }
     }
     .watching-container,
     .working-on-container {
         flex: 1;
-        padding-left: .5rem;
-        padding-right: .5rem;
     }
     .working-on-container {
-        margin-right: 1rem;
+        margin-right: 2rem;
+        @include mobile {
+            margin-right: 0;
+        }
+    }
+    .toggle-hidden {
+        border-top: 1px solid $gray-lighter;
+        margin: 2rem 0;
+        padding-top: .5rem;
+        text-align: center;
     }
     .project-list {
-        flex-basis: 250px;
+        flex-basis: 300px;
         flex-grow: 0;
         flex-shrink: 0;
     }
@@ -41,7 +45,7 @@
         display: block;
     }
     .title-bar {
-        @include font-type(light);
+        @include font-type(regular);
         @include font-size(large);
         align-content: center;
         background: $mass-white;

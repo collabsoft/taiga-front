@@ -1,4 +1,4 @@
-section.attachments(
+section.attachments.attachment-full(
     tg-attachments-drop="vm.addAttachments(files, false)"
     ng-show="vm.showAttachments()"
 )
@@ -19,12 +19,16 @@ section.attachments(
                 title="{{ 'ATTACHMENT.LIST_VIEW_MODE' | translate }}"
             )
                 tg-svg(svg-icon="icon-list")
+
             .add-attach(
                 tg-check-permission="modify_{{vm.type}}"
                 title!="{{'ATTACHMENT.ADD' | translate}}"
             )
-
-                label.add-attachment-button(for="add-attach")
+                button.btn-icon.add-attachment-button(
+                    type="button"
+                    variant="primary"
+                    ng-click="displayAttachmentInput()"
+                )
                     tg-svg(svg-icon="icon-add")
 
                 input(
@@ -50,7 +54,7 @@ section.attachments(
                 type="vm.type"
             )
 
-          .single-attachment(ng-repeat="file in vm.uploadingAttachments()")
+          .single-attachment.uploading-attachment(ng-repeat="file in vm.uploadingAttachments()")
               .attachment-name
                   tg-svg(svg-icon="icon-attachment")
                   span {{file.name}}
@@ -58,7 +62,7 @@ section.attachments(
                   span {{file.size | sizeFormat}}
               .attachment-comments
                   span {{file.progressMessage}}
-                  .percentage(ng-style="{'width': file.progressPercent}")
+                  progress.percentage(value="{{file.progressPercent}}" max="100")
 
         a.more-attachments(
           href="",

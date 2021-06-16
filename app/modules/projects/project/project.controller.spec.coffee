@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: project.controller.spec.coffee
+# File: projects/project/project.controller.spec.coffee
 ###
 
 describe "ProjectController", ->
@@ -28,6 +28,20 @@ describe "ProjectController", ->
         mocks.projectService = {}
 
         provide.value "tgProjectService", mocks.projectService
+
+    _mockConfigService = () ->
+        mocks.configService = {
+            get: sinon.stub()
+        }
+
+        provide.value "$tgConfig", mocks.configService
+
+    _mockNavUrlsService = () ->
+        mocks.navUrlsService = {
+            resolve: sinon.stub()
+        }
+
+        provide.value "$tgNavUrls", mocks.navUrlsService
 
     _mockAppMetaService = () ->
         mocks.appMetaService = {
@@ -58,6 +72,8 @@ describe "ProjectController", ->
         module ($provide) ->
             provide = $provide
             _mockProjectService()
+            _mockConfigService()
+            _mockNavUrlsService()
             _mockRouteParams()
             _mockAppMetaService()
             _mockAuth()

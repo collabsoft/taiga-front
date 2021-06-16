@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: modules/taskboard.coffee
+# File: modules/taskboard/main.coffee
 ###
 
 taiga = @.taiga
@@ -59,18 +54,46 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         "tgTaskboardTasks",
         "tgTaskboardIssues",
         "$tgStorage",
-        "tgFilterRemoteStorageService"
+        "tgFilterRemoteStorageService",
+        "tgLightboxFactory",
+        "$timeout",
+        "tgProjectService"
+    ]
+
+    excludePrefix: "exclude_"
+    filterCategories: [
+        "status",
+        "assigned_to",
+        "owner",
+        "role",
+    ]
+
+    validQueryParams: [
+        'exclude_status',
+        'status',
+        'exclude_assigned_to',
+        'assigned_to',
+        'exclude_role',
+        'role',
+        'exclude_owner',
+        'owner',
+        'order_by'
     ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @rs2, @params, @q, @appMetaService, @location, @navUrls,
                   @events, @analytics, @translate, @errorHandlingService, @taskboardTasksService,
-                  @taskboardIssuesService, @storage, @filterRemoteStorageService) ->
+                  @taskboardIssuesService, @storage, @filterRemoteStorageService, @lightboxFactory, @timeout, @projectService) ->
         bindMethods(@)
         @taskboardTasksService.reset()
         @scope.userstories = []
         @.openFilter = false
+        @.filterQ = ''
+        @.backToBacklogUrl = @navUrls.resolve('project-backlog', {
+            project: @projectService.project.get('slug'),
+            ref: @params.ref
+        })
 
-        return if @.applyStoredFilters(@params.pslug, "tasks-filters")
+        return if @.applyStoredFilters(@params.pslug, "tasks-filters", @.validQueryParams)
 
         @scope.sectionName = @translate.instant("TASKBOARD.SECTION_NAME")
         @.initializeEventHandlers()
@@ -78,8 +101,27 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         taiga.defineImmutableProperty @.scope, "usTasks", () =>
             return @taskboardTasksService.usTasks
 
+        taiga.defineImmutableProperty @.scope, "taskMap", () =>
+            return @taskboardTasksService.taskMap
+
         taiga.defineImmutableProperty @.scope, "milestoneIssues", () =>
             return @taskboardIssuesService.milestoneIssues
+
+        taiga.defineImmutableProperty @.scope, "tasksByUs", () =>
+            return @taskboardTasksService.tasksByUs
+
+        @scope.issues = []
+        @scope.showTags = true
+
+        @scope.$watch 'milestoneIssues', () =>
+            if @scope.milestoneIssues
+                @scope.issues = @scope.milestoneIssues.toJS().map (milestoneIssue) =>
+                    return @taskboardIssuesService.issuesRaw.find (rawIssue) => milestoneIssue.model.id == rawIssue.id
+            else
+                @scope.issues = []
+
+    getQueryParams: () ->
+        return _.pick(_.clone(@location.search()), @.validQueryParams)
 
     firstLoad: () ->
         promise = @.loadInitialData()
@@ -90,7 +132,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         promise.then null, @.onInitialDataError.bind(@)
 
     setZoom: (zoomLevel, zoom) ->
-        if @.zoomLevel == zoomLevel
+        if @.zoomLevel == Number(zoomLevel)
             return null
 
         @.isFirstLoad = !@.zoomLevel
@@ -111,21 +153,18 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                 @.zoomLoading = false
                 @taskboardTasksService.resetFolds()
 
-        if @.zoomLevel == '0'
-            @rootscope.$broadcast("sprint:zoom0")
-
     changeQ: (q) ->
-        @.replaceFilter("q", q)
+        @.filterQ = q
         @.loadTasks()
         @.generateFilters()
 
     removeFilter: (filter) ->
-        @.unselectFilter(filter.dataType, filter.id)
+        @.unselectFilter(filter.dataType, filter.id, false, filter.mode)
         @.loadTasks()
         @.generateFilters()
 
     addFilter: (newFilter) ->
-        @.selectFilter(newFilter.category.dataType, newFilter.filter.id)
+        @.selectFilter(newFilter.category.dataType, newFilter.filter.id, false, newFilter.mode)
         @.loadTasks()
         @.generateFilters()
 
@@ -148,12 +187,11 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 
     saveCustomFilter: (name) ->
         filters = {}
-        urlfilters = @location.search()
-        filters.tags = urlfilters.tags
-        filters.status = urlfilters.status
-        filters.assigned_to = urlfilters.assigned_to
-        filters.owner = urlfilters.owner
-        filters.role = urlfilters.role
+        urlfilters = @.getQueryParams()
+        for key in @.filterCategories
+            excludeKey = @.excludePrefix.concat(key)
+            filters[key] = urlfilters[key]
+            filters[excludeKey] = urlfilters[excludeKey]
 
         @filterRemoteStorageService.getFilters(@scope.projectId, 'tasks-custom-filters').then (userFilters) =>
             userFilters[name] = filters
@@ -161,19 +199,17 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
             @filterRemoteStorageService.storeFilters(@scope.projectId, userFilters, 'tasks-custom-filters').then(@.generateFilters)
 
     generateFilters: ->
-        @.storeFilters(@params.pslug, @location.search(), "tasks-filters")
-
-        urlfilters = @location.search()
+        urlfilters = @.getQueryParams()
+        @.storeFilters(@params.pslug, urlfilters, "tasks-filters")
 
         loadFilters = {}
         loadFilters.project = @scope.projectId
         loadFilters.milestone = @scope.sprintId
-        loadFilters.tags = urlfilters.tags
-        loadFilters.status = urlfilters.status
-        loadFilters.assigned_to = urlfilters.assigned_to
-        loadFilters.owner = urlfilters.owner
-        loadFilters.role = urlfilters.role
-        loadFilters.q = urlfilters.q
+
+        for key in @.filterCategories
+            excludeKey = @.excludePrefix.concat(key)
+            loadFilters[key] = urlfilters[key]
+            loadFilters[excludeKey] = urlfilters[excludeKey]
 
         return @q.all([
             @rs.tasks.filtersData(loadFilters),
@@ -181,20 +217,21 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         ]).then (result) =>
             data = result[0]
             customFiltersRaw = result[1]
+            dataCollection = {}
 
-            statuses = _.map data.statuses, (it) ->
+            dataCollection.status = _.map data.statuses, (it) ->
                 it.id = it.id.toString()
 
                 return it
-            tags = _.map data.tags, (it) ->
+            dataCollection.tags = _.map data.tags, (it) ->
                 it.id = it.name
 
                 return it
 
-            tagsWithAtLeastOneElement = _.filter tags, (tag) ->
+            tagsWithAtLeastOneElement = _.filter dataCollection.tags, (tag) ->
                 return tag.count > 0
 
-            assignedTo = _.map data.assigned_to, (it) ->
+            dataCollection.assigned_to = _.map data.assigned_to, (it) ->
                 if it.id
                     it.id = it.id.toString()
                 else
@@ -203,7 +240,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                 it.name = it.full_name || "Unassigned"
 
                 return it
-            role = _.map data.roles, (it) ->
+            dataCollection.role = _.map data.roles, (it) ->
                 if it.id
                     it.id = it.id.toString()
                 else
@@ -212,7 +249,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                 it.name = it.name || "Unassigned"
 
                 return it
-            owner = _.map data.owners, (it) ->
+            dataCollection.owner = _.map data.owners, (it) ->
                 it.id = it.id.toString()
                 it.name = it.full_name
 
@@ -220,55 +257,42 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 
             @.selectedFilters = []
 
-            if loadFilters.status
-                selected = @.formatSelectedFilters("status", statuses, loadFilters.status)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.tags
-                selected = @.formatSelectedFilters("tags", tags, loadFilters.tags)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.assigned_to
-                selected = @.formatSelectedFilters("assigned_to", assignedTo, loadFilters.assigned_to)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.owner
-                selected = @.formatSelectedFilters("owner", owner, loadFilters.owner)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.role
-                selected = @.formatSelectedFilters("role", role, loadFilters.role)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            @.filterQ = loadFilters.q
+            for key in @.filterCategories
+                excludeKey = @.excludePrefix.concat(key)
+                if loadFilters[key]
+                    selected = @.formatSelectedFilters(key, dataCollection[key], loadFilters[key])
+                    @.selectedFilters = @.selectedFilters.concat(selected)
+                if loadFilters[excludeKey]
+                    selected = @.formatSelectedFilters(key, dataCollection[key], loadFilters[excludeKey], "exclude")
+                    @.selectedFilters = @.selectedFilters.concat(selected)
 
             @.filters = [
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.STATUS"),
                     dataType: "status",
-                    content: statuses
+                    content: dataCollection.status
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.TAGS"),
                     dataType: "tags",
-                    content: tags,
+                    content: dataCollection.tags,
                     hideEmpty: true,
                     totalTaggedElements: tagsWithAtLeastOneElement.length
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.ASSIGNED_TO"),
                     dataType: "assigned_to",
-                    content: assignedTo
+                    content: dataCollection.assigned_to
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.ROLE"),
                     dataType: "role",
-                    content: role
+                    content: dataCollection.role
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.CREATED_BY"),
                     dataType: "owner",
-                    content: owner
+                    content: dataCollection.owner
                 }
             ]
 
@@ -337,6 +361,13 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         @scope.$on("taskboard:task:move", @.taskMove)
         @scope.$on("assigned-to:added", @.onAssignedToChanged)
 
+        @scope.$on "taskboard:items:move", (event, itemsMoved) =>
+            if itemsMoved.uss
+                @.firstLoad()
+            else
+                @.loadTasks() if itemsMoved.tasks
+                @.loadIssues() if itemsMoved.issues
+
     onAssignedToChanged: (ctx, userid, model) ->
         if model.getName() == 'tasks'
             model.assigned_to = userid
@@ -354,7 +385,6 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                 @.generateFilters()
                 if @.isFilterDataTypeSelected('assigned_to') || @.isFilterDataTypeSelected('role')
                     @.loadIssues()
-
 
     initializeSubscription: ->
         routingKey = "changes.project.#{@scope.projectId}.tasks"
@@ -422,6 +452,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 
             @taskboardTasksService.setUserstories(@scope.userstories)
 
+            @rootscope.$broadcast("taskboard:userstories:loaded", @scope.userstories)
             return sprint
 
     loadIssues: ->
@@ -430,11 +461,13 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         if @.zoomLevel > 1
             params.include_attachments = 1
 
-        params = _.merge params, @location.search()
+        locationParams = @.getQueryParams()
+        params = _.merge params, locationParams
 
         return @rs.issues.listInProject(@scope.projectId, @scope.sprintId, params).then (issues) =>
             @taskboardIssuesService.init(@scope.project, @scope.usersById, @scope.issueStatusById)
             @taskboardIssuesService.set(issues)
+            @.initIssues = true
 
     loadTasks: ->
         params = {}
@@ -442,8 +475,16 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         if @.zoomLevel > 1
             params.include_attachments = 1
 
-        params = _.merge params, @location.search()
+        locationParams = @.getQueryParams()
+        params = _.merge params, locationParams
+        params.q = @.filterQ
+
         return @rs.tasks.list(@scope.projectId, @scope.sprintId, null, params).then (tasks) =>
+            @.notFoundTasks = false
+
+            if !tasks.length && ((@.filterQ && @.filterQ.length) || Object.keys(locationParams).length)
+                @.notFoundTasks = true
+
             @taskboardTasksService.init(@scope.project, @scope.usersById)
             @taskboardTasksService.set(tasks)
 
@@ -458,6 +499,9 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         ])
 
     loadInitialData: ->
+        @.initialLoad = false
+        @.initIssues = false
+
         params = {
             pslug: @params.pslug
             sslug: @params.sslug
@@ -469,11 +513,20 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
             @.initializeSubscription()
             return data
 
-        return promise.then(=> @.loadProject())
-                      .then =>
-                          @.generateFilters()
+        return promise.then(=> @.loadProject()).then =>
+            @.generateFilters()
 
-                          return @.loadTaskboard().then(=> @.setRolePoints())
+            if @rs.issues.getSprintShowTags(@scope.projectId) == false
+                @scope.showTags = false
+
+            return @.loadTaskboard().then () =>
+                @timeout () =>
+                    @.initialLoad = true
+                , 0, false
+                @.setRolePoints()
+
+    toggleTags: (tags) ->
+        @rs.issues.storeSprintShowTags(@scope.projectId, tags)
 
     showPlaceHolder: (statusId, usId) ->
         if !@taskboardTasksService.tasksRaw.length
@@ -565,9 +618,13 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         .then (removingIssue) =>
             issue = issue.set('loading-delete', false)
             title = @translate.instant("ISSUES.CONFIRM_DETACH_FROM_SPRINT.TITLE")
-            subtitle = @translate.instant("ISSUES.CONFIRM_DETACH_FROM_SPRINT.MESSAGE")
-            message = @scope.sprint.name
-            @confirm.askOnDelete(title, message).then (askResponse) =>
+            message = @translate.instant("ISSUES.CONFIRM_DETACH_FROM_SPRINT.MESSAGE")
+            message = @translate.instant(
+                "ISSUES.CONFIRM_DETACH_FROM_SPRINT.MESSAGE",
+                {sprintName: @scope.sprint.name}
+            )
+
+            @confirm.ask(title, null, message).then (askResponse) =>
                 removingIssue.milestone = null
                 promise = @repo.save(removingIssue)
                 promise.then =>
@@ -578,6 +635,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                     @confirm.notify("error")
 
     taskMove: (ctx, task, oldStatusId, usId, statusId, order) ->
+        @scope.movingTask = true
         task = @taskboardTasksService.getTaskModel(task.get('id'))
 
         moveUpdateData = @taskboardTasksService.move(task.id, usId, statusId, order)
@@ -594,6 +652,10 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         }
 
         promise = @repo.save(task, true, params, options, true).then (result) =>
+            if result[0] and result[0].user_story
+                @.reloadUserStory(result[0].user_story)
+
+            @scope.movingTask = false
             headers = result[1]
 
             if headers && headers['taiga-info-order-updated']
@@ -605,6 +667,9 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
             if @.isFilterDataTypeSelected('status')
                 @.loadTasks()
 
+    reloadUserStory: (userStoryId) ->
+        @rs.userstories.get(@scope.project.id, userStoryId).then (us) =>
+            @scope.userstories = _.map(@scope.userstories, (x) -> if x.id == us.id then us else x)
 
     ## Template actions
     addNewTask: (type, us) ->
@@ -627,7 +692,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                     sprintId: @scope.sprintId,
                     relatedField: 'milestone',
                     relatedObjectId: @scope.sprintId,
-                    title: "#{@translate.instant("COMMON.FIELDS.SPRINT")} #{@scope.sprint.name}",
+                    targetName: @scope.sprint.name,
                 })
             when "standard" then @rootscope.$broadcast("taskform:new", @scope.sprintId, us?.id)
             when "bulk" then @rootscope.$broadcast("issueform:bulk", @scope.projectId, @scope.sprintId)
@@ -638,15 +703,49 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         else if modelName == 'tasks'
             @taskboardTasksService.toggleFold(id)
 
+    openUsersSelection: (item) ->
+        onClose = (assignedUsers) =>
+            userId = assignedUsers.pop() || null
+
+            if item.getName() == 'tasks'
+                item.assigned_to = userId
+                @taskboardTasksService.replaceModel(item)
+
+                @repo.save(item).then =>
+                    @.generateFilters()
+                    if @.isFilterDataTypeSelected('assigned_to') || @.isFilterDataTypeSelected('role')
+                        @.loadTasks()
+
+            if item.getName() == 'issues'
+                item.assigned_to = userId
+                @taskboardIssuesService.replaceModel(item)
+
+                @repo.save(item).then =>
+                    @.generateFilters()
+                    if @.isFilterDataTypeSelected('assigned_to') || @.isFilterDataTypeSelected('role')
+                        @.loadIssues()
+
+        @lightboxFactory.create(
+            'tg-lb-select-user',
+            {
+                "class": "lightbox lightbox-select-user",
+            },
+            {
+                "currentUsers": [item.assigned_to],
+                "activeUsers": @scope.activeUsers,
+                "onClose": onClose,
+                "single": true,
+                "lbTitle": @translate.instant("COMMON.ASSIGNED_USERS.ADD"),
+            }
+        )
+
     changeTaskAssignedTo: (id) ->
         task = @taskboardTasksService.getTaskModel(id)
-
-        @rootscope.$broadcast("assigned-to:add", task)
+        @.openUsersSelection(task)
 
     changeIssueAssignedTo: (id) ->
         issue = @taskboardIssuesService.getIssueModel(id)
-
-        @rootscope.$broadcast("assigned-to:add", issue)
+        @.openUsersSelection(issue)
 
     setRolePoints: () ->
         computableRoles = _.filter(@scope.project.roles, "computable")
@@ -662,18 +761,25 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         pointsByRole = _.reduce @scope.userstories, (result, us, key) =>
             _.forOwn us.points, (pointId, roleId) ->
                 role = getRole(roleId)
-                point = getPoint(pointId)
+                point = getPoint(pointId) || { value: 0 }
 
-                if !result[role.id]
-                    result[role.id] = role
-                    result[role.id].points = 0
+                if role
+                    if !result[role.id]
+                        result[role.id] = role
+                        result[role.id].points = 0
 
-                result[role.id].points += point.value
+                    result[role.id].points += point.value
 
             return result
         , {}
 
         @scope.pointsByRole = Object.keys(pointsByRole).map (key) -> return pointsByRole[key]
+
+    getIssuesOrderBy: ->
+        if _.isString(@location.search().order_by)
+            return @location.search().order_by
+        else
+            return "created_date"
 
 module.controller("TaskboardController", TaskboardController)
 
@@ -692,10 +798,10 @@ TaskboardDirective = ($rootscope) ->
             target.toggleClass('active')
             $rootscope.$broadcast("taskboard:graph:toggle-visibility")
 
-        tableBodyDom = $el.find(".taskboard-table-body")
+        tableBodyDom = $el.find('[data-js="taskboard-table-hscroll"]')
         tableBodyDom.on "scroll", (event) ->
             target = angular.element(event.currentTarget)
-            tableHeaderDom = $el.find(".taskboard-table-header .taskboard-table-inner")
+            tableHeaderDom = $el.find(".taskboard-table-inner")
             tableHeaderDom.css("left", -1 * target.scrollLeft())
 
         $scope.$on "$destroy", ->
@@ -710,12 +816,19 @@ module.directive("tgTaskboard", ["$rootScope", TaskboardDirective])
 #############################################################################
 
 TaskboardSquishColumnDirective = (rs) ->
-    avatarWidth = 40
-    maxColumnWidth = 300
+    gridGap = 5
+    horizontalPadding = 32
+    avatarWidth = 30
+    maxColumnWidth = 292
+    zoom0ColumnWidth = 182
+    minWidth = avatarWidth + horizontalPadding
+    maxRows = 3
+    firstLoad = false
 
     link = ($scope, $el, $attrs) ->
-        $scope.$on "sprint:zoom0", () =>
-            recalculateTaskboardWidth()
+        $scope.$watch "ctrl.zoom", () =>
+            if firstLoad
+                recalculateTaskboardWidth()
 
         $scope.$on "sprint:task:moved", () =>
             recalculateTaskboardWidth()
@@ -733,6 +846,9 @@ TaskboardSquishColumnDirective = (rs) ->
 
             recalculateTaskboardWidth()
 
+        $foldStatusArchived = (status) ->
+            $scope.foldStatus(status)
+
         $scope.foldUs = (rowId) ->
             $scope.usFolded[rowId] = !!!$scope.usFolded[rowId]
             rs.tasks.storeUsRowModes($scope.projectId, $scope.sprintId, $scope.usFolded)
@@ -740,67 +856,72 @@ TaskboardSquishColumnDirective = (rs) ->
             recalculateTaskboardWidth()
 
         getCeilWidth = (usId, statusId) =>
+            isStatusFolded = !!$scope.statusesFolded[statusId]
+            isUSFolded = !!$scope.usFolded[usId]
+
             if usId
                 tasks = $scope.usTasks.getIn([usId.toString(), statusId.toString()]).size
             else
                 tasks = $scope.usTasks.getIn(['null', statusId.toString()]).size
 
-            if $scope.statusesFolded[statusId]
-                if tasks and $scope.usFolded[usId]
-                    tasksMatrixSize = Math.round(Math.sqrt(tasks))
-                    width = avatarWidth * tasksMatrixSize
-                else
+            if tasks && (isUSFolded || isStatusFolded)
+                if isUSFolded
+                    columns = Math.ceil(tasks / maxRows)
+                    width = avatarWidth * columns + ((columns - 1) * gridGap) + horizontalPadding
+                else if isStatusFolded
                     width = avatarWidth
+            else
+                width = 0
 
-                return width
-
-            return 0
+            return width
 
         setStatusColumnWidth = (statusId, width) =>
             column = $el.find(".squish-status-#{statusId}")
 
-            if width
-                column.css('max-width', width)
-            else
-                if $scope.ctrl.zoomLevel == '0'
-                    column.css("max-width", 148)
-                else
-                    column.css("max-width", maxColumnWidth)
+            if width < minWidth
+                width = minWidth
 
-        refreshTaskboardTableWidth = () =>
-            columnWidths = []
-
-            columns = $el.find(".task-colum-name")
-
-            columnWidths = _.map columns, (column) ->
-                return $(column).outerWidth(true)
-
-            totalWidth = _.reduce columnWidths, (total, width) ->
-                return total + width
-
-            $el.find('.taskboard-table-inner').css("width", totalWidth)
-
-            issuesBoxWidth = $el.find('.issues-row .taskboard-row-title-box').outerWidth(true)
-            $el.find('.issues-row').css("width", totalWidth - columnWidths.pop())
-
-            issueCardMaxWidth = if $scope.ctrl.zoomLevel == '0' then 128 else 280
-            $el.find('.issues-row .taskboard-cards-box .card').css("max-width", issueCardMaxWidth)
+            column.css('max-width', width)
+            return width
 
         recalculateStatusColumnWidth = (statusId) =>
+            isStatusFolded = !!$scope.statusesFolded[statusId]
+            initialWidth = 0
+
+            if isStatusFolded
+                initialWidth = avatarWidth
+            else
+                initialWidth = maxColumnWidth
+
+                if Number($scope.ctrl.zoomLevel) == 0
+                    initialWidth = zoom0ColumnWidth
+
             #unassigned ceil
+            folded = !!$scope.statusesFolded[statusId]
             statusFoldedWidth = getCeilWidth(null, statusId)
 
+            if statusFoldedWidth < initialWidth
+                statusFoldedWidth = initialWidth
+
             _.forEach $scope.userstories, (us) ->
+                isUSFolded = !!$scope.usFolded[us.id]
                 width = getCeilWidth(us.id, statusId)
+
                 statusFoldedWidth = width if width > statusFoldedWidth
 
-            setStatusColumnWidth(statusId, statusFoldedWidth)
+            return setStatusColumnWidth(statusId, statusFoldedWidth)
 
         recalculateTaskboardWidth = () =>
-            _.forEach $scope.taskStatusList, (status) ->
-                recalculateStatusColumnWidth(status.id)
+            total = _.reduce $scope.taskStatusList, (acc, status) ->
+                return acc + recalculateStatusColumnWidth(status.id) + 5
+            , 0
 
-            refreshTaskboardTableWidth()
+            $el.find('.taskboard-table-inner').css("width", maxColumnWidth + total)
+            if !firstLoad
+                requestAnimationFrame () ->
+                    $el.addClass('animations')
+
+            firstLoad = true
 
             return
 

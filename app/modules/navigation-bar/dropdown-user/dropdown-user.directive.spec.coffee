@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: dropdown-user.directive.spec.coffee
+# File: navigation-bar/dropdown-user/dropdown-user.directive.spec.coffee
 ###
 
 describe "dropdownUserDirective", () ->
@@ -62,12 +62,6 @@ describe "dropdownUserDirective", () ->
         }
         provide.value "$tgNavUrls", mockTgNavUrls
 
-    _mockTgFeedbackService = () ->
-        mockTgFeedbackService = {
-            sendFeedback: sinon.stub()
-        }
-        provide.value "tgFeedbackService", mockTgFeedbackService
-
     _mocks = () ->
         module ($provide) ->
             provide = $provide
@@ -76,7 +70,6 @@ describe "dropdownUserDirective", () ->
             _mockTgConfig()
             _mockTgLocation()
             _mockTgNavUrls()
-            _mockTgFeedbackService()
             return null
 
     beforeEach ->
@@ -113,10 +106,3 @@ describe "dropdownUserDirective", () ->
         expect(mockTgLocation.url.calledWith("/discover")).to.be.true
         expect(mockTgLocation.search.calledWith({})).to.be.true
 
-    it "dropdown user send feedback", () ->
-        elm = createDirective()
-        scope.$apply()
-        vm = elm.isolateScope().vm
-        expect(mockTgFeedbackService.sendFeedback.callCount).to.be.equal(0)
-        vm.sendFeedback()
-        expect(mockTgFeedbackService.sendFeedback.callCount).to.be.equal(1)

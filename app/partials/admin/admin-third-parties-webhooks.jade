@@ -15,8 +15,8 @@ div.wrapper.roles(
         header.header-with-actions
             include ../includes/components/mainTitle
             .action-buttons
-                a.button-green.hidden.add-webhook(
-                    href=""
+                button.btn-small.hidden.add-webhook(
+                    variant="primary"
                     title="{{'ADMIN.WEBHOOKS.ADD_NEW' | translate}}"
                     translate="ADMIN.WEBHOOKS.ADD_NEW"
                 )
@@ -41,7 +41,7 @@ div.wrapper.roles(
                                     data-required="true"
                                     ng-model="webhook.name"
                                     placeholder="{{'ADMIN.WEBHOOKS.TYPE_NAME' | translate}}"
-                                )    
+                                )
                             .webhook-url
                                 .webhook-url-inputs
                                     fieldset
@@ -66,7 +66,7 @@ div.wrapper.roles(
                                     href=""
                                     title="{{'ADMIN.WEBHOOKS.SAVE' | translate}}"
                                 )
-                                    tg-svg(svg-icon="icon-save")
+                                    tg-svg(svg-icon="icon-check-empty")
                                 a.cancel-existing(
                                     href=""
                                     title="{{'ADMIN.WEBHOOKS.CANCEL' | translate}}"
@@ -131,7 +131,7 @@ div.wrapper.roles(
                                             textarea(
                                                 name="headers"
                                                 ng-bind="log.prettySentHeaders"
-                                            )   
+                                            )
 
                                         .response-container
                                             span.response-title(translate="ADMIN.WEBHOOKS.PAYLOAD")
@@ -182,7 +182,7 @@ div.wrapper.roles(
                             href=""
                             title="{{'ADMIN.WEBHOOKS.SAVE' | translate}}"
                         )
-                            tg-svg(svg-icon="icon-save")
+                            tg-svg(svg-icon="icon-check-empty")
                         a.cancel-new(
                             href=""
                             title="{{'ADMIN.WEBHOOKS.CANCEL' | translate}}"
@@ -190,7 +190,7 @@ div.wrapper.roles(
                             tg-svg(svg-icon="icon-close")
 
         a.help-button(
-            href="https://tree.taiga.io/support/integrations/webhooks/"
+            href="https://taigaio.github.io/taiga-doc/dist/#webhooks"
             target="_blank"
         )
             tg-svg(svg-icon="icon-question")

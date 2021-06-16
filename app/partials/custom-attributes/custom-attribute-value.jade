@@ -13,12 +13,20 @@
             a(href!="<%- value %>")
                 <%- value %>
     <% } else if (type=="richtext") { %>
-    .custom-field-value.js-value-view-mode.wysiwyg
-        div(ng-bind-html="attributeHtml")
+    .custom-field-value
+        span(
+            ng-bind-html="attributeHtml"
+        )
+    <% } else if (type=="checkbox") { %>
+    .custom-field-value.js-value-view-mode
+        <% if (value) { %>
+        span {{ 'COMMON.YES' | translate }}
+        <% } else { %>
+        span {{ 'COMMON.NO' | translate }}
+        <% } %>
     <% } else { %>
     .custom-field-value.js-value-view-mode
-        span
-            <%- value %>
+        span(ng-bind-html="attributeHtml")
     <% } %>
 
     <% if (isEditable) { %>

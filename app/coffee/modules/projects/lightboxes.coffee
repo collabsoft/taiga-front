@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: modules/common/attachments.coffee
+# File: modules/projects/lightboxes.coffee
 ###
 
 taiga = @.taiga
@@ -62,11 +57,11 @@ DeleteProjectDirective = ($repo, $rootscope, $auth, $location, $navUrls, $confir
                 $confirm.notify("error")
                 lightboxService.close($el)
 
-        $el.on "click", ".button-red", (event) ->
+        $el.on "click", ".js-cancel", (event) ->
             event.preventDefault()
             lightboxService.close($el)
 
-        $el.on "click", ".button-green", (event) ->
+        $el.on "click", ".js-confirm", (event) ->
             event.preventDefault()
             submit()
 

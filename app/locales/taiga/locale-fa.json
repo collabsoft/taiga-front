@@ -3,6 +3,7 @@
         "YES": "بله",
         "NO": "خیر",
         "OR": "یا",
+        "I_GET_IT": "اوکی گرفتم",
         "LOADING": "در حال بارگذاری ...",
         "DATE": "DD MMM YYYY",
         "DATETIME": "DD MMM YYYY HH:mm",
@@ -13,13 +14,16 @@
         "UNLINK": "حذف پیوند",
         "CREATE": "ایجاد",
         "ADD": "اضافه کردن",
-        "COPY_TO_CLIPBOARD": "کپی کردن در کلیپ‌بورد: Ctrl+C",
+        "BACK": "پشت",
+        "COPY_TO_CLIPBOARD": "کپی کردن در کلیپ‌بورد",
+        "COPIED_TO_CLIPBOARD": "متن در کلیپ‌بورد کپی شد",
+        "MOVE_TO_TOP": "Move to top",
         "EDIT": "ویرایش",
         "DRAG": "درگ",
-        "TAG_LINE": "ابزار سریع، رایگان و متن‌باز مدیریت پروژه‌ی شما",
+        "TAG_LINE": "ابزار سریع، آزاد و متن‌باز مدیریت پروژه‌ی شما",
         "TAG_LINE_2": "علاقه‌مندی به پروژه‌ی شما",
         "BLOCK": "مسدود کردن",
-        "BLOCK_TITLE": "مسدود کردن این مورد به عنوان مثال در صورتی که وابستگی‌هایی دارد که مطلوب نیست.",
+        "BLOCK_TITLE": "Block this item, for example if it has a dependency that can not be satisfied",
         "BLOCKED": "مسدود شده",
         "UNBLOCK": "حذف مسدودسازی",
         "UNBLOCK_TITLE": "این آیتم را از حالت مسدود خارج کن",
@@ -31,15 +35,15 @@
         "PLUGINS": "پلاگین",
         "ONE_ITEM_LINE": "در هر خط یک آیتم ...",
         "NEW_BULK": "اضافه کردن گروهی جدید",
-        "RELATED_TASKS": "وظایف مرتبط",
+        "RELATED_TASKS": "وظایف",
         "PREVIOUS": "قبلی",
         "NEXT": "بعدی",
         "LOGOUT": "خروج",
         "EXTERNAL_USER": "کاربر خارجی",
-        "GENERIC_ERROR": "یکی از اومپا لومپاهای ما می‌گوید  {{error}}.",
-        "IOCAINE_TEXT": "این عضو نگران تکمیل این وظیفه است. با کمک شما تدریجاً توانمندتر می‌شود و در حال حاضر به توجه بیشتری نیاز دارد",
-        "CLIENT_REQUIREMENT": "نیازمندی‌های مشتری، نیازمندی‌های جدیدی است که قبلاً موجود نبوده و قرار است بخشی از پروژه باشد",
-        "TEAM_REQUIREMENT": "لازمه‌های تیم به لازمه‌های گفته می‌شود که باید در پروژه وجود داشته باشید اما هزینه‌ای برای مشتری ندارد",
+        "GENERIC_ERROR": "The Taiga says {{error}}.",
+        "IOCAINE_TEXT": "This member is feeling a bit overwhelmed by this task. They will become immune to the iocaine poison over time with your help. For now, they may need a hug.",
+        "CLIENT_REQUIREMENT": "A client requirement is a new requirement that was not previously expected and is required to be part of the project",
+        "TEAM_REQUIREMENT": "A team requirement is a requirement that must exist in the project but should have no cost for the client",
         "OWNER": "مالکیت پروژه",
         "CAPSLOCK_WARNING": "مراقب باشید! در حال تایپ کردن حروف بزرگ هستید و این فیلد نسبت به بزرگی و کوچکی حروف حساس است.",
         "CONFIRM_CLOSE_EDIT_MODE_TITLE": "آیا مطمئن هستید که می‌خواهید حالت ویرایش را ببندید؟",
@@ -50,7 +54,13 @@
             "EDIT": "ویرایش کارت",
             "DELETE": "حذف کارت",
             "DELETE_ISSUE": "حذف موضوع",
-            "DETACH_ISSUE_FROM_SPRINT": "Detach issue from sprint"
+            "DETACH_ISSUE_FROM_SPRINT": "Detach from sprint",
+            "PTS": "{{pts}} pts",
+            "DUE_DATE": "Due date: {{date}}",
+            "NO_PTS": "N/E",
+            "ESTIMATION": "Estimation",
+            "TASKS": "{{completed}} tasks of {{total}} completed",
+            "EXTRA_ASSIGNED_USERS": "{{total}} more assigned users"
         },
         "FORM_ERRORS": {
             "DEFAULT_MESSAGE": "مقدار نامعتبر است.",
@@ -71,7 +81,7 @@
             "RANGE": "این مقدار می‌بایست بین %s و %s باشد.",
             "MIN_LENGTH": "این مقدار بسیار کوتاه است. می‌بایست حداقل %s حرف داشته باشد.",
             "MAX_LENGTH": "این مقدار بیش از حد طولانی است. می‌بایست حداکثر %s حرف داشته باشد.",
-            "RANGE_LENGTH": "طول این مقدار نامعتبر است. می‌بایست بین %s و %s حرف داشته باشد.",
+            "RANGE_LENGTH": "This value's length is invalid. It should be between %s and %s characters long.",
             "MIN_CHECK": "حداقل %s مورد انتخاب کنید.",
             "MAX_CHECK": "می‌بایست %s انتخاب یا کمتر داشته باشید.",
             "RANGE_CHECK": "می‌بایست بین %s الی %s انتخاب داشته باشید.",
@@ -128,7 +138,7 @@
             "ADD": "اضافه کردن برچسب"
         },
         "DESCRIPTION": {
-            "EMPTY": "فواصل خالی خسته‌کننده است ... کمی توضیح دهید ...",
+            "EMPTY": "Empty space is so boring... go on, be descriptive...",
             "NO_DESCRIPTION": "بدون توضیح"
         },
         "FIELDS": {
@@ -144,18 +154,19 @@
             "TYPE": "نوع",
             "SEVERITY": "اهمیت",
             "PRIORITY": "اولویت",
+            "ASSIGNED": "محول شده",
             "ASSIGNED_TO": "اختصاص یافته به",
             "ASSIGNED_USERS": "کاربران اختصاص یافته",
             "POINTS": "امتیاز",
             "IS_BLOCKED": "مسدود شده است",
             "REF": "ریفرنس",
             "VOTES": "رأی",
-            "SPRINT": "پیشرفت",
+            "SPRINT": "اسپرینت",
             "DUE_DATE": "موعد تحویل",
             "DUE_DATE_REASON": "دلیل موعد تحویل"
         },
         "ROLES": {
-            "ALL": "همه"
+            "ALL": "All points"
         },
         "ASSIGNED_TO": {
             "NOT_ASSIGNED": "محول نشده",
@@ -192,27 +203,50 @@
             "UNWATCH": "خروج از نظارت",
             "WATCHERS": "بررسی‌کنندگان",
             "BUTTON_TITLE": "بررسی یا عدم بررسی این آیتم",
-            "COUNTER_TITLE": "{total, plural, one{یک بررسی کننده} other{#بررسی کنندگان}}"
+            "COUNTER_TITLE": "{total, plural, =1{one watcher} other{# watchers}}"
         },
         "VOTE_BUTTON": {
             "BUTTON_TITLE": "رأی مثبت یا منفی برای این آیتم",
-            "COUNTER_TITLE": "{total, plural, one{یک رای} other{# آراء}}"
+            "COUNTER_TITLE": "{total, plural, =1{one vote} other{# votes}}"
+        },
+        "PROMOTE_TO_US": "Promote to user story",
+        "PROMOTED_ISSUES": "This issue has been promoted to",
+        "PROMOTED_TASKS": "This task has been promoted to",
+        "CONFIRM_PROMOTE": {
+            "ISSUE": {
+                "TITLE": "ارتقای این موضوع به یک استوری کاربری جدید",
+                "MESSAGE": "Are you sure you want to create a new user story from this issue?"
+            },
+            "TASK": {
+                "TITLE": "Promote this task to a new user story",
+                "MESSAGE": "Are you sure you want to create a new user story from this task?"
+            }
         },
         "CUSTOM_ATTRIBUTES": {
             "CUSTOM_FIELDS": "ویژگی‌های سفارشی",
-            "SAVE": "ذخیره کردن ویژگی سفارشی",
-            "EDIT": "ویرایش ویژگی سفارشی",
-            "DELETE": "حذف خصوصیت سفارشی",
-            "CONFIRM_DELETE": "به خاطر داشته باشید که تمام مقادیر در این ویژگی سفارشی حذف خواهند شد.\nآیا مطمئن هستید؟"
+            "SAVE": "Save custom field",
+            "EDIT": "Edit custom field",
+            "DELETE": "Delete custom fields",
+            "CONFIRM_DELETE": "Remember that all values in this custom field will be deleted."
         },
         "FILTERS": {
-            "INPUT_PLACEHOLDER": "موضوع یا ریفرنس",
+            "INPUT_PLACEHOLDER": "subject or reference",
             "TITLE_ACTION_FILTER_BUTTON": "جست‌وجو",
-            "TITLE": "فیلترها",
+            "TITLE": "فیلترهای سفارشی",
             "TITLE_ACTION_SEARCH": "جست‌وجو",
-            "ACTION_SAVE_CUSTOM_FILTER": "ذخیره به عنوان فیلتر سفارشی",
+            "ACTION_ADD": "اضافه کردن",
+            "ACTION_SAVE_CUSTOM_FILTER": "save filter",
             "PLACEHOLDER_FILTER_NAME": "نام فیلتر را وارد کرده و اینتر را فشار دهید",
             "APPLIED_FILTERS_NUM": "فیلترهای اعمال‌شده",
+            "TITLE_ADVANCED_FILTER": "پیشرفته",
+            "LENGTH_ZERO_ERROR": "Please add a filter name",
+            "REPEATED_FILTER_ERROR": "This filter name is already in use",
+            "ADVANCED_FILTERS": {
+                "INCLUDE": "شامل",
+                "EXCLUDE": "مستثنی کردن",
+                "INCLUDED": "Filtered by:",
+                "EXCLUDED": "Excluded:"
+            },
             "CATEGORIES": {
                 "TYPE": "نوع",
                 "STATUS": "عیت",
@@ -237,7 +271,7 @@
         },
         "PERMISIONS_CATEGORIES": {
             "EPICS": {
-                "NAME": "Epics",
+                "NAME": "اپیک‌ها",
                 "VIEW_EPICS": "نمایش epicها",
                 "ADD_EPICS": "اضافه کردن epicها",
                 "MODIFY_EPICS": "تصحیح epicها",
@@ -245,11 +279,11 @@
                 "DELETE_EPICS": "حذف epicها"
             },
             "SPRINTS": {
-                "NAME": "پیشرفت‌ها",
-                "VIEW_SPRINTS": "نمایش پیشرفت‌ها",
-                "ADD_SPRINTS": "اضافه کردن پیشرفت‌ها",
-                "MODIFY_SPRINTS": "ویرایش پیشرفت‌ها",
-                "DELETE_SPRINTS": "حذف پیشرفت‌ها"
+                "NAME": "اسپرینت‌ها",
+                "VIEW_SPRINTS": "نمایش اسپرینت‌ها",
+                "ADD_SPRINTS": "اضافه کردن اسپرینت‌ها",
+                "MODIFY_SPRINTS": "ویرایش اسپرینت‌ها",
+                "DELETE_SPRINTS": "حذف اسپرینت‌ها"
             },
             "USER_STORIES": {
                 "NAME": "استوری‌های کاربر",
@@ -308,8 +342,8 @@
         "ALT_LOGIN": "یا لاگین کنید با"
     },
     "LOGIN_FORM": {
-        "ERROR_AUTH_INCORRECT": "نام کاربری یا ایمیل و یا رمز عبور اشتباه است.",
-        "SUCCESS": "به تایگا خوش آمدید."
+        "ERROR_AUTH_INCORRECT": "According to the Taiga, your username/email or password are incorrect.",
+        "SUCCESS": "Welcome to Taiga."
     },
     "REGISTER": {
         "PAGE_TITLE": "ثبت نام - تایگا",
@@ -337,7 +371,7 @@
         "LINK_CANCEL": "بازگشت به مرحله قبل. فکر میکنم رمز عبور خود را به خاطر آوردم.",
         "SUCCESS_TITLE": "ایمیل خود را چک کنید!",
         "SUCCESS_TEXT": "ایمیلی حاوی دستورالعمل تنظیم رمز عبور جدید برایتان ارسال کردیم",
-        "ERROR": "بنابر اومپا لومپای ما، شما هنوز ثبت نام نکرده‌اید."
+        "ERROR": "According to the Taiga, you are not registered yet."
     },
     "CHANGE_PASSWORD": {
         "PAGE_TITLE": "تغییر رمز عبور - تایگا",
@@ -348,7 +382,7 @@
         "PLACEHOLDER_NEW_PASSWORD": "وارد کردن رمز عبور جدید",
         "FIELD_RETYPE_PASSWORD": "رمز عبور جدید را مجدداً وارد کنید",
         "PLACEHOLDER_RETYPE_PASSWORD": "ورود مجدد رمز عبور جدید",
-        "ERROR_PASSWORD_MATCH": "رمز عبورها یکسان نیست"
+        "ERROR_PASSWORD_MATCH": "The passwords don't match"
     },
     "CHANGE_PASSWORD_RECOVERY_FORM": {
         "TITLE": "ایجاد پسورد جدید تایگا",
@@ -356,60 +390,66 @@
         "PLACEHOLDER_NEW_PASSWORD": "رمز عبور جدید",
         "PLACEHOLDER_RE_TYPE_NEW_PASSWORD": "ورود مجدد رمز عبور",
         "ACTION_RESET_PASSWORD": "ریست کردن رمز عبور",
-        "ERROR": "اومپا لومپای ما درخواست مربوط به بازیابی رمز عبور شما را پیدا نمی‌کند. دوباره درخواست کنید.",
-        "SUCCESS": "اومپا لومپای ما رمز عبور جدید شما را ذخیره کرده است.<br />تلاش برای<strong>ورود</strong>با رمز عبور جدید."
+        "SUCCESS": "The Taiga saved your new password.<br /> Try to <strong>sign in</strong> with it."
     },
     "INVITATION": {
         "PAGE_TITLE": "پذیرش دعوت - تایگا",
         "PAGE_DESCRIPTION": "پذیرش دعوت برای ملحق شدن به پروژه‌ای در تایگا، پلتفرمی برای مدیریت پروژه برای استارت‌آپ‌ها، توسعه‌دهندگان و طراحان سریع که به ابزاری زیبا و ساده برای لذت بردن از کارشان علاقه دارند."
     },
     "INVITATION_LOGIN_FORM": {
-        "NOT_FOUND": "اومپا لومپای ما دعوتنامه‌ی شما را پیدا نمی‌کند.",
+        "NOT_FOUND": "The Taiga can't find your invitation.",
         "SUCCESS": "با موفقیت به این پروژه ملحق شدید. به {{project_name}} خوش آمدید."
     },
     "HOME": {
         "PAGE_TITLE": "خانه - تایگا",
         "PAGE_DESCRIPTION": "صفحه‌ی خانه‌ی تایگا شامل پروژه‌های اصلی شما و تمام استوری‌های کاربری مربوط به شما و موارد بررسی شده، وظایف و موضوعات",
         "EMPTY_WORKING_ON": "<strong>خلوت است، نه؟</strong>کار با تایگا را شروع کنید تا در این بخش استوری‌ها، وظایف و موضوعاتی که روی آن کار می‌کنید را مشاهده کنید.",
-        "EMPTY_WATCHING": "<strong>دنبال کردن</strong>استوری‌های کاربران، وظایف، موضوعات در پروژه‌های شما و دریافت نوتیفیکیشن در مورد تغییرات :)",
-        "EMPTY_PROJECT_LIST": "در حال حاضر پروژه‌ای ندارید",
+        "EMPTY_WATCHING": "<strong>Follow</strong> user stories, tasks, issues in your projects and be notified about their changes :)",
+        "EMPTY_PROJECT_LIST": "You don't have any project yet",
         "WORKING_ON_SECTION": "در حال کار روی",
         "WATCHING_SECTION": "در حال بررسی",
-        "DASHBOARD": "داشبورد پروژه‌ها"
+        "DASHBOARD": "داشبورد پروژه‌ها",
+        "SET_HIDDEN": "تنظیم به عنوان مخفی",
+        "SET_VISIBLE": "تنظیم به عنوان آشکار",
+        "NO_HIDDEN_ITEMS": "شما هیچ آیتم مخفی ندارید",
+        "HIDE_HIDDEN": "موضوعات مخفی را نشان نده",
+        "SHOW_HIDDEN": "موضوعات مخفی را نشان بده"
     },
     "EPICS": {
-        "TITLE": "EPICS",
-        "SECTION_NAME": "Epics",
-        "EPIC": "EPIC",
+        "TITLE": "اپیک‌ها",
+        "SECTION_NAME": "اپیک‌ها",
+        "EPIC": "اپیک",
         "PAGE_TITLE": "Epics - {{projectName}}",
         "PAGE_DESCRIPTION": "لیست پروژه‌  {{projectName}}: {{projectDescription}}",
         "DASHBOARD": {
-            "ADD": "+  اضافه کردن EPIC",
+            "ADD": "اضافه کردن اپیک",
             "UNASSIGNED": "آزاد"
         },
         "EMPTY": {
-            "TITLE": "به نظر می‌رسد که هنوز هیچ epicی وجود ندارد",
+            "TITLE": "به نظر می‌رسد که هنوز هیچ اپیکی وجود ندارد",
             "EXPLANATION": "Epicها آیتم‌های سطح بالایی هستند که شامل استوری‌های کاربر می‌شوند.<br />Epicها در صدر رده‌بندی هستند و به کمک آنها می‌توان استوری‌های کاربر را گروه‌بندی کرد.",
-            "HELP": "در مورد epicها بیشتر بدانید"
+            "HELP": "در مورد اپیک‌ها بیشتر بدانید"
         },
         "TABLE": {
             "VOTES": "رأی",
             "NAME": "ام",
             "PROJECT": "پروژه",
-            "SPRINT": "پیشرفت",
+            "SPRINT": "اسپرینت",
             "ASSIGNED_TO": "محول شده",
-            "STATUS": "عیت",
+            "STATUS": "وضعیت",
             "PROGRESS": "پیشرفت",
+            "CLOSED_US": "بستن استوری‌های کاربر",
+            "CLOSED_EPICS": "اپیک‌های بسته شده",
             "VIEW_OPTIONS": "تنظیمات نمایش"
         },
         "CREATE": {
-            "TITLE": "Epic جدید",
-            "PLACEHOLDER_DESCRIPTION": "متنی توضیحی برای درک بهتر این epic توسط دیگران اضافه کنید",
+            "TITLE": "اپیک جدید",
+            "PLACEHOLDER_DESCRIPTION": "متنی توضیحی برای درک بهتر این اپیک توسط دیگران اضافه کنید",
             "TEAM_REQUIREMENT": "الزامات تیم",
             "CLIENT_REQUIREMENT": "الزامات مشتری",
             "BLOCKED": "مسدودشده",
-            "BLOCKED_NOTE_PLACEHOLDER": "چرا این epic‌ مسدود شده؟",
-            "CREATE_EPIC": "ایجاد epic"
+            "BLOCKED_NOTE_PLACEHOLDER": "چرا این اپیک مسدود شده؟",
+            "CREATE_EPIC": "ایجاد اپیک"
         }
     },
     "PROJECTS": {
@@ -418,7 +458,7 @@
         "MY_PROJECTS": "پروژه‌های من"
     },
     "ATTACHMENT": {
-        "SECTION_NAME": "پیوست‌ها",
+        "SECTION_NAME": "Attachments",
         "TITLE": "{{ fileName }} آپلودشده در تاریخ {{ date }}",
         "LIST_VIEW_MODE": "حالت نمایش لیستی",
         "GALLERY_VIEW_MODE": "شیوه‌ی نمایش گالری",
@@ -436,7 +476,7 @@
         "TITLE_LIGHTBOX_DELETE_ATTACHMENT": "حذف پیوست ...",
         "MSG_LIGHTBOX_DELETE_ATTACHMENT": "پیوست '{{fileName}}'",
         "ERROR_DELETE_ATTACHMENT": "حذف با مشکل مواجه شد: {{errorMessage}}",
-        "ERROR_MAX_SIZE_EXCEEDED": "'{{fileName}}' ({{fileSize}}) بیش از حد مجاز است. فایلی با حجم کمتر از ({{maxFileSize}}) انتخاب کنید"
+        "ERROR_MAX_SIZE_EXCEEDED": "'{{fileName}}' ({{fileSize}}) is too heavy for the Taiga, try it with a file smaller than ({{maxFileSize}})"
     },
     "PAGINATION": {
         "PREVIOUS": "قبلی",
@@ -458,7 +498,8 @@
             "PAGE_TITLE": "عضویت‌ها - {{projectName}}",
             "ADD_BUTTON": "+ افزودن عضو جدید",
             "ADD_BUTTON_TITLE": "اضافه کردن عضو جدید",
-            "LIMIT_USERS_WARNING_MESSAGE_FOR_ADMIN": "متأسفانه این پروژه به محدودیت <strong>({{members}})</strong>عضو مجاز آن رسیده است.",
+            "UPGRADE_BUTTON": "برنامه را ارتقا بده",
+            "LIMIT_USERS_WARNING_MESSAGE_FOR_ADMIN": "If you would like to <strong>add more members</strong>, please contact the project owner <a href='mailto:{{ owner_email }}' title='{{ owner_email }}'>{{ owner_email }}</a>",
             "LIMIT_USERS_WARNING_MESSAGE_FOR_OWNER": "این پروژه به محدودیت <strong>({{members}})</strong>عضو مجاز خود رسیده است. اگر می‌خواهید محدودیت را افزایش دهید، با ادمین تماس بگیرید."
         },
         "PROJECT_EXPORT": {
@@ -471,16 +512,16 @@
             "LOADING_MESSAGE": "لطفاً این صفحه را نبندید.",
             "ASYNC_MESSAGE": "زمانی که خاتمه یافت، ایمیلی ارسال می‌کنیم.",
             "SYNC_MESSAGE": "اگر دانلود به صورت خودکار آغاز نشده، <a href='{{url}}' download title='Download the dump file'>اینجا</a> کلیک کنید.",
-            "ERROR": "اومپا لومپای ما در ایجاد فایل عیب‌یابی با مشکل روبرو شده است. مجدداً تلاش کنید.",
-            "ERROR_BUSY": "متأسفیم، اومپا لومپای ما در حال حاضر به شدت مشغول است. پس از چند دقیقه مجدداً تلاش کنید."
+            "ERROR": "The Taiga has some problems generating your dump. Please try it again.",
+            "ERROR_BUSY": "Sorry, the Taiga is experiencing heavy load right now. Please try again in a few minutes."
         },
         "MODULES": {
             "TITLE": "ماژول‌ها",
-            "EPICS": "Epics",
+            "EPICS": "اپیک‌ها",
             "EPICS_DESCRIPTION": "مدیریت کردن و ترسیم گرافیکی مهم‌ترین بخش‌های استراتژیکی پروژه",
-            "BACKLOG": "گزارش امور ناتمام",
+            "BACKLOG": "اسکرام",
             "BACKLOG_DESCRIPTION": "مدیریت کردن استوری‌های کاربری برای حفظ نظم نمایش کارهای بعدی و در اولویت.",
-            "NUMBER_SPRINTS": "پیش‌بینی تعداد پیشرفت‌ها",
+            "NUMBER_SPRINTS": "پیش‌بینی تعداد اسپرینت‌ها",
             "NUMBER_SPRINTS_HELP": "برای عدد نامشخص، 0 وارد کنید",
             "NUMBER_US_POINTS": "مجموع امتیاز استوری‌ها به صورت تخمینی",
             "NUMBER_US_POINTS_HELP": "برای عدد نامشخص، صفر وارد کنید",
@@ -489,13 +530,13 @@
             "ISSUES": "موضوعات",
             "ISSUES_DESCRIPTION": "دنبال کردن باگ‌ها، سوالات و بهینه‌سازی‌های مربوط به پروژه‌ی شما. هیچ موردی را از دست ندهید!",
             "WIKI": "ویکی",
-            "WIKI_DESCRIPTION": "اضافه کردن، ویرایش یا حذف محتوا در ارتباط با دیگران. اینجا مکان خوبی برای مستندسازی پروژه‌های شماست.",
+            "WIKI_DESCRIPTION": "Add, modify, or delete content in collaboration with others. This is the right place for your project's documentation.",
             "MEETUP": "ملاقات",
             "MEETUP_DESCRIPTION": "سیستم ویدیوکنفرانس خود را انتخاب کنید",
             "SELECT_VIDEOCONFERENCE": "انتخاب سیستم ویدیوکنفرانس",
             "SALT_CHAT_ROOM": "پیشوندی برای نام چت‌روم انتخاب کنید",
             "JITSI_CHAT_ROOM": "جیسی",
-            "APPEARIN_CHAT_ROOM": "نمایان‌شده در",
+            "WHEREBYCOM_CHAT_ROOM": "Whereby.com",
             "TALKY_CHAT_ROOM": "تاکی",
             "CUSTOM_CHAT_ROOM": "سفارشی",
             "URL_CHAT_ROOM": "لینک چت‌روم شما"
@@ -536,7 +577,9 @@
             "DESCRIPTION": "فایل CSV یا لینک ایجادشده را کپی کنید و آن را در نرم‌افزار ویرایش متن یا اکسل باز کنید تا گزارش پروژه‌ی خود را تشکیل دهید. می‌توانید تمام داده‌ها را آنالیز کنید و نمودارهای گرافیکی ترسیم کنید.",
             "HELP": "چگونه از این در شیت خود استفاده کنم؟",
             "REGENERATE_TITLE": "تغییر URL",
-            "REGENERATE_SUBTITLE": "در حال تغییر پیوند دسترسی به داده‌های CSV هستید. لینک قبلی غیرفعال می‌شود. آیا مطمئن هستید؟"
+            "REGENERATE_SUBTITLE": "You are going to change the CSV data access url. The previous url will be disabled. Are you sure?",
+            "DELETE_TITLE": "حذف لینک",
+            "DELETE_SUBTITLE": "You are going to delete the current CSV data access url. Are you sure?"
         },
         "CSV": {
             "SECTION_TITLE_EPIC": "گزارش epicها",
@@ -547,13 +590,15 @@
             "URL_FIELD_PLACEHOLDER": "لطفاً لینک CSV را مجدداً ایجاد کن",
             "TITLE_REGENERATE_URL": "بازسازی لینک CSV",
             "ACTION_GENERATE_URL": "ایجاد URL",
-            "ACTION_REGENERATE": "بازسازی"
+            "ACTION_REGENERATE": "بازسازی",
+            "TITLE_DELETE_URL": "حذف آدرس CSV",
+            "ACTION_DELETE_URL": "حذف"
         },
         "CUSTOM_FIELDS": {
             "TITLE": "ویژگی‌های سفارشی",
             "SUBTITLE": "ویژگی‌های سفارشی برای استوری‌های کاربر، وظایف و موضوعات مشخص کنید",
             "EPIC_DESCRIPTION": "ویژگی‌های سفارشی Epicها",
-            "EPIC_ADD": "اضافه کردن ویژگی سفارشی جدید در epicها",
+            "EPIC_ADD": "اضافه کردن ویژگی سفارشی جدید در اپیک‌ها",
             "US_DESCRIPTION": "ویژگی‌های سفارشی استوری‌های کاربر",
             "US_ADD": "اضافه کردن ویژگی سفارشی جدید در استوری‌های کاربر",
             "TASK_DESCRIPTION": "ویژگی‌های سفارشی وظایف",
@@ -564,7 +609,10 @@
             "FIELD_TYPE_RICHTEXT": "متن دارای فرمت",
             "FIELD_TYPE_MULTI": "چند خطی",
             "FIELD_TYPE_DATE": "تاریخ",
-            "FIELD_TYPE_URL": "URL"
+            "FIELD_TYPE_URL": "URL",
+            "FIELD_TYPE_DROPDOWN": "دراپ داون",
+            "FIELD_TYPE_CHECKBOX": "چک باکس",
+            "FIELD_TYPE_NUMBER": "اعداد"
         },
         "PROJECT_VALUES": {
             "PAGE_TITLE": "{{sectionName}} - مقادیر پروژه - {{projectName}}",
@@ -574,7 +622,7 @@
         "PROJECT_VALUES_POINTS": {
             "TITLE": "امتیاز",
             "SUBTITLE": "امتیاز تخمینی استوری کاربری خود را مشخص کنید",
-            "US_TITLE": "امتیاز استوری‌های کاربری",
+            "US_TITLE": "User story points",
             "ACTION_ADD": "اضافه کردن امتیاز"
         },
         "PROJECT_VALUES_PRIORITIES": {
@@ -591,7 +639,7 @@
         },
         "PROJECT_VALUES_STATUS": {
             "TITLE": "وضعیت‌ها",
-            "SUBTITLE": "مشخص کردن وضعیت آینده‌ی استوری‌های کاربری، وظایف و موضوعات شما",
+            "SUBTITLE": "Add, remove or edit the color and name of the statuses your epics, user stories, task and issues will go through.",
             "EPIC_TITLE": "وضعیت Epicها",
             "US_TITLE": "وضعیت‌های استوری‌های کاربر",
             "TASK_TITLE": "وضعیت وظایف",
@@ -615,21 +663,35 @@
             "SELECTED": "انتخاب شده"
         },
         "PROJECT_DUE_DATE_STATUS": {
-            "TITLE": "Due Dates",
-            "SUBTITLE": "Specify the due dates your user stories, tasks and issues will go through if selected",
-            "US_TITLE": "User Story Due Date status",
+            "TITLE": "موعدهای تحویل",
+            "SUBTITLE": "Specify the due dates status your user stories, tasks and issues will go through if selected",
+            "US_TITLE": "وضعیت موعد سررسید استوری کاربر",
             "ACTION_ADD_STATUS": "اضافه کردن وضعیت جدید",
-            "TASK_TITLE": "Task Due Date status",
-            "ISSUE_TITLE": "Issue Due Date status",
-            "DAYS_TO_DUE_DATE": "Days to due date",
-            "BEFORE_AFTER": "Before/after",
-            "BEFORE": "Before",
-            "AFTER": "Past"
+            "TASK_TITLE": "وضعیت موعد سررسید وظیفه",
+            "ISSUE_TITLE": "وضعیت موعد سر رسید گزارش",
+            "DAYS_TO_DUE_DATE": "تعداد روز مانده تا موعد تحویل",
+            "BEFORE_AFTER": "قبل/بعد",
+            "BEFORE": "قبل",
+            "AFTER": "گذشته"
+        },
+        "PROJECT_KANBAN_OPTIONS": {
+            "TITLE": "Kanban options",
+            "SUBTITLE": "Enable swimlanes to use in your workflow and set WIP limits to restrict the maximun number of user stories on each status.",
+            "SWIMLANES": "Swimlanes",
+            "ACTION_ADD_SWIMLANE": "New swimlane",
+            "SWIMLANE_NAME_EXISTS": "This swimlane name already exists",
+            "NO_SWIMLANES": "There are no swimlanes yet",
+            "SWIMLANE_NAME": "Swimlane name",
+            "POPUP_NEW_SWIMLANE": "If you had some user stories created, you will find them on this swimlane.",
+            "WIP_LIMITS": "WIP LIMITS",
+            "WIP_LIMIT_PLACEHOLDER": "WIP limit not set",
+            "WIP_LIMIT_INPUT": "Set WIP limit",
+            "DEFAULT": "پیش فرض"
         },
         "ROLES": {
             "PAGE_TITLE": "نقش‌ها -  {{projectName}}",
             "WARNING_NO_ROLE": "مراقب باشید، هیچ نقشی در پروژه‌ی شما قادر به تخمین ارزش امتیازات استوری‌های کاربر نیست",
-            "HELP_ROLE_ENABLED": "اگر فعال شود، اعضایی با این نقش می‌توانند امتیاز استوری‌های کاربری را تخمین بزنند",
+            "HELP_ROLE_ENABLED": "This role is part of the roles involved in estimating user story points.",
             "DISABLE_COMPUTABLE_ALERT_TITLE": "آیا مطمئن هستید که می‌خواهید تخمین‌های این نقش را غیرفعال کنید؟",
             "DISABLE_COMPUTABLE_ALERT_SUBTITLE": "اگر مجوز تخمین را برای نقش {{roleName}} غیرفعال کنید، تمام تخمین‌های قبلی که توسط این نقش ایجاد شده، حذف می‌شود",
             "COUNT_MEMBERS": "{{ role.members_count }} عضو با این نقش",
@@ -643,7 +705,7 @@
         "THIRD_PARTIES": {
             "SECRET_KEY": "کلید رمزی",
             "PAYLOAD_URL": "لینک ظرفیت",
-            "VALID_IPS": "آی‌پی‌های معتبر منبع (که با کاما جدا شده است)"
+            "VALID_IPS": "Valid source IPs (separated by ,)"
         },
         "BITBUCKET": {
             "SECTION_NAME": "بیت‌باکت",
@@ -691,14 +753,14 @@
         "CUSTOM_ATTRIBUTES": {
             "PAGE_TITLE": "{{sectionName}} - خواص سفارشی - {{projectName}}",
             "ADD": "اضافه کردن ویژگی سفارشی",
-            "EDIT": "ویرایش ویژگی سفارشی",
-            "DELETE": "حذف ویژگی‌های سفارشی",
-            "SAVE_TITLE": "ذخیره کردن ویژگی سفارشی",
+            "EDIT": "Edit custom field",
+            "DELETE": "Delete custom field",
+            "SAVE_TITLE": "Save custom field",
             "CANCEL_TITLE": "لغو ایجاد",
             "SET_FIELD_NAME": "نام ویژگی سفارشی",
             "SET_FIELD_DESCRIPTION": "توضیحات ویژگی سفارشی شما",
             "FIELD_TYPE_DEFAULT": "-- یکی را انتخاب کنید --",
-            "ACTION_UPDATE": "بروزرسانی ویژگی سفارشی",
+            "ACTION_UPDATE": "Update custom field",
             "ACTION_CANCEL_EDITION": "لغو ویرایش"
         },
         "MEMBERSHIP": {
@@ -736,7 +798,7 @@
             "ACTION_ADD_STATUS": "اضافه کردن وضعیت جدید",
             "IS_ARCHIVED_COLUMN": "آرشیو‌شده",
             "IS_CLOSED_COLUMN": "بسته‌شده",
-            "WIP_LIMIT_COLUMN": "محدودیت WIP",
+            "WIP_LIMIT_COLUMN": "WIP limit",
             "PLACEHOLDER_WRITE_NAME": "نامی برای وضعیت جدید وارد کنید"
         },
         "MENU": {
@@ -747,14 +809,15 @@
             "INTEGRATIONS": "مجتمع‌سازی‌ها"
         },
         "SUBMENU_PROJECT_VALUES": {
-            "STATUS": "وضعیت",
+            "STATUS": "وضعیت‌ها",
             "POINTS": "امتیاز",
             "PRIORITIES": "اولویت‌ها",
             "SEVERITIES": "میزان اهمیت",
             "TYPES": "انواع",
             "CUSTOM_FIELDS": "ویژگی‌های سفارشی",
             "TAGS": "برچسب‌ها",
-            "DUE_DATES": "Due dates"
+            "DUE_DATES": "موعد سر رسید",
+            "KANBAN_OPTIONS": "Kanban options"
         },
         "SUBMENU_ROLES": {
             "TITLE": "نقش‌ها",
@@ -781,7 +844,7 @@
     "USER": {
         "PROFILE": {
             "PAGE_TITLE": "{{userFullName}} (@{{userUsername}})",
-            "EDIT": "ویرایش پروفایل",
+            "USER_SETTINGS": "تنظیمات کاربر",
             "CLOSED_US": "استوری کاربری بسته‌شده",
             "PROJECTS": "پروژه‌ها",
             "PROJECTS_EMPTY": "{{username}} تاکنون پروژه‌ای نداشته است.",
@@ -815,8 +878,8 @@
             "FILTER_TYPE_ALL_TITLE": "نمایش همه",
             "FILTER_TYPE_PROJECTS": "پروژه‌ها",
             "FILTER_TYPE_PROJECTS_TITLE": "فقط پروژه‌ها را نمایش بده",
-            "FILTER_TYPE_EPICS": "Epics",
-            "FILTER_TYPE_EPICS_TITLE": "فقط epicها را نمایش بده",
+            "FILTER_TYPE_EPICS": "اپیک‌ها",
+            "FILTER_TYPE_EPICS_TITLE": "فقط اپیک‌ها را نمایش بده",
             "FILTER_TYPE_USER_STORIES": "استوری‌ها",
             "FILTER_TYPE_USER_STORIES_TITLE": "فقط استوری‌های کاربر را نمایش بده",
             "FILTER_TYPE_TASKS": "وظایف",
@@ -828,12 +891,12 @@
     },
     "PROJECT": {
         "PAGE_TITLE": "{{projectName}}",
-        "HELP": "ترتیب پروژه‌های خود را تغییر دهید تا در صدر پروژه‌های پراستفاده قرار گیرند.<br/>10 پروژه‌ی پراستفاده در لیست پروژه‌های نوار ناوبری بالا نمایش داده می‌شود.",
+        "HELP": "Reorder your projects to set at the top the most used ones.<br/> The top 4 projects will appear in the top navigation bar project list",
         "PRIVATE": "پروژه‌ی خصوصی",
         "LOOKING_FOR_PEOPLE": "این پروژه در انتظار عضو است",
-        "FANS_COUNTER_TITLE": "{total, plural, one{یک طرفدار} other{# طرفداران}}",
-        "WATCHERS_COUNTER_TITLE": "{total, plural, one{یک بررسی کننده} other{#بررسی کنندگان}}",
-        "MEMBERS_COUNTER_TITLE": "{total, plural, one{یک عضو} other{# اعضا}}",
+        "FANS_COUNTER_TITLE": "{total, plural, =1{one fan} other{# fans}}",
+        "WATCHERS_COUNTER_TITLE": "{total, plural, =1{one watcher} other{# watchers}}",
+        "MEMBERS_COUNTER_TITLE": "{total, plural, =1{one member} other{# members}}",
         "BLOCKED_PROJECT": {
             "BLOCKED": "پروژه مسدودشده",
             "THIS_PROJECT_IS_BLOCKED": "این پروژه موقتاً مسدود شده است",
@@ -842,29 +905,38 @@
         "SECTION": {
             "SEARCH": "جست‌وجو",
             "TIMELINE": "تایم‌لاین",
+            "EPICS": "اپیک‌ها",
             "BACKLOG": "گزارش امور ناتمام",
             "KANBAN": "Kanban",
             "ISSUES": "موضوعات",
             "WIKI": "ویکی",
             "TEAM": "تیم",
-            "MEETUP": "ملاقات",
-            "ADMIN": "ادمین"
+            "MEETUP": "Meetup",
+            "SETTINGS": "Settings",
+            "SCRUM": "اسکرام",
+            "COLLAPSE_MENU": "collapse menu"
         },
         "NAVIGATION": {
-            "ACTION_CREATE_PROJECT": "ایجاد پروژه",
+            "PROJECTS": "پروژه‌ها",
+            "ACCOUNT_SETTINGS": "Account settings",
+            "ACTION_CREATE_PROJECT": "New project",
+            "ACTION_CREATE_PROJECT_FIRST": "Create your first project",
+            "ACTION_CREATE_PROJECT_FIRST_TEXT": "You don’t have any projects yet. Create one now, invite your team and start using Taiga to the fullest.",
+            "VIEW_ALL_PROJECTS": "View all projects",
             "MANAGE_PROJECTS": "مدیریت پروژه‌ها",
             "TITLE_CREATE_PROJECT": "ایجاد پروژه",
-            "HELP_TITLE": "صفحه‌ی پشتیبانی تایگا",
-            "HELP": "راهنمایی",
+            "HELP_TITLE": "راهنمایی",
             "HOMEPAGE": "صفحه‌ی خانه",
-            "FEEDBACK_TITLE": "ارسال بازخورد",
-            "FEEDBACK": "بازخورد",
+            "TAIGA_RESOURCES_TITLE": "Go to Taiga resources",
+            "TAIGA_RESOURCES": "Taiga Resources",
+            "FEEDBACK_TITLE": "Write to us with your feedback",
+            "FEEDBACK": "Ask a question",
             "NOTIFICATIONS_TITLE": "ویرایش تنظیمات نوتیفیکیشن",
             "NOTIFICATIONS": "نوتیفیکیشن‌ها",
             "VIEW_PROFILE_TITLE": "نمایش پروفایل",
             "VIEW_PROFILE": "نمایش پروفایل",
-            "EDIT_PROFILE_TITLE": "ویرایش پروفایل",
             "EDIT_PROFILE": "ویرایش پروفایل",
+            "USER_SETTINGS": "تنظیمات کاربر",
             "CHANGE_PASSWORD_TITLE": "تغییر رمز عبور",
             "CHANGE_PASSWORD": "تغییر رمز عبور",
             "DASHBOARD_TITLE": "داشبورد",
@@ -876,13 +948,13 @@
             "LIKED": "لایک‌شده",
             "UNLIKE": "دیسلایک",
             "BUTTON_TITLE": "لایک یا دیسلایک کردن این پروژه",
-            "COUNTER_TITLE": "{total, plural, one{یک طرفدار} other{# طرفداران}}"
+            "COUNTER_TITLE": "{total, plural, =1{one fan} other{# fans}}"
         },
         "WATCH_BUTTON": {
             "BUTTON_TITLE": "نظارت بر این پروژه و تنظیم نوتیفیکیشن‌ها",
             "WATCH": "نظارت",
             "WATCHING": "در حال بررسی",
-            "COUNTER_TITLE": "{total, plural, one{یک بررسی کننده} other{#بررسی کنندگان}}",
+            "COUNTER_TITLE": "{total, plural, =1{one watcher} other{# watchers}}",
             "OPTIONS": {
                 "NOTIFY_ALL": "دریافت تمام نوتیفیکیشن‌ها",
                 "NOTIFY_ALL_TITLE": "دریافت تمام نوتیفیکیشن‌های مربوط به این پروژه",
@@ -901,7 +973,7 @@
             "CHOOSE_TEMPLATE": "کدام قالب برای پروژه‌ی شما مناسب‌تر است؟",
             "TEMPLATE_SCRUM": "اسکرام",
             "TEMPLATE_SCRUM_DESC": "وظایف خود را اولویت‌بندی کنید و در بازه‌ی زمانی کوتاه انجام دهید.",
-            "TEMPLATE_SCRUM_LONGDESC": "اسکرام روشی برای توسعه‌ی نرم‌افزار به صورت مرحله‌ای سریع و تدریجی است.\nگزارش امور ناتمام محصول چیزی است که با ترتیب مشخصی، ارایه می‌شود. گزارش امور ناتمام پروژه به بخش‌های قابل‌مدیریت و اجرایی به اسم پیشرفت‌ها تقسیم می‌شود.\nمقدار زمانی که تیم برای شروع و تکمیل پیشرفتی جدید و رسیدگی به تعدادی از استوری‌های کاربر در گزارش امور ناتمام نیاز دارد، متناسب با مهارت‌ها، توانمندی‌ها و منابع است. پروژه با خالی شدن گزارش امور ناتمام، پیشرفت می‌کند و تکمیل می‌شود.",
+            "TEMPLATE_SCRUM_LONGDESC": "اسکرام روشی برای توسعه‌ی نرم‌افزار به صورت مرحله‌ای سریع و تدریجی است.\nگزارش امور ناتمام محصول چیزی است که با ترتیب مشخصی، ارایه می‌شود. گزارش امور ناتمام پروژه به بخش‌های قابل‌مدیریت و اجرایی به اسم اسپرینت‌ها تقسیم می‌شود.\nمقدار زمانی که تیم برای شروع و تکمیل پیشرفتی جدید و رسیدگی به تعدادی از استوری‌های کاربر در گزارش امور ناتمام نیاز دارد، متناسب با مهارت‌ها، توانمندی‌ها و منابع است. پروژه با خالی شدن گزارش امور ناتمام، اسپرینت می‌کند و تکمیل می‌شود.",
             "TEMPLATE_KANBAN": "Kanban",
             "TEMPLATE_KANBAN_DESC": "حفظ جریان کاری ثابت در وظایف مستقل",
             "TEMPLATE_KANBAN_LONGDESC": "روش کانبان روشی برای تقسیم توسعه‌ی پروژه (هر نوع پروژه‌ای) به مراحل مختلف است.\nیک کارت کانبان مثل یک کارت اندیس یا یک یادداشت پستی است که جزئیات هر وظیفه (یا استوری کاربری) در پروژه که قرار است تکمیل شود را بیان می‌کند. بورد کانبان برای انتقال هر یک از کارت‌ها از یک وضعیت تکمیل شدن به وضعیت بعدی به کار می‌رود و به این ترتیب برای پیگیری پیشرفت کار مفید است.",
@@ -920,8 +992,8 @@
         },
         "COMMON": {
             "DETAILS": "جزئیات پروژه‌ی جدید",
-            "PROJECT_TITLE": "نام پروژه",
-            "PROJECT_DESCRIPTION": "توضیح پروژه"
+            "PROJECT_TITLE": "Project Name (Required)",
+            "PROJECT_DESCRIPTION": "Project Description (Required)"
         },
         "DUPLICATE": {
             "TITLE": "ایجاد کپی پروژه",
@@ -931,27 +1003,27 @@
         "IMPORT": {
             "TITLE": "وارد کردن پروژه",
             "DESCRIPTION": "وارد کردن پروژه‌ها از پلتفرم‌های مختلف به تایگا",
-            "ASYNC_IN_PROGRESS_TITLE": "اومپا لومپای ما در حال ایمپورت کردن پروژه‌ی شماست",
+            "ASYNC_IN_PROGRESS_TITLE": "The Taiga is importing your project",
             "ASYNC_IN_PROGRESS_MESSAGE": "این فرآیند ممکن است چند دقیقه طول بکشد.<br/> ما در پایان ایمیلی ارسال می‌کنیم",
             "UPLOAD_IN_PROGRESS_MESSAGE": "{{uploadedSize}} از {{totalSize}} آپلود شده",
-            "ERROR": "اومپا لومپای ما در وارد کردن داده‌های عیب‌یابی با مشکل روبرو شده. مجدداً تلاش کنید.",
-            "ERROR_TOO_MANY_REQUEST": "متأسفیم، اومپا لومپای ما در حال حاضر به شدت مشغول است. پس از چند دقیقه مجدداً تلاش کنید.",
-            "ERROR_MESSAGE": "اومپا لومپای ما در وارد کردن داده‌های عیب‌یابی شما با مشکل روبرو شد: {{error_message}}",
-            "ERROR_MAX_SIZE_EXCEEDED": "'{{fileName}}' ({{fileSize}}) بیش از حد مجاز است. فایلی با حجم کمتر از ({{maxFileSize}}) انتخاب کنید",
+            "ERROR": "The Taiga has some problems importing your dump data. Please try again.",
+            "ERROR_TOO_MANY_REQUEST": "Sorry, the Taiga is experiencing heavy load right now. Please try again in a few minutes.",
+            "ERROR_MESSAGE": "The Taiga has some problems importing your dump data: {{error_message}}",
+            "ERROR_MAX_SIZE_EXCEEDED": "'{{fileName}}' ({{fileSize}}) is too heavy for the Taiga, try it with a file smaller than ({{maxFileSize}})",
             "SYNC_SUCCESS": "پروژه‌ی شما با موفقیت ایمپورت شد",
             "IMPORT": "وارد کردن",
             "WHO_IS": "وظایف آنها محول می‌شود به...",
             "WRITE_EMAIL": "یا در صورت نیاز ایمیل این کاربر در تایگا را وارد کنید",
             "SEARCH_CONTACT": "و در صورت نیاز، در مخاطبین خود سرچ کنید",
             "WRITE_EMAIL_LABEL": "ایمیل کاربر در تایگا را وارد کنید",
-            "ACCEEDE": "اعمال",
+            "ACCEEDE": "Access",
             "PROJECT_MEMBERS": "اعضای پروژه",
-            "PROCESS_DESCRIPTION": "می‌خواهید به کدام عضو تایگا، وظایف {{platform}} را محول کنید",
+            "PROCESS_DESCRIPTION": "Tell us to whom from Taiga you want to assign the tasks of {{platform}}",
             "MATCH": "آیا <strong>{{user_external}}</strong> همان <strong>{{user_internal}}</strong> است؟",
             "CHOOSE": "انتخاب کاربر",
             "LINKS": "لینک‌هایی با  {{platform}}",
             "LINKS_DESCRIPTION": "آیا می‌خواهید پیوند آیتم‌ها با کارت {{platform}} را حفظ کنید؟",
-            "WARNING_MAIL_USER": "توجه کنید که اگر کاربر حساب کاربری تایگا نداشته باشد، نمی‌توانید وظایف را به وی محول کنیم.",
+            "WARNING_MAIL_USER": "Note that if the user does not have a Taiga account we will not be able to assign the tasks to them.",
             "ASSIGN": "تخصیص",
             "PROJECT_SELECTOR": {
                 "NO_RESULTS": "در ارتباط با آنچه جست‌وجو کرده‌اید، چیزی پیدا نشد",
@@ -959,8 +1031,8 @@
                 "ACTION_BACK": "بازگشت"
             },
             "PROJECT_RESTRICTIONS": {
-                "PROJECT_MEMBERS_DESC_PRIVATE": "پروژه‌ای که می‌خواهید وارد کنید، {{members}} عضو با احتساب شما دارد. متأسفانه پلن فعلی شما حداکثر {{max_memberships}} عضو در هر پروژه‌ی شخصی می‌پذیرد. اگر می‌خواهید این محدودیت را افزایش دهید، با ادمین تماس بگیرید.",
-                "PROJECT_MEMBERS_DESC_PUBLIC": "پروژه‌ای که می‌خواهید وارد کنید، {{members}} عضو با احتساب خودتان دارد. متأسفانه پلن فعلی شما حداکثر {{max_memberships}} عضو در هر پروژه‌ی عمومی می‌پذیرد. اگر می‌خواهید این محدودیت را افزایش دهید، با ادمین تماس بگیرید.",
+                "PROJECT_MEMBERS_DESC_PRIVATE": "The project you are trying to import has {{members}} members including you. Unfortunately, your current plan allows for a maximum of {{max_memberships}} members per private project. If you would like to increase that limit please contact the administrator.",
+                "PROJECT_MEMBERS_DESC_PUBLIC": "The project you are trying to import has {{members}} members including you. Unfortunately, your current plan allows for a maximum of {{max_memberships}} members per public project. If you would like to increase that limit please contact the administrator.",
                 "ACCOUNT_ALLOW_MEMBERS": "حساب کاربری شما حداکثر {{members}} می‌پذیرد",
                 "PRIVATE_PROJECTS_SPACE": {
                     "TITLE": "متأسفانه پلن فعلی شما امکان اضافه کردن پروژه‌های خصوصی اضافی را ندارد",
@@ -1005,7 +1077,7 @@
             "GITHUB": {
                 "SELECTOR": "موضوعات پروژه‌های گیت‌هاب خود را وارد کنید",
                 "CHOOSE_PROJECT": "پیدا کردن پروژه‌ای که می‌خواهید وارد کنید",
-                "NO_PROJECTS": "به نظر می‌رسد که پروژه‌ای در گیت‌هاب ندارید",
+                "NO_PROJECTS": "It seems you have no projects in GitHub",
                 "HOW_DO_YOU_WANT_TO_IMPORT": "چگونه می‌خواهید موضوعات خود را وارد تایگا کنید؟",
                 "KANBAN_PROJECT": "مثل استوری‌های کاربری در یک پروژه‌ی کانبان",
                 "KANBAN_PROJECT_DESCRIPTION": "پس از آن می‌توانید اسکرام با لیست امور ناتمام را فعال کنید.",
@@ -1017,7 +1089,7 @@
             "ASANA": {
                 "SELECTOR": "وارد کردن پروژه‌های Asana و انتخاب نحوه‌ی مدیریت آن",
                 "CHOOSE_PROJECT": "انتخاب پروژه برای وارد کردن",
-                "NO_PROJECTS": "به نظر می‌رسد که پروژه‌ای در Asana ندارید",
+                "NO_PROJECTS": "It seems you have no projects in Asana",
                 "KANBAN_PROJECT": "Kanban",
                 "SCRUM_PROJECT": "اسکرام",
                 "CREATE_AS_SCRUM_DESCRIPTION": "وظایف و زیروظایف پروژه‌ی شما به صورت استوری‌های کاربری تایگاه و وظایف ایجاد می‌شود.",
@@ -1027,7 +1099,7 @@
                 "SELECTOR": "وارد کردن پروژه‌ی Jira و انتخاب نحوه‌ی مدیریت کردن آن",
                 "HOW_TO_CONFIGURE": "(راهنمای تنظیمات)",
                 "CHOOSE_PROJECT": "پروژه یا بوردی که می‌خواهید وارد کنید را انتخاب کنید",
-                "NO_PROJECTS": "به نظر می‌رسد که پروژه یا بوردی در Jira ندارید",
+                "NO_PROJECTS": "It seems you have no projects or boards in Jira",
                 "URL": "لینک Jira",
                 "KANBAN_PROJECT": "Kanban",
                 "SCRUM_PROJECT": "اسکرام",
@@ -1045,17 +1117,22 @@
             "CONFIRM": "در مورد حذف حساب کاربری تایگای خود مطمئن هستید؟",
             "CANCEL": "بازگشت به تنظیمات",
             "ACCEPT": "حذف حساب کاربری",
-            "BLOCK_PROJECT": "توجه کنید که تمام پروژه‌های شما پس از حذف کردن حساب کاربری، <strong>مسدود</strong> می‌شود. اگر می‌خواهید پروژه‌ای را مسدود کنید، قبل از حذف کردن حساب کاربری، مالکیت آن را به عضو دیگری از پروژه بدهید."
+            "BLOCK_PROJECT": "Note that all projects you own will be <strong>blocked</strong> after you delete your account. If you do not want a particular project to be blocked, make sure you transfer ownership to another existing Taiga member before deleting your account."
         },
         "DELETE_PROJECT": {
             "TITLE": "حذف پروژه",
             "QUESTION": "آیا مطمئن هستید که می‌خواهید این پروژه را حذف کنید؟",
-            "SUBTITLE": "تمام اطلاعات پروژه (استوری‌های کاربر، وظایف، موضوعات، پیشرفت‌ها و صفحات ویکی) از بین خواهد رفت! :-(",
+            "SUBTITLE": "تمام اطلاعات پروژه (استوری‌های کاربر، وظایف، موضوعات، اسپرینت و صفحات ویکی) از بین خواهد رفت! :-(",
             "CONFIRM": "بله، مطمئن هستم."
         },
         "ASSIGNED_TO": {
             "SELECT": "انتخاب کردن موارد واگذار شده به",
             "SEARCH": "جست‌وجوی کاربران"
+        },
+        "SELECT_USER": {
+            "SEARCH": "جست‌وجوی کاربران",
+            "REMOVE": "حذف کاربر",
+            "ROLE": "نقش"
         },
         "ADD_MEMBER": {
             "TITLE": "عضو جدید",
@@ -1068,43 +1145,65 @@
             "HELP_TEXT": "اگر کاربران قبلاً در تایگا ثبت نام کرده باشند، به صورت خودکار اضافه می‌شوند. در عین این صورت دعوت‌نامه دریافت می‌کنند."
         },
         "FEEDBACK": {
-            "TITLE": "برای ما بنویسید ...",
-            "COMMENT": "... یک باگ، تعدادی پیشنهاد، چیزی جالب ... یا حتی بدترین کابوس شما در استفاده از تایگا",
-            "ACTION_SEND": "ارسال بازخورد"
+            "TITLE": "Ask a question",
+            "COMMENT": "Leave us a message",
+            "ACTION_SEND": "Send Message",
+            "YOU_CAN_ALSO": "You can also:",
+            "CREATE": "Create an issue on this",
+            "PUBLIC": "public Taiga project",
+            "EMAIL": "Send us a e-mail directly to",
+            "SUPPORT": "support@taiga.io"
         },
         "SEARCH": {
             "TITLE": "جست‌وجو",
             "PLACEHOLDER_SEARCH": "به دنبال چه هستید؟"
         },
         "ADD_EDIT_SPRINT": {
-            "TITLE": "پیشروی جدید",
-            "PLACEHOLDER_SPRINT_NAME": "نام پیشرفت",
+            "TITLE": "اسپرینت جدید",
+            "PLACEHOLDER_SPRINT_NAME": "نام اسپرینت",
             "PLACEHOLDER_SPRINT_START": "تخمین شروع",
             "PLACEHOLDER_SPRINT_END": "تخمین پایان",
-            "ACTION_DELETE_SPRINT": "آیا می‌خواهید این پیشروی را حذف کنید؟",
-            "TITLE_ACTION_DELETE_SPRINT": "حذف پیشرفت",
-            "LAST_SPRINT_NAME": "آخرین پیشرفت <strong>  {{lastSprint}} ;-)</strong> است"
+            "ACTION_DELETE_SPRINT": "آیا می‌خواهید این اسپرینت را حذف کنید؟",
+            "TITLE_ACTION_DELETE_SPRINT": "حذف اسپرینت",
+            "LAST_SPRINT_NAME": "آخرین اسپرینت <strong>  {{lastSprint}} ;-)</strong> است"
         },
         "CREATE_EDIT": {
-            "PLACEHOLDER_DESCRIPTION": "Please add descriptive text to help others better understand this {{ objName }}",
-            "NEW": "New {{ objName }}",
-            "EDIT": "Edit {{ objName }}",
-            "ADD_EXISTING": "Add {{ objName }} to {{ targetName }}",
+            "TASK_PLACEHOLDER_DESCRIPTION": "Please add descriptive text to help others better understand this task",
+            "ISSUE_PLACEHOLDER_DESCRIPTION": "Please add descriptive text to help others better understand this issue",
+            "US_PLACEHOLDER_DESCRIPTION": "Please add descriptive text to help others better understand this user story",
+            "NEW_TASK": "وظیفه‌ی جدید",
+            "NEW_ISSUE": "New issue",
+            "NEW_US": "استوری کاربری جدید",
+            "EDIT_TASK": "ویرایش وظیفه",
+            "EDIT_ISSUE": "Edit issue",
+            "EDIT_US": "ویرایش استوری کاربر",
+            "ADD_EXISTING_ISSUE": "Add issue to {{ targetName }}",
             "CONFIRM_CLOSE": "شما تغییرات را ذخیره نکرده‌اید\nآیا از بستن این فرم اطمینان دارید؟",
-            "EXISTING_OBJECT": "Existing {{ objName }}",
-            "NEW_OBJECT": "New {{ objName }}",
-            "CHOOSE_EXISTING": "Which {{ objName }}?"
+            "EXISTING_ISSUE": "Existing issue",
+            "CHOOSE_EXISTING_ISSUE": "Which issue?",
+            "ADD_ISSUE": "اضافه کردن موضوع",
+            "FILTER_ISSUES": "Filter issues",
+            "SWIMLANE": "Swimlane",
+            "SELECT_SWIMLANE": "Select swimlane",
+            "SELECT_STATUS": "Select status",
+            "DEFAULT": "پیش فرض",
+            "ERROR_STATUS": "Changes cannot be saved because there is a problem with the selected status.",
+            "ERROR_SWIMLANE": "Changes cannot be saved because there is a problem with the selected swimlane."
+        },
+        "DISABLE_KANBAN": {
+            "TITLE": "Disable kanban",
+            "MESSAGE": "This project has swimlanes. They will be gone but your user stories will not be deleted"
         },
         "DELETE_DUE_DATE": {
             "TITLE": "حذف موعد تحویل",
             "SUBTITLE": "آیا از حذف موعد تحویل اطمینان دارید؟"
         },
         "DELETE_SPRINT": {
-            "TITLE": "حذف پیشرفت"
+            "TITLE": "حذف اسپرینت"
         },
         "REMOVE_RELATIONSHIP_WITH_EPIC": {
-            "TITLE": "Remove relationship with Epic",
-            "MESSAGE": "Are you sure you want to delete the relationship of this User Story with the Epic <strong>{{epicSubject}}</strong>"
+            "TITLE": "Remove relationship with epic",
+            "MESSAGE": "Are you sure you want to remove the relationship of this user story with its epic <strong>{{epicSubject}}</strong>?"
         },
         "CREATE_MEMBER": {
             "PLACEHOLDER_INVITATION_TEXT": "(اختیاری) متنی برای دعوت‌نامه اضافه کنید و جملات جالبی برای اعضای جدید بنویسید  ;-)",
@@ -1138,7 +1237,7 @@
             "TITLE": "تنظیم موعد تحویل",
             "PLACEHOLDER_DUE_DATE": "انتخاب تاریخ",
             "REASON_FOR_DUE_DATE": "دلیل برای موعد تحویل",
-            "PLACEHOLDER_REASON_FOR_DUE_DATE": "چرا این US به تاریخ تحویل نیاز دارد؟",
+            "PLACEHOLDER_REASON_FOR_DUE_DATE": "Why does this user story need a due date?",
             "SUGGESTIONS": {
                 "IN_ONE_WEEK": "در یک هفته",
                 "IN_TWO_WEEKS": "در دو هفته",
@@ -1151,34 +1250,42 @@
             "TITLE_ACTION_DELETE_DUE_DATE": "حذف موعد تحویل",
             "SUBTITLE_ACTION_DELETE_DUE_DATE": "Are you sure you want to delete the due date status {{due_date_status_name}}?"
         },
+        "ADMIN_KANBAN_POWERUPS": {
+            "TITLE_ACTION_DELETE_SWIMLANE": "Delete swimlane",
+            "SUBTITLE_ACTION_DELETE_SWIMLANE_OPTIONS": "Are you sure you want to delete {{swimlane}}?",
+            "SUBTITLE_ACTION_DELETE_SWIMLANE_REPLACEMENT": "All the user stories on this swimlane will be moved to:",
+            "SUBTITLE_ACTION_DELETE_SWIMLANE_LAST": "Your user stories will not be deleted. They will remain in the kanban.",
+            "DEFAULT_SWIMLANE": "New user stories will be in this swimlane by default",
+            "SET_DEFAULT_SWIMLANE": "Set this swimlane as default",
+            "DISABLE_DELETE_SWIMLANE": "The default swimlane cannot be deleted"
+        },
         "RELATE_TO_EPIC": {
-            "TITLE": "Link to Epic",
-            "EXISTING_EPIC": "Existing epic",
-            "NEW_EPIC": "New epic",
+            "TITLE": "Link to epic",
+            "EXISTING_EPIC": "epicموجود",
+            "NEW_EPIC": "epic جدید",
             "CHOOSE_PROJECT_FOR_CREATION": "پروژه چیست؟",
             "CHOOSE_PROJECT_FROM": "پروژه چیست؟",
             "SUBJECT": "موضوع",
-            "CHOOSE_EPIC": "What's the epic?",
-            "FILTER_EPICS": "Filter epics",
+            "CHOOSE_EPIC": "اپیک چیست؟",
+            "FILTER_EPICS": "فیلتر کردن epicها",
             "NO_EPICS_FOUND": "در ارتباط با آنچه جست‌وجو کرده‌اید، چیزی پیدا نشد"
         }
     },
     "EPIC": {
         "PAGE_TITLE": "{{epicSubject}} - Epic {{epicRef}} - {{projectName}}",
         "PAGE_DESCRIPTION": "وضعیت: {{epicStatus }}. توضیحات: {{epicDescription}}",
-        "SECTION_NAME": "Epic",
-        "TITLE_LIGHTBOX_UNLINK_RELATED_USERSTORY": "حذف پیوند استوری‌های مرتبط کاربر",
-        "MSG_LIGHTBOX_UNLINK_RELATED_USERSTORY": "This action will remove the link to the related user story '{{subject}}'",
+        "EPIC_COLOR": "Epic color:",
+        "SECTION_NAME": "اپیک",
         "ERROR_UNLINK_RELATED_USERSTORY": "ما قادر به حذف پیوند نبوده‌ایم: {{errorMessage}}",
         "CREATE_RELATED_USERSTORIES": "ایجاد ارتباط با",
         "NEW_USERSTORY": "استوری کاربری جدید",
         "EXISTING_USERSTORY": "استوری‌های کاربری موجود",
-        "CHOOSE_PROJECT_FOR_CREATION": "Which project?",
+        "CHOOSE_PROJECT_FOR_CREATION": "کدام پروژه؟",
         "SUBJECT": "موضوع",
         "SUBJECT_BULK_MODE": "موضوع (اضافه کردن گروهی)",
-        "CHOOSE_PROJECT_FROM": "Which project?",
-        "CHOOSE_USERSTORY": "Which user story?",
-        "NO_USERSTORIES": "این پروژه استوری کاربری ندارد. لطفاً پروژه‌ی دیگری را انتخاب کنید.",
+        "CHOOSE_PROJECT_FROM": "کدام پروژه؟",
+        "CHOOSE_USERSTORY": "کدام استوری کاربر؟",
+        "NO_USERSTORIES": "This project has no user stories yet. Please select another project.",
         "NO_USERSTORIES_FOUND": "در ارتباط با آنچه جست‌وجو کرده‌اید، چیزی پیدا نشد",
         "FILTER_USERSTORIES": "فیلتر کردن استوری‌های کاربر",
         "LIGHTBOX_TITLE_BLOKING_EPIC": "مسدودسازی epicها",
@@ -1191,16 +1298,20 @@
         "LINK_TASKBOARD": "برد وظایف",
         "TITLE_LINK_TASKBOARD": "مراجعه به برد وظایف",
         "TOTAL_POINTS": "مجموع امتیازات",
-        "ADD": "+ اضافه کرده یک استوری کاربری جدید",
-        "ADD_BULK": "اضافه کردن گروهی استوری‌های کاربری جدید",
-        "PROMOTED": "این استوری در ارتباط با موضوعی معروف شده:",
+        "ADD": "استوری کاربری",
+        "ADD_BULK": "Add some new user stories in bulk",
+        "PROMOTED_FROM_ISSUE": "This user story has been promoted from issue:",
+        "PROMOTED_FROM_TASK": "This user story has been promoted from task:",
+        "CONVERTED_FROM_TASK": "This user story was originally a task.",
         "TITLE_LINK_GO_TO_ISSUE": "رفتن به موضوع",
-        "TITLE_DELETE_ACTION": "حذف استوری کاربر",
-        "LIGHTBOX_TITLE_BLOKING_US": "مسدود کردن استوری‌های کاربری",
-        "NOT_ESTIMATED": "تخمین زده نشده",
-        "OWNER_US": "این استوری کاربری متعلق است به",
-        "RELATE_TO_EPIC": "Link to Epic",
-        "REMOVE_RELATIONSHIP_WITH_EPIC": "Remove Epic relationship",
+        "TITLE_LINK_GO_TO_TASK": "رفته به وظیفه",
+        "TITLE_DELETE_ACTION": "حذف کردن استوری‌های کاربری",
+        "TITLE_DELETE_MESSAGE": "Are you sure you want to delete <strong>“{{subject}}“</strong>?",
+        "LIGHTBOX_TITLE_BLOKING_US": "Blocking user story",
+        "NOT_ESTIMATED": "N/E",
+        "OWNER_US": "This user story belongs to",
+        "RELATE_TO_EPIC": "Link to epic",
+        "REMOVE_RELATIONSHIP_WITH_EPIC": "Remove epic relationship",
         "TRIBE": {
             "PUBLISH": "انتشار به عنوان Gig در قبیله‌ی تایگا",
             "PUBLISH_INFO": "اطلاعات بیشتر",
@@ -1214,6 +1325,7 @@
         }
     },
     "COMMENTS": {
+        "TITLE": "Comments",
         "DELETED_INFO": "دیدگاه توسط {{user}} حذف شده",
         "COMMENTS_COUNT": "{{comments}} دیدگاه",
         "OLDER_FIRST": "قدیمی‌ها در صدر",
@@ -1260,54 +1372,61 @@
             "ASSIGNED_TO": "تخصیص یافته به",
             "ASSIGNED_USERS": "کاربران اختصاص یافته",
             "DUE_DATE": "موعد تحویل",
-            "MILESTONE": "پیشرفت",
-            "COLOR": "رنگ"
+            "MILESTONE": "اسپرینت",
+            "COLOR": "رنگ",
+            "PROMOTED_TO": "promoted to"
         }
     },
     "BACKLOG": {
         "PAGE_TITLE": "گزارش امور ناتمام- {{projectName}}",
-        "PAGE_DESCRIPTION": "پنل گزارش امور ناتمام به همراه استوری‌های کاربر، پیشرفت پروژه  {{projectName}}: {{projectDescription}}",
-        "SECTION_NAME": "گزارش امور ناتمام",
+        "PAGE_DESCRIPTION": "پنل گزارش امور ناتمام به همراه استوری‌های کاربر، اسپرینت پروژه  {{projectName}}: {{projectDescription}}",
+        "SECTION_NAME": "اسکرام",
         "CUSTOMIZE_GRAPH": "سفارشی کردن گراف گزارشات امور ناتمام شما",
-        "CUSTOMIZE_GRAPH_TEXT": "برای ایجاد گرافی خوب که پیشرفت پروژه را نشان دهد، می‌بایست امتیازات و پیشروی‌ها را از",
+        "CUSTOMIZE_GRAPH_TEXT": "برای ایجاد گرافی خوب که اسپرینت پروژه را نشان دهد، می‌بایست امتیازات و اسپرینت‌ها را از",
         "CUSTOMIZE_GRAPH_ADMIN": "ادمین",
-        "CUSTOMIZE_GRAPH_TITLE": "تنظیم امتیازات و پیشرفت‌ها از طریق ادمین",
-        "MOVE_US_TO_CURRENT_SPRINT": "انتقال به پیشرفت فعلی",
-        "MOVE_US_TO_LATEST_SPRINT": "انتقال به آخرین پیشرفت",
+        "CUSTOMIZE_GRAPH_TITLE": "تنظیم امتیازات و اسپرینت‌ها از طریق ادمین",
+        "TOTAL_STORIES_FILTERED": "of {{ totalUserStories }} user stories",
+        "TOTAL_STORIES": "{{ totalUserStories }} user stories",
+        "MOVE_US_TO_CURRENT_SPRINT": "انتقال به اسپرینت فعلی",
+        "MOVE_US_TO_LATEST_SPRINT": "انتقال به آخرین اسپرینت",
         "EMPTY": "امور ناتمام خالی است!",
-        "CREATE_NEW_US": "ایجاد یک استوری کاربری جدید",
-        "CREATE_NEW_US_EMPTY_HELP": "شاید بخواهید استوری کاربری جدیدی ایجاد کنید",
+        "CREATE_NEW_US": "Create a new user story",
+        "CREATE_NEW_US_EMPTY_HELP": "Add a user story",
+        "NO_MATCH": "No matching search result found with “{{ q }}”",
+        "NO_MATCH_HELP": "Try again using more general search terms",
         "EXCESS_OF_POINTS": "مازاد امتیازات",
         "PENDING_POINTS": "امتیازات معلق",
         "CLOSED_POINTS": "بسته شده",
-        "COMPACT_SPRINT": "پیشرفت‌های فشرده",
+        "COMPACT_SPRINT": "اسپرینت‌های فشرده",
         "GO_TO_TASKBOARD": "رفتن به بورد وظایف {{::name}}",
-        "EDIT_SPRINT": "ویرایش پیشرفت",
+        "EDIT_SPRINT": "ویرایش اسپرینت",
         "TOTAL_POINTS": "مجموع",
         "STATUS_NAME": "نام وضعیت",
         "SORTABLE_FILTER_ERROR": "زمانی که فیلترها باز است، نمی‌توانید روی گزارش امور ناتمام رها کنید",
         "DOOMLINE": "محدوده‌ی زمانی پروژه",
         "CHART": {
-            "XAXIS_LABEL": "پیشرفت‌ها",
+            "XAXIS_LABEL": "اسپرینت‌ها",
             "YAXIS_LABEL": "امتیاز",
-            "OPTIMAL": "امتیاز معلق بهینه برای پیشرفت \"{{sprintName}}\" می‌بایست {{value}} باشد",
-            "REAL": "امتیاز معلق واقعی برای پیشرفت \"{{sprintName}}\"، معادل {{value}} امتیاز است.",
-            "INCREMENT_TEAM": "امتیاز اضافی لازمه‌های تیمی برای پیشرفت \"{{sprintName}}\" معادل {{value}} است",
-            "INCREMENT_CLIENT": "امتیاز اضافی لازمه‌های مشتری برای پیشرفت \"{{sprintName}}\" معادل {{value}} است"
+            "OPTIMAL": "امتیاز معلق بهینه برای اسپرینت \"{{sprintName}}\" می‌بایست {{value}} باشد",
+            "REAL": "امتیاز معلق واقعی برای اسپرینت \"{{sprintName}}\"، معادل {{value}} امتیاز است.",
+            "INCREMENT_TEAM": "امتیاز اضافی لازمه‌های تیمی برای اسپرینت \"{{sprintName}}\" معادل {{value}} است",
+            "INCREMENT_CLIENT": "امتیاز اضافی لازمه‌های مشتری برای اسپرینت \"{{sprintName}}\" معادل {{value}} است"
         },
         "TAGS": {
             "TOGGLE": "تغییر وضعیت نمایش برچسب‌ها",
-            "SHOW": "نمایش تگ‌ها",
+            "SHOW": "تگ‌ها",
             "HIDE": "مخفی کردن برچسب‌ها"
         },
         "FORECASTING": {
             "TITLE": "پیش‌بینی سرعت",
-            "BACKLOG": "نمایش لیست امور ناتمام",
-            "NEW_SPRINT": "استوری‌های کاربری توصیه‌شده برای پیشرفت بعدی شما با توجه به سرعت کار. برای ایجاد پیشرفت جدید کلیک کنید",
-            "CURRENT_SPRINT": "استوری‌های کاربری توصیه شده برای پیشرفت شما بر اساس سرعت کار. برای اضافه کردن پیشرفت فعلی، کلیک کنید."
+            "BACKLOG": "return to backlog",
+            "NEW_SPRINT": "Candidate user stories for your next sprint based on your velocity.",
+            "CURRENT_SPRINT": "Candidate user stories for your sprint based on your velocity. Click to add to current sprint.",
+            "ADD_NEW_SPRINT": "create sprint and add US",
+            "ADD_NEW_SPRINT_SHORT": "create sprint"
         },
         "TABLE": {
-            "COLUMN_US": "استوری‌های کاربر",
+            "COLUMN_US": "گزارش کاربر",
             "TITLE_COLUMN_POINTS": "انتخاب نما برای هر یک از نقش‌ها"
         },
         "SPRINT_SUMMARY": {
@@ -1324,46 +1443,49 @@
             "PROJECT_POINTS": "<br /> امتیاز پروژه",
             "DEFINED_POINTS": "<br /> امتیاز تعریف شده",
             "CLOSED_POINTS": "<br /> امتیاز بسته‌شده",
-            "POINTS_PER_SPRINT": "امتیاز/ <br />پیشرفت"
+            "POINTS_PER_SPRINT": "امتیاز/ <br />اسپرینت"
         },
         "FILTERS": {
             "TOGGLE": "تغییر نمایش فیلترها",
-            "HIDE": "مخفی کردن فیلترها",
-            "SHOW": "نمایش فیلترها"
+            "TITLE": "فیلترها",
+            "HIDE_TITLE": "Hide filters"
         },
         "SPRINTS": {
-            "TITLE": "پیشرفت‌ها",
+            "TITLE": "اسپرینت‌ها",
             "DATE": "DD MMM YYYY",
-            "LINK_TASKBOARD": "بورد وظایف و پیشرفت‌ها",
+            "LINK_TASKBOARD": "بورد وظایف و اسپرینت‌ها",
             "TITLE_LINK_TASKBOARD": "رفتن به بورد وظایف \"{{name}}\"",
             "EMPTY": "تاکنون پیشرفتی وجود نداشته",
-            "WARNING_EMPTY_SPRINT_ANONYMOUS": "این پیشرفت هیچ استوری کاربری ندارد",
+            "WARNING_EMPTY_SPRINT_ANONYMOUS": "This sprint has no user stories",
             "WARNING_EMPTY_SPRINT": "استوری‌های لیست اموم ناتمام را اینجا رها کنید تا پیشرفتی جدید را آغاز کنید",
-            "TITLE_ACTION_NEW_SPRINT": "اضافه کردن پیشرفت جدید",
-            "TEXT_ACTION_NEW_SPRINT": "ممکن است بخواهید پیشرفت جدیدی در پروژه‌ی خود اضافه کنید",
-            "ACTION_SHOW_CLOSED_SPRINTS": "نمایش پیشرفت‌های بسته‌شده",
-            "ACTION_HIDE_CLOSED_SPRINTS": "مخفی کردن پیشرفت‌های بسته‌شده"
+            "TITLE_ACTION_NEW_SPRINT": "Add a sprint",
+            "TEXT_ACTION_NEW_SPRINT": "ممکن است بخواهید اسپرینت جدیدی در پروژه‌ی خود اضافه کنید",
+            "ACTION_SHOW_CLOSED_SPRINTS": "نمایش اسپرینت‌های بسته‌شده",
+            "ACTION_HIDE_CLOSED_SPRINTS": "مخفی کردن اسپرینت‌های بسته‌شده"
         }
     },
     "ERROR": {
-        "TEXT1": "اتفاقی افتاده است و اومپا لومپای ما در حال بررسی آن است.",
+        "TEXT1": "Something happened and the Taiga has captured the error to be able to work on it.",
         "NOT_FOUND": "پیدا نشد",
         "NOT_FOUND_TEXT": "ارور ۴۰۴. صفحه‌ای که به دنبال آن هستید، اکنون وجود ندارد. بهتر است به صفحه‌ی اصلی تایگا برگردید و مجدداً برای پیدا کردن صفحه، تلاش کنید.",
         "PERMISSION_DENIED": "دسترسی ممنوع است",
         "PERMISSION_DENIED_TEXT": "شما اجازه دسترسی به این صفحه را ندارید",
-        "VERSION_ERROR": "یکی از اعضای تایگا قبلاً این مورد را تغییر داده و اومپا لومپای ما نمی‌تواند تغییرات شما را اعمال کند. لطفاً صفحه را از نو بارگذاری کنید و تغییرات خود را مجدداً انجام دهید (تغییرات حذف می‌شود)."
+        "VERSION_ERROR": "Some other user inside Taiga has changed this before and your changes can't be applied. Save them elsewhere, reload the page and re-apply your changes again or they will be lost."
     },
     "TASKBOARD": {
-        "PAGE_TITLE": "{{sprintName}} - بورد پیشرفت وظایف - {{projectName}}",
-        "PAGE_DESCRIPTION": "پیشرفت {{sprintName}} (از {{startDate}} الی {{endDate}}) از {{projectName}}. درصد تکمیل:{{completedPercentage}}% ({{completedPoints}} از {{totalPoints}} امتیاز). {{openTasks}} وظایف باز  {{totalTasks}}.",
+        "PAGE_TITLE": "{{sprintName}} - بورد اسپرینت وظایف - {{projectName}}",
+        "PAGE_DESCRIPTION": "اسپرینت {{sprintName}} (از {{startDate}} الی {{endDate}}) از {{projectName}}. درصد تکمیل:{{completedPercentage}}% ({{completedPoints}} از {{totalPoints}} امتیاز). {{openTasks}} وظایف باز  {{totalTasks}}.",
         "SECTION_NAME": "برد وظایف",
-        "TITLE_ACTION_ADD": "اضافه کردن وظیفه‌ی جدید",
-        "TITLE_ACTION_ADD_BULK": "اضافه کردن تعدادی وظیفه‌ی جدید به صورت گروهی",
-        "TITLE_ACTION_ADD_ISSUE": "Add a new Issue",
-        "TITLE_ACTION_ADD_ISSUE_BULK": "Add some new Issues in bulk",
+        "TITLE_ACTION_ADD": "Add a new task",
+        "TITLE_ACTION_ADD_BULK": "Add some new tasks in bulk",
+        "TITLE_ACTION_ADD_ISSUE": "Add a new issue",
+        "TITLE_ACTION_ADD_ISSUE_BULK": "Add some new issues in bulk",
         "TITLE_ACTION_ASSIGN": "تخصیص وظیفه",
-        "PLACEHOLDER_CARD_TITLE": "این می‌تواند یک وظیفه باشد",
-        "PLACEHOLDER_CARD_TEXT": "تقسیم کردن استوری‌ها به وظایف برای دنبال کردن آنها به صورت جداگانه",
+        "PLACEHOLDER_CARD_TITLE": "This could be a user story",
+        "PLACEHOLDER_CARD_TEXT": "Go to the <a href=\"{{ backlogUrl }}\" title=\"Go to backlog\">backlog</a> and drag user stories to this sprint; split the stories into tasks to track them separately.",
+        "TASK_NOT_FOUND_TITLE": "No matching results found",
+        "TASK_NOT_FOUND_TEXT": "Try again using more general search terms or disabling some filters.",
+        "TITLE_DATE_RANGE": "{{startDate}} <span>to</span> {{endDate}}",
         "TABLE": {
             "COLUMN": "استوری کاربر",
             "TITLE_ACTION_FOLD": "جمع کردن ستون‌ها",
@@ -1371,15 +1493,31 @@
             "TITLE_ACTION_FOLD_ROW": "جمع کردن ردیف",
             "TITLE_ACTION_UNFOLD_ROW": "گسترده کردن ردیف",
             "FIELD_POINTS": "امتیاز",
-            "ROW_UNASSIGED_TASKS_TITLE": "وظایف آزاد",
-            "ROW_ISSUES_TITLE": "Sprint Issues"
+            "ROW_STORYLESS_TASKS_TITLE": "وظایف بدون گزارش",
+            "ROW_ISSUES_TITLE": "Sprint issues"
         },
         "CHARTS": {
             "XAXIS_LABEL": "روز",
-            "YAXIS_LABEL": "امتیاز",
-            "OPTIMAL": "امتیاز معلق بهینه برای روز {{formattedDate}} می‌بایست {{roundedValue}} باشد",
+            "YAXIS_LABEL": "Projected points progress",
+            "OPTIMAL": "Pending points for day {{formattedDate}} should be {{roundedValue}}",
             "REAL": "امتیاز واقعی معلق برای روز {{formattedDate}} برابر است با {{roundedValue}}",
-            "DATE": "DD MMMM YYYY"
+            "DATE": "DD MMMM YYYY",
+            "HELP_LINK": "How this chart works",
+            "HELP_TOOLTIP": "This burndown chart shows the sprint's approximate or projected progress based on estimated user story closed tasks. Actual finished estimated user stories are tracked above."
+        },
+        "MOVE_TO_SPRINT": {
+            "TITLE_ACTION_MOVE_UNFINISHED": "انتقال آیتم‌های تمام نشده به اسپرینت دیگر",
+            "TITLE_MOVE_UNFINISHED": "انتقال آیتم‌های تمام نشده به اسپرینت باز دیگر",
+            "MOVE_TO_OPEN_SPRINT": "برای باز کردن سرعتی حرکت دهید",
+            "NO_OPEN_SPRINTS": "There are no other open sprints. Please create one first.",
+            "SELECT_DESTINATION_PLACEHOLDER": "هدف را انتخاب کنید",
+            "UNFINISHED_USER_STORIES_COUNT": "{total, plural, =1{<strong>#</strong> unfinished user story} other{<strong>#</strong> unfinished user stories}}",
+            "UNFINISHED_STORYLESS_TASKS_COUNT": "{total, plural, =1{<strong>#</strong> unfinished storyless task} other{<strong>#</strong> unfinished storyless tasks}}",
+            "UNFINISHED_ISSUES_COUNT": "{total, plural, =1{<strong>#</strong> unfinished issue} other{<strong>#</strong> unfinished issue}}",
+            "WARNING_ISSUES_NOT_MOVED_TITLE": "You just moved all user stories and taks, and the sprint'll be closed",
+            "WARNING_ISSUES_NOT_MOVED": "The issues'll remain in the sprint and don't be removed",
+            "WARNING_SPRINT_STILL_OPEN_TITLE": "{total, plural, =1{You just moved # item!} other{You just moved # items!}}",
+            "WARNING_SPRINT_STILL_OPEN": "Please note that the sprint {{sprintName}} <strong>will remain open</strong> as long as it contains unfinished items."
         }
     },
     "TASK": {
@@ -1401,74 +1539,75 @@
     },
     "NOTIFICATION": {
         "OK": "همه‌چیز خوب است",
-        "WARNING": "اوه! اتفاقی افتاده است ...",
-        "WARNING_TEXT": "اومپا لومپای ما ناراحت است! تغییرات شود ذخیره نشده است!",
-        "SAVED": "اومپا لومپا تغییرات شما را ذخیره کرد",
+        "WARNING": "Oops, something went wrong...",
+        "WARNING_TEXT": "Your changes were not saved!",
+        "SAVED": "The Taiga saved all your changes!",
         "CLOSE": "بستن نوتیفیکیشن",
         "MAIL": "نوتیفیکیشن از طریق ایمیل",
         "DESKTOP": "اعلانهای دسکتاپ با استفاده از هشدار مرورگر",
-        "ASK_DELETE": "آیا در مورد حذف کردن، مطمئن هستید؟",
-        "ASK_REMOVE_LINK": "Are you sure you want to remove the link?"
+        "ASK_DELETE": "آیا در مورد حذف کردن، مطمئن هستید؟"
     },
     "CANCEL_ACCOUNT": {
         "TITLE": "کنسل کردن حساب کاربری",
-        "SUBTITLE": "از این که تایگا را ترک می‌کنید متأسفیم، امیدواریم از کار در محیط تایگا لذت برده باشید :)",
+        "SUBTITLE": "We're sorry you are leaving the Taiga, we hope you enjoyed your stay :)",
         "PLACEHOLDER_INPUT_TOKEN": "کنسل کردن توکن حساب کاربری",
         "ACTION_LEAVING": "بله، خارج می‌شوم!",
-        "SUCCESS": "اومپا لومپای ما حساب کاربری شما را حذف کرد"
+        "SUCCESS": "The Taiga removed your account"
     },
     "CHANGE_EMAIL_FORM": {
         "TITLE": "تغییر ایمیل",
         "SUBTITLE": "یک کلیک دیگر تا تغییر ایمیل شما!",
         "PLACEHOLDER_INPUT_TOKEN": "تغییر توکن ایمیل",
         "ACTION_CHANGE_EMAIL": "تغییر ایمیل",
-        "SUCCESS": "اومپا لومپای ما ایمیل شما را تغییر داد"
+        "SUCCESS": "Your email address has been successfully changed"
+    },
+    "VERIFY_EMAIL_FORM": {
+        "TITLE": "Verify your email",
+        "SUBTITLE": "One click more and your email will be verified!",
+        "PLACEHOLDER_INPUT_TOKEN": "تغییر توکن ایمیل",
+        "ACTION_VERIFY_EMAIL": "Verify email",
+        "SUCCESS": "Congratulations!!, your email address has been verified"
     },
     "ISSUES": {
         "PAGE_TITLE": "موضوعات - {{projectName}}",
         "PAGE_DESCRIPTION": "پنل لیست موضوعات پروژه‌ی {{projectName}}: {{projectDescription}}",
         "SECTION_NAME": "موضوع",
-        "ACTION_NEW_ISSUE": "+ موضوع جدید",
-        "ACTION_PROMOTE_TO_US": "ارتقا به استوری کاربر",
+        "ACTION_NEW_ISSUE": "NEW ISSUE",
         "ACTION_ATTACH_SPRINT": "Attach issue to Sprint",
         "ACTION_DETACH_SPRINT": "Detach issue from Sprint",
-        "PROMOTED": "این موضوع به استوری کاربری ارتقا داده شد:",
         "EXTERNAL_REFERENCE": "این موضوع ایجاد شده از",
         "GO_TO_EXTERNAL_REFERENCE": "رفتن به منبع",
         "ACTION_DELETE": "حذف موضوع",
         "LIGHTBOX_TITLE_BLOKING_ISSUE": "مسدودسازی موضوعات",
         "LINK_TASKBOARD": "برد وظایف",
         "TITLE_LINK_TASKBOARD": "مراجعه به برد وظایف",
-        "FILTER_SPRINTS": "Filter Sprints",
-        "CHOOSE_SPRINT": "Which Sprint?",
+        "FILTER_SPRINTS": "فیلتر کردن اسپرینت‌ها",
+        "CHOOSE_SPRINT": "کدام اسپرینت؟",
         "FIELDS": {
             "PRIORITY": "اولویت",
             "SEVERITY": "اهمیت",
             "TYPE": "نوع"
         },
-        "FILTER_ISSUES": "Filter Issues",
+        "FILTER_ISSUES": "Filter issues",
         "CONFIRM_DETACH_FROM_SPRINT": {
-            "TITLE": "Detach issue from Sprint",
-            "MESSAGE": "You are about to detach the issue from the sprint"
+            "TITLE": "Detach issue from sprint",
+            "MESSAGE": "You are about to detach the issue from the sprint <strong>{{ sprintName }}<strong>"
         },
         "CONFIRM_CHANGE_FROM_SPRINT": {
-            "TITLE": "Attach issue to Sprint",
+            "TITLE": "Attach issue to sprint",
             "MESSAGE": "<strong>This issue is currently attached to sprint {{ oldSprintName }}</strong>. You are about to detach it from that sprint and attach it instead to sprint <strong>{{ newSprintName }}.</strong>"
-        },
-        "CONFIRM_PROMOTE": {
-            "TITLE": "ارتقای این موضوع به یک استوری کاربری جدید",
-            "MESSAGE": "آیا مطمئن هستید که می‌خواهید از این موضوع، استوری کاربری جدید بسازید؟"
         },
         "TABLE": {
             "COLUMNS": {
                 "TYPE": "نوع",
                 "SEVERITY": "اهمیت",
                 "PRIORITY": "اولویت",
-                "SUBJECT": "موضوع",
+                "ISSUE": "موضوع",
                 "VOTES": "رأی",
                 "STATUS": "عیت",
-                "CREATED": "ایجاد شده",
-                "ASSIGNED_TO": "اختصاص یافته به"
+                "ATTACHMENTS": "Attachments",
+                "MODIFIED": "تصحیح شده",
+                "ASSIGNED_TO": "Assign to"
             },
             "TITLE_ACTION_CHANGE_STATUS": "تغییر وضعیت",
             "TITLE_ACTION_ASSIGNED_TO": "تخصیص یافته به",
@@ -1489,18 +1628,25 @@
         "SECTION_NAME": "Kanban",
         "TITLE_ACTION_FOLD": "جمع کردن ستون‌ها",
         "TITLE_ACTION_UNFOLD": "گسترده کردن ستون‌ها",
-        "TITLE_ACTION_ADD_US": "اضافه کردن استوری کاربری جدید",
-        "TITLE_ACTION_ADD_BULK": "اضافه کردن گروهی",
+        "TITLE_ACTION_ADD_US": "Add new user story",
+        "TITLE_ACTION_ADD_BULK": "Add new bulk",
         "ACTION_SHOW_ARCHIVED": "نمایش آرشیو‌شده‌ها",
         "ACTION_HIDE_ARCHIVED": "مخفی کردن آرشیو‌شده‌ها",
-        "HIDDEN_USER_STORIES": "استوری‌های کاربری در وضعیت فعلی، به صورت پیش‌فرض مخفی هستند",
-        "PLACEHOLDER_CARD_TITLE": "اینها استوری‌های کاربری شما هستند",
-        "PLACEHOLDER_CARD_TEXT": "استوری‌ها می‌توانند وظایف زیرمجموعه نیز داشته باشند تا نیازمندی‌ها جدا شود"
+        "US_NOT_FOUND_TITLE": "No matching results found",
+        "US_NOT_FOUND_TEXT_P1": "Try again using more general search terms or disabled some filters.",
+        "US_NOT_FOUND_TEXT_P2": "<strong>Archived stories</strong> are not loaded by default. Unfold the archived statuses to expand your search.",
+        "PLACEHOLDER_CARD_TITLE": "This could be a user story",
+        "PLACEHOLDER_CARD_TEXT": "Create user stories here and change their status to track their progress.",
+        "NUMBER_US": "Number of US",
+        "ARCHIVED": "(Archived)",
+        "CREATE_SWIMLANE": "Create more swimlanes",
+        "UNCLASSIFIED_USER_STORIES": "Unclassified user stories",
+        "UNCLASSIFIED_USER_STORIES_TOOLTIP": "The user stories that are not part of any swimlane are here."
     },
     "SEARCH": {
         "PAGE_TITLE": "جستجو - {{projectName}}",
         "PAGE_DESCRIPTION": "جستجو کردن در مورد همه‌چیز، استوری‌های کاربر، موضوعات، وظایف و صفحات ویکی در پروژه‌ی {{projectName}}: {{projectDescription}}",
-        "FILTER_EPICS": "Epics",
+        "FILTER_EPICS": "اپیک‌ها",
         "FILTER_USER_STORIES": "استوری‌های کاربر",
         "FILTER_ISSUES": "موضوعات",
         "FILTER_TASKS": "وظایف",
@@ -1536,10 +1682,10 @@
         "AVATAR_MAX_SIZE": "[حداکثر حجم: {{maxFileSize}}]",
         "MENU": {
             "SECTION_TITLE": "تنظیمات کاربر",
-            "USER_PROFILE": "پروفایل کاربری",
             "CHANGE_PASSWORD": "تغییر رمز عبور",
             "EMAIL_NOTIFICATIONS": "نوتیفیکیشن‌های ایمیلی",
-            "DESKTOP_NOTIFICATIONS": "اعلانیه‌های دسکتاپ"
+            "DESKTOP_NOTIFICATIONS": "اعلانیه‌های دسکتاپ",
+            "EVENTS": "رویداد ها"
         },
         "NOTIFICATIONS": {
             "LIVE_SECTION_NAME": "اعلانیه‌های دسکتاپ",
@@ -1551,13 +1697,29 @@
             "OPTION_ALL": "همه",
             "OPTION_INVOLVED": "مشترک",
             "OPTION_NONE": "هیچ کدام"
+        },
+        "PROJECT_SETTINGS": {
+            "SET_START_PAGES": "قرار دادن صفحات شروع",
+            "START_PAGES_PER_PROJECT": "Set start pages per project",
+            "COLUMN_PROJECT": "پروژه",
+            "COLUMN_STARTPAGE": "صفحه شروع",
+            "DEFAULT_VALUE": "پیش فرض"
+        },
+        "EVENTS": {
+            "SECTION_NAME": "رویداد ها",
+            "SECTION_DESCRIPTION": "رویداد های مهم در بالای صفحه تایگا.",
+            "SECTION_DESCRIPTION_EXPANDED": "(direct mentions, updates in items that you are watching...)",
+            "COLUMN_ENABLED": "فعال شده است",
+            "COLUMN_PROJECT": "پروژه"
         }
     },
     "USER_PROFILE": {
         "ACTION_USE_GRAVATAR": "استفاده از تصویر پیش‌فرض",
         "ACTION_DELETE_ACCOUNT": "حذف حساب کاربری تایگا",
-        "ACTION_DOWNLOAD_PROFILE": "Download Taiga profile",
+        "ACTION_DOWNLOAD_PROFILE": "دانلود پروفایل تایگا",
+        "ACTION_VERIFY_EMAIL": "Verify your email",
         "CHANGE_EMAIL_SUCCESS": "<strong>ایمیل خود را چک کنید!</strong><br /> ایمیلی به حساب کاربری شما ارسال کردیم <br /> که در آن دستورالعمل تنظیم آدرس جدید شما ذکر شده است",
+        "VERIFY_EMAIL_SUCCESS": "<strong>Check your inbox!</strong><br />We have sent you an email<br />with instructions on how to verify your address",
         "CHANGE_PHOTO": "تغییر عکس",
         "FIELD": {
             "USERNAME": "نام کاربری",
@@ -1609,52 +1771,68 @@
         "HINT2_TITLE": "آیا می‌دانستید که می‌توانید ویژگی سفارشی تعریف کنید؟",
         "HINT2_TEXT": "اکنون تیم‌ها می‌توانند ویژگی‌های سفارشی برای وارد کردن داده‌های خاصی که برای جریان کارشان مفید است، ایجاد کنند.",
         "HINT3_TITLE": "مرتب کردن پروژه‌ها برای نمایش پروژه‌های مهم‌تر برای شما.",
-        "HINT3_TEXT": "۱۰ پروژه‌ای که در ردیف دسترسی مستقیم در بالای صفحه لیست می‌شوند",
+        "HINT3_TEXT": "The 4 projects are listed in the direct access bar at the top.",
         "HINT4_TITLE": "آیا فراموش کرده‌اید که روی چه چیز کار می‌کردید؟",
         "HINT4_TEXT": "نگران نباشید، در داشبورد خود تمام وظایف باز، موضوعات و استوری‌های کاربری را به ترتیبی که رویشان کار کرده‌اید، مشاهده می‌کنید."
     },
     "TIMELINE": {
         "UPLOAD_ATTACHMENT": "{{username}} پیوستی در {{obj_name}} آپلود کرده است",
-        "US_CREATED": "{{username}} یک استوری کاربری جدید، {{obj_name}} را در {{project_name}} ایجاد کرده است",
+        "US_CREATED": "{{username}} has created a new user story {{obj_name}} in {{project_name}}",
         "ISSUE_CREATED": "{{username}} موضوع جدید {{obj_name}} را در {{project_name}} ایجاد کرده است",
         "TASK_CREATED": "{{username}} وظیفه‌ی جدید {{obj_name}} را در {{project_name}} ایجاد کرده است",
-        "TASK_CREATED_WITH_US": "{{username}} وظیفه‌ی جدید {{obj_name}} را در {{project_name}} ایجاد کرده است که به استوری کاربری {{us_name}} مربوط می‌شود",
+        "TASK_CREATED_WITH_US": "{{username}} has created a new task {{obj_name}} in {{project_name}} which belongs to the user story {{us_name}}",
         "WIKI_CREATED": "{{username}} صفحه‌ی ویکی جدید  {{obj_name}} در {{project_name}} ایجاد کرده است",
-        "MILESTONE_CREATED": "{{username}} پیشروی جدید {{obj_name}} در{{project_name}} ایجاد کرده است",
+        "MILESTONE_CREATED": "{{username}} اسپرینت جدید {{obj_name}} در{{project_name}} ایجاد کرده است",
         "EPIC_CREATED": "{{username}}  جدید epic {{obj_name}} را در {{project_name}} ایجاد کرده است",
-        "EPIC_RELATED_USERSTORY_CREATED": "{{username}} استوری کاربری {{related_us_name}} را به epic{{epic_name}} در {{project_name}} مربوط کرده است",
+        "EPIC_RELATED_USERSTORY_CREATED": "{{username}} has related the user story {{related_us_name}} to the epic {{epic_name}} in {{project_name}}",
         "NEW_PROJECT": "{{username}} پروژه‌ی  {{project_name}} را ایجاد کرده است",
-        "MILESTONE_UPDATED": "{{username}} پیشرفت {{obj_name}} را آپدیت کرده است",
-        "US_UPDATED": "{{username}} خصوصیت \"{{field_name}}\" از استوری کاربری {{obj_name}} را آپدیت کرده است",
-        "US_UPDATED_WITH_NEW_VALUE": "{{username}} خصوصیت \"{{field_name}}\" از استوری کاربری {{obj_name}} را به {{new_value}} آپدیت کرد",
-        "US_UPDATED_POINTS": "{{username}} امتیازات '{{role_name}}' از استوری کاربری {{obj_name}}  را به {{new_value}} تغییر داده است",
+        "MILESTONE_UPDATED": "{{username}} اسپرینت {{obj_name}} را آپدیت کرده است",
+        "US_UPDATED": "{{username}} has updated the attribute \"{{field_name}}\" of the user story {{obj_name}}",
+        "US_UPDATED_WITH_NEW_VALUE": "{{username}} has updated the attribute \"{{field_name}}\" of the user story {{obj_name}} to {{new_value}}",
+        "US_UPDATED_POINTS": "{{username}} has updated '{{role_name}}' points of the user story {{obj_name}} to {{new_value}}",
         "ISSUE_UPDATED": "{{username}} خصوصیت \"{{field_name}}\" از موضوع {{obj_name}} را آپدیت کرده است",
         "ISSUE_UPDATED_WITH_NEW_VALUE": "{{username}} خصوصیت \"{{field_name}}\" از موضوع {{obj_name}} را به {new_value}} آپدیت کرده است",
         "TASK_UPDATED": "{{username}} خصوصیت \"{{field_name}}\" از وظیفه‌ی {{obj_name}} را به {{new_value}} آپدیت کرده است.",
         "TASK_UPDATED_WITH_NEW_VALUE": "{{username}} خصوصیت \"{{field_name}}\" از وظیفه‌ی {{obj_name}} را به {{new_value}} آپدیت کرده است.",
-        "TASK_UPDATED_WITH_US": "{{username}} خصوصیت \"{{field_name}}\" از وظیفه‌ی {{obj_name}} که به استوری کاربری {{us_name}} مربوط می‌شود را آپدیت کرده است.",
-        "TASK_UPDATED_WITH_US_NEW_VALUE": "{{username}} خصوصیت \"{{field_name}}\" از وظیفه‌ی {{obj_name}} که به استوری کاربری  {{us_name}} مربوط می‌شود را به {{new_value}} تغییر داده است",
+        "TASK_UPDATED_WITH_US": "{{username}} has updated the attribute \"{{field_name}}\" of the task {{obj_name}} which belongs to the user story {{us_name}}",
+        "TASK_UPDATED_WITH_US_NEW_VALUE": "{{username}} has updated the attribute \"{{field_name}}\" of the task {{obj_name}} which belongs to the user story {{us_name}} to {{new_value}}",
         "WIKI_UPDATED": "{{username}} صفحه‌ی ویکی {{obj_name}} را آپدیت کرده است",
         "EPIC_UPDATED": "{{username}} خصوصیت \"{{field_name}}\" از epci {{obj_name}} را آپدیت کرده است",
         "EPIC_UPDATED_WITH_NEW_VALUE": "{{username}} خصوصیت \"{{field_name}}\" از epic {{obj_name}} را به {{new_value}} تغییر داده است",
         "EPIC_UPDATED_WITH_NEW_COLOR": "{{username}} \"{{field_name}}\" ازepic {{obj_name}} را به <span class=\"new-color\" style=\"background: {{new_value}}\"></span> آپدیت کرده است",
-        "NEW_COMMENT_US": "{{username}} دیدگاهی در استوری کاربری {{obj_name}} گذاشته است",
+        "NEW_COMMENT_US": "{{username}} has commented in the user story {{obj_name}}",
         "NEW_COMMENT_ISSUE": "{{username}} دیدگاهی در موضوع {{obj_name}} اضافه کرده است",
         "NEW_COMMENT_TASK": "{{username}} در وظیفه‌ی {{obj_name}} دیدگاهی گذاشته است",
         "NEW_COMMENT_EPIC": "{{username}} در epic {{obj_name}} دیدگاهی گذاشته است",
         "NEW_MEMBER": "{{project_name}} عضو جدیدی دارد",
-        "US_ADDED_MILESTONE": "{{username}} استوری کاربری {{obj_name}} را به {{sprint_name}} اضافه کرده است",
-        "US_MOVED": "{{username}} استوری کاربری {{obj_name}} را جابجا کرده است",
-        "US_REMOVED_FROM_MILESTONE": "{{username}} استوری کاربری {{obj_name}} را به لیست امور ناتمام اضافه کرده است",
+        "US_ADDED_MILESTONE": "{{username}} has added the user story {{obj_name}} to {{sprint_name}}",
+        "US_MOVED": "{{username}} has moved the user story {{obj_name}}",
+        "US_REMOVED_FROM_MILESTONE": "{{username}} has added the user story {{obj_name}} to the backlog",
         "BLOCKED": "{{username}} {{obj_name}} را مسدود کرده است",
         "UNBLOCKED": "{{username}} {{obj_name}} را از حالت مسدود خارج کرده است",
-        "NEW_USER": "{{username}} به تایگا پیوست"
+        "NEW_USER": "{{username}} به تایگا پیوست",
+        "ITEM_TYPES": {
+            "USERSTORY": "گزارش کاربر",
+            "ISSUE": "موضوع",
+            "TASK": "وظیفه"
+        }
+    },
+    "EVENTS": {
+        "TITLE": "رویداد ها",
+        "MY_EVENTS": "رویداد های من",
+        "DISMISS_ALL": "رد همه",
+        "VIEW_ALL": "View all notifications",
+        "NO_NEW_EVENTS": "رویداد جدیدی وجود ندارد",
+        "NO_EVENTS_YET": "هنوز رویدادی وجود ندارد",
+        "ASSIGNED_YOU": "{{username}} assigned you to {{obj_name}}",
+        "ADDED_YOU_AS_WATCHER": "{{username}} added you as watcher on {{obj_name}}",
+        "ADDED_YOU_AS_MEMBER": "{{username}} شما را به عنوان عضو افزود",
+        "MENTIONED_YOU": "{{username}} mentioned you on {{obj_name}}",
+        "MENTIONED_YOU_IN_COMMENT": "{{username}} mentioned you in a comment on {{obj_name}}",
+        "COMMENTED": "{{username}} has commented on {{obj_name}}"
     },
     "LEGAL": {
-        "TERMS_OF_SERVICE_AND_PRIVACY_POLICY_AD": "<span>When creating a new account, you agree to our </span><a href=\"{{ termsOfServiceUrl }}\" title=\"See terms of service\" target=\"_blank\">terms of service</a><span> and </span><a href=\"{{ privacyPolicyUrl }}\" title=\"See privacy policy\" target=\"_blank\">privacy policy</a>.",
-        "GDPR_ANNOUNCEMENT_TITLE": "General Data Protection Regulation (GDPR)",
-        "GDPR_ANNOUNCEMENT_DESCRIPTION": "You saw this comming, right? Updates to our Terms of Service",
-        "GDPR_ANNOUNCEMENT_INFOLINK": "Please read our announcement here"
+        "TERMS_OF_SERVICE_AND_PRIVACY_POLICY_AD": "<span>When creating a new account, you agree to our </span><a href=\"{{ termsOfServiceUrl }}\" title=\"See terms of service\" target=\"_blank\">terms of service</a><span> and </span><a href=\"{{ privacyPolicyUrl }}\" title=\"See privacy policy\" target=\"_blank\">privacy policy</a>."
     },
     "EXTERNAL_APP": {
         "PAGE_TITLE": "یک اپلیکیشن خارجی درخواست تأیید دسترسی دارد",
@@ -1678,7 +1856,7 @@
             },
             "STEP2": {
                 "TITLE": "در حال کار روی",
-                "TEXT": "در این بخش استوری‌های کاربری، وظایف و موضوعاتی که رویشان کار می‌کنید، نمایش داده می‌شود."
+                "TEXT": "Here you will find the user stories, tasks and issues in which you are working on."
             },
             "STEP3": {
                 "TITLE": "در حال بررسی",
@@ -1699,15 +1877,15 @@
             },
             "STEP2": {
                 "TITLE": "لیست امورناتمام محصول",
-                "TEXT": "گزارش امور ناتمام لیستی از نیازها (استوری‌های کاربری) برای پروژه است. در این بخش می‌توانید پیشرفت‌های خود را برنامه‌ریزی کنید."
+                "TEXT": "گزارش امور ناتمام لیستی از نیازها (استوری‌های کاربری) برای پروژه است. در این بخش می‌توانید اسپرینت‌های خود را برنامه‌ریزی کنید."
             },
             "STEP3": {
-                "TITLE": "پیشرفت‌ها",
-                "TEXT": "پیشرفت‌ها به بازه‌های زمانی کوچک (معمولاً ۲ هفته) گفته می‌شود که در طول این بازه‌ی زمانی می‌بایست کاری خاص تکمیل و تحویل داده شود."
+                "TITLE": "اسپرینت‌ها",
+                "TEXT": "اسپرینت‌ها به بازه‌های زمانی کوچک (معمولاً ۲ هفته) گفته می‌شود که در طول این بازه‌ی زمانی می‌بایست کاری خاص تکمیل و تحویل داده شود."
             },
             "STEP4": {
                 "TITLE": "استوری‌های کاربر",
-                "TEXT": "آنها لازمه‌های سطح بالا هستند. می‌توانید آنها را به لیست امور ناتمام اضافه کنید و آنها را درگ کرده و به پیشرفت‌هایی که باید تحویل شود، اضافه کنید."
+                "TEXT": "آنها لازمه‌های سطح بالا هستند. می‌توانید آنها را به لیست امور ناتمام اضافه کنید و آنها را درگ کرده و به اسپرینت‌هایی که باید تحویل شود، اضافه کنید."
             }
         },
         "KANBAN": {
@@ -1717,11 +1895,11 @@
             },
             "STEP2": {
                 "TITLE": "استوری‌های کاربری و وظایف",
-                "TEXT": "استوری‌های کاربری لازمه‌های سطح بالا هستند. می‌توانید آنها را درگ کرده و در ستون‌های مختلف قرار دهید."
+                "TEXT": "User stories are the requirements at high level. You can drag them to different columns."
             },
             "STEP3": {
                 "TITLE": "اضافه کردن استوری‌های کاربری",
-                "TEXT1": "می‌توانید روی آیکون استوری کاربری کلیک کرده و  یک استوری کاربر اضافه کنید و یا گروهی از استوری‌های کاربری را با کلیک روی آیکون گروهی اضافه کنید",
+                "TEXT1": "You may want to add a single user story (add user story icon) or a group of them (bulk icon)",
                 "TEXT2": "خدانگهدار!"
             }
         }
@@ -1730,7 +1908,7 @@
         "PAGE_TITLE": "کشف پروژه‌ها - تایگا",
         "PAGE_DESCRIPTION": "دایرکتوری قابل‌جست‌وجو پروژه‌های عمومی در تایگا. لیست امور ناتمام، تایم‌لاین‌ها، موضوعات و تیم‌ها را پیدا کنید. پروژه‌هایی با بیشتری لایک یا پروژه‌های فعال را بررسی کنید. از فیلتر کانبان یا اسکرام استفاده کنید.",
         "DISCOVER_TITLE": "کشف پروژه‌ها",
-        "DISCOVER_SUBTITLE": "{projects, plural, one{یک پروژه عمومی} other{# پروژه‌های عمومی}}",
+        "DISCOVER_SUBTITLE": "{projects, plural, =1{One public project to discover} other{# public projects to discover}}",
         "MOST_ACTIVE": "بیشترین فعالیت",
         "MOST_ACTIVE_EMPTY": "در حال حاضر پروژه‌ی فعالی وجود ندارد",
         "MOST_LIKED": "با بیشتری لایک",
@@ -1756,5 +1934,12 @@
             "ACTION_TITLE": "جست‌وجو",
             "RESULTS": "نتایج جست‌وجو"
         }
+    },
+    "ZOOM": {
+        "TITLE": "Zoom:",
+        "ZOOM-1": "Compact",
+        "ZOOM-2": "پیش فرض",
+        "ZOOM-3": "Detailed",
+        "ZOOM-4": "Expanded"
     }
 }

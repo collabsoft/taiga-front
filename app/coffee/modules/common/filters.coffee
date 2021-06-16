@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -103,6 +98,9 @@ module.filter("byRef", ["filterFilter", byRefFilter])
 
 darkerFilter = ->
     return (color, luminosity) ->
+        if !color
+            return 'transparent'
+
         # validate hex string
         color = new String(color).replace(/[^0-9a-f]/gi, '')
         if color.length < 6
@@ -152,3 +150,12 @@ emojify = ($emojis) ->
         return ""
 
 module.filter("emojify", ["$tgEmojis", emojify])
+
+textToHTML = ($filter) ->
+    return (input) ->
+        if input
+            return input.replace(/\<(?!(\/?)(strong|br)(\/?)).*?\>/g, "")
+
+        return ""
+
+module.filter("textToHTML", ["$filter", textToHTML])

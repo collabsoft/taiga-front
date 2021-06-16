@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: project-menu.controller.spec.coffee
+# File: components/project-menu/project-menu.controller.spec.coffee
 ###
 
 describe "ProjectMenu", ->
@@ -81,7 +81,7 @@ describe "ProjectMenu", ->
 
         it "videoconference url", () ->
             project = Immutable.fromJS({
-                "videoconferences": "appear-in",
+                "videoconferences": "whereby-com",
                 "videoconferences_extra_data": "123",
                 "slug": "project-slug"
             })
@@ -93,7 +93,7 @@ describe "ProjectMenu", ->
 
             ctrl.show()
 
-            url = "https://appear.in/project-slug-123"
+            url = "https://whereby.com/project-slug-123"
 
             expect(ctrl.project.get("videoconferenceUrl")).to.be.equal(url)
 

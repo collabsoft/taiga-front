@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -57,8 +52,6 @@ TaskboardSortableDirective = ($repo, $rs, $rootscope, $translate) ->
                 $tgConfirm.notify("error", text)
 
             deleteElement = (itemEl) ->
-                # Completelly remove item and its scope from dom
-                itemEl.scope().$destroy()
                 itemEl.off()
                 itemEl.remove()
 
@@ -73,8 +66,26 @@ TaskboardSortableDirective = ($repo, $rs, $rootscope, $translate) ->
                     return $(item).is('tg-card')
             })
 
+            initialContainer = null
+
+            drake.on 'shadow', (item) ->
+                $(item).removeClass('folded-dragging')
+
+            drake.on 'over', (item, container) ->
+                if !initialContainer
+                    initialContainer = container
+                else if container != initialContainer
+                    $(container).addClass('target-drop')
+
+            drake.on 'out', (item, container) ->
+                if container != initialContainer
+                    $(container).removeClass('target-drop')
+
             drake.on 'drag', (item) ->
                 oldParentScope = $(item).parent().scope()
+
+                if $(item).width() == 30
+                    $(item).addClass('folded-dragging')
 
                 if $el.hasClass("active-filters")
                     filterError()
@@ -88,7 +99,7 @@ TaskboardSortableDirective = ($repo, $rs, $rootscope, $translate) ->
             drake.on 'dragend', (item) ->
                 parentEl = $(item).parent()
                 itemEl = $(item)
-                itemTask = itemEl.scope().task
+                itemTask = $scope.taskMap.get(Number(item.dataset.id))
                 itemIndex = itemEl.index()
                 newParentScope = parentEl.scope()
 
@@ -96,6 +107,12 @@ TaskboardSortableDirective = ($repo, $rs, $rootscope, $translate) ->
                 oldStatusId = oldParentScope.st.id
                 newUsId = if newParentScope.us then newParentScope.us.id else null
                 newStatusId = newParentScope.st.id
+
+                if initialContainer != parentEl
+                    $(parentEl).addClass('new')
+
+                    $(parentEl).one 'animationend', ()  ->
+                        $(parentEl).removeClass('new')
 
                 if newStatusId != oldStatusId or newUsId != oldUsId
                     deleteElement(itemEl)

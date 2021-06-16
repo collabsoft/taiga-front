@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: current-user.service.spec.coffee
+# File: services/current-user.service.spec.coffee
 ###
 
 describe "tgCurrentUserService", ->
-    currentUserService = provide = null
+    currentUserService = provide = $q = $rootScope = null
     mocks = {}
 
     _mockTgStorage = () ->
@@ -31,6 +31,7 @@ describe "tgCurrentUserService", ->
     _mockProjectsService = () ->
         mocks.projectsService = {
             getProjectsByUserId: sinon.stub()
+            getListProjectsByUserId: sinon.stub()
             bulkUpdateProjectsOrder: sinon.stub()
         }
 
@@ -48,8 +49,10 @@ describe "tgCurrentUserService", ->
         provide.value "tgResources", mocks.resources
 
     _inject = (callback) ->
-        inject (_tgCurrentUserService_) ->
+        inject (_tgCurrentUserService_, _$rootScope_, _$q_) ->
             currentUserService = _tgCurrentUserService_
+            $rootScope = _$rootScope_
+            $q = _$q_
             callback() if callback
 
     _mocks = () ->
@@ -92,21 +95,26 @@ describe "tgCurrentUserService", ->
             {id: 1, name: "fake1"},
             {id: 2, name: "fake2"},
             {id: 3, name: "fake3"},
-            {id: 4, name: "fake4"},
-            {id: 5, name: "fake5"}
+            {id: 4, name: "fake4"}
         ])
 
-        mocks.projectsService.getProjectsByUserId = sinon.stub()
-        mocks.projectsService.getProjectsByUserId.withArgs(user.get("id")).promise().resolve(projects)
+        mocks.projectsService.getListProjectsByUserId = sinon.stub()
+        getListProjectsByUserIdDeferred = $q.defer()
+
+        mocks.projectsService.getListProjectsByUserId.withArgs(user.get("id")).returns(getListProjectsByUserIdDeferred.promise)
+
+        getListProjectsByUserIdDeferred.resolve(projects)
 
         currentUserService.setUser(user).then () ->
             expect(currentUserService._user).to.be.equal(user)
-            expect(currentUserService.projects.get("all").size).to.be.equal(5)
-            expect(currentUserService.projects.get("recents").size).to.be.equal(5)
-            expect(currentUserService.projectsById.size).to.be.equal(5)
+            expect(currentUserService.projects.get("all").size).to.be.equal(4)
+            expect(currentUserService.projects.get("recents").size).to.be.equal(4)
+            expect(currentUserService.projectsById.size).to.be.equal(4)
             expect(currentUserService.projectsById.get("3").get("name")).to.be.equal("fake3")
 
             done()
+
+        $rootScope.$apply()
 
     it "bulkUpdateProjectsOrder and reload projects", (done) ->
         fakeData = [{id: 1, id: 2}]
@@ -127,9 +135,9 @@ describe "tgCurrentUserService", ->
         currentUserService._user = user
         currentUserService.setProjects = sinon.stub()
 
-        mocks.projectsService.getProjectsByUserId.withArgs(1).promise().resolve(project)
+        mocks.projectsService.getListProjectsByUserId.withArgs(1).promise().resolve(project)
 
-        currentUserService.loadProjects().then () ->
+        currentUserService.loadProjectsList().then () ->
             expect(currentUserService.setProjects).to.have.been.calledWith(project)
 
             done()
@@ -191,15 +199,25 @@ describe "tgCurrentUserService", ->
         })
 
     it "load joyride config", (done) ->
-        mocks.resources.user.getUserStorage.withArgs('joyride').promise().resolve(true)
+        getUserStorageDeferred = $q.defer()
+
+        mocks.resources.user.getUserStorage.withArgs('joyride').returns(getUserStorageDeferred.promise)
+
+        getUserStorageDeferred.resolve(true)
 
         currentUserService.loadJoyRideConfig().then (config) ->
             expect(config).to.be.true
 
             done()
 
+        $rootScope.$apply()
+
     it "create default joyride config", (done) ->
-        mocks.resources.user.getUserStorage.withArgs('joyride').promise().reject(new Error('error'))
+        getUserStorageDeferred = $q.defer()
+
+        mocks.resources.user.getUserStorage.withArgs('joyride').returns(getUserStorageDeferred.promise)
+
+        getUserStorageDeferred.reject(new Error('error'))
 
         currentUserService.loadJoyRideConfig().then (config) ->
             joyride = {
@@ -212,6 +230,8 @@ describe "tgCurrentUserService", ->
             expect(config).to.be.eql(joyride)
 
             done()
+
+        $rootScope.$apply()
 
     it "the user can't create private projects if they reach the maximum number of private projects", () ->
         user = Immutable.fromJS({

@@ -1,8 +1,7 @@
 .contact-team {
-    margin-left: .75rem;
     &-large {
         @include font-size(small);
-        @include font-type(light);
+        @include font-type(regular);
         justify-content: center;
         margin-left: 0;
         width: 100%;

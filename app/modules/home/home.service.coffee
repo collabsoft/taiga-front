@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: home.service.coffee
+# File: home/home.service.coffee
 ###
 
 groupBy = @.taiga.groupBy
@@ -23,10 +23,11 @@ class HomeService extends taiga.Service
     @.$inject = [
         "$tgNavUrls",
         "tgResources",
-        "tgProjectsService"
+        "tgProjectsService",
+        "$q"
     ]
 
-    constructor: (@navurls, @rs, @projectsService) ->
+    constructor: (@navurls, @rs, @projectsService, @q) ->
 
     _attachProjectInfoToWorkInProgress: (workInProgress, projectsById) ->
         _attachProjectInfoToDuty = (duty, objType) =>
@@ -98,7 +99,7 @@ class HomeService extends taiga.Service
     getWorkInProgress: (userId) ->
         projectsById = Immutable.Map()
 
-        projectsPromise = @projectsService.getProjectsByUserId(userId).then (projects) ->
+        projectsPromise = @projectsService.getListProjectsByUserId(userId).then (projects) ->
             projectsById = Immutable.fromJS(groupBy(projects.toJS(), (p) -> p.id))
 
         assignedTo = Immutable.Map()
@@ -111,6 +112,7 @@ class HomeService extends taiga.Service
         params_uss = {
             is_closed: false
             assigned_users: userId
+            dashboard: true
         }
 
         params_tasks = {
@@ -143,6 +145,7 @@ class HomeService extends taiga.Service
         params_uss = {
             is_closed: false
             watchers: userId
+            dashboard: true
         }
 
         params_tasks = {
@@ -171,7 +174,7 @@ class HomeService extends taiga.Service
 
         workInProgress = Immutable.Map()
 
-        Promise.all([
+        return @q.all([
             projectsPromise,
             assignedEpicsPromise,
             watchingEpicsPromise,

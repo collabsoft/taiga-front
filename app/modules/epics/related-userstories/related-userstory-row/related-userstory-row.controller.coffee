@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: reñated-userstory-row.controller.coffee
+# File: epics/related-userstories/related-userstory-row/related-userstory-row.controller.coffee
 ###
 
 module = angular.module("taigaEpics")
@@ -40,12 +40,13 @@ class RelatedUserstoryRowController
         return @translate.instant("COMMON.ASSIGNED_TO.NOT_ASSIGNED")
 
     onDeleteRelatedUserstory: () ->
-        title = @translate.instant('EPIC.TITLE_LIGHTBOX_UNLINK_RELATED_USERSTORY')
-        message = @translate.instant('EPIC.MSG_LIGHTBOX_UNLINK_RELATED_USERSTORY', {
-            subject: @.userstory.get('subject')
-        })
-        subtitle = @translate.instant('NOTIFICATION.ASK_REMOVE_LINK')
-        return @confirm.askOnDelete(title, message, subtitle)
+        title = @translate.instant("LIGHTBOX.REMOVE_RELATIONSHIP_WITH_EPIC.TITLE")
+        message = @translate.instant(
+            "LIGHTBOX.REMOVE_RELATIONSHIP_WITH_EPIC.MESSAGE",
+            { epicSubject: @.epic.get('subject') }
+        )
+
+        return @confirm.ask(title, null, message)
             .then (askResponse) =>
                 onError = () =>
                     message = @translate.instant('EPIC.ERROR_UNLINK_RELATED_USERSTORY', {errorMessage: message})

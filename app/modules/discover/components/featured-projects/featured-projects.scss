@@ -2,8 +2,9 @@
 
 .featured-projects {
     @include centered;
+    margin-bottom: 4rem;
     .title {
-        @include font-type(bold);
+        @include font-type(medium);
         @include font-size(larger);
         color: $grayer;
         text-align: center;
@@ -14,7 +15,8 @@
     display: flex;
     flex-grow: 0;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    margin: 0 -.5rem;
 }
 
 .featured-project {
@@ -22,11 +24,10 @@
     display: flex;
     flex-basis: 23%;
     flex-wrap: wrap;
-    max-width: 23%;
-    @include breakpoint(tablet) {
+    @include until($desktop) {
         flex-basis: 45%;
     }
-    @include breakpoint(mobile) {
+    @include until($tablet) {
         flex-basis: 100%;
     }
 }

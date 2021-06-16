@@ -3,7 +3,7 @@
 .user-profile {
     @include profile-form;
     max-width: 780px;
-    .submit-button {
+    .button-full {
         width: 100%;
     }
 
@@ -14,6 +14,7 @@
         margin-top: .5rem;
     }
 
+    .verify-email,
     .download-profile,
     .delete-account {
         @include font-size(small);

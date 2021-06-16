@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: project-menu.controller.coffee
+# File: components/project-menu/project-menu.controller.coffee
 ###
 
 class ProjectMenuController
@@ -29,8 +29,19 @@ class ProjectMenuController
 
     show: () ->
         @.project = @projectService.project
-
+        @.sprints = @.project.get('milestones')?.toJS()
         @.active = @._getActiveSection()
+
+        @.projectMenu = {
+            component: 'tg-project-navigation',
+            params: {
+                project: @projectService.project.toJS(),
+            },
+            events: {
+                search: () =>
+                    @.search()
+            }
+        }
 
         @._setVideoConference()
         @._setMenuPermissions()
@@ -100,8 +111,8 @@ class ProjectMenuController
 
     _videoConferenceUrl: () ->
         # Get base url
-        if @.project.get("videoconferences") == "appear-in"
-            baseUrl = "https://appear.in/"
+        if @.project.get("videoconferences") == "whereby-com"
+            baseUrl = "https://whereby.com/"
         else if @.project.get("videoconferences") == "talky"
             baseUrl = "https://talky.io/"
         else if @.project.get("videoconferences") == "jitsi"

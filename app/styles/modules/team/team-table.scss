@@ -14,32 +14,33 @@
         justify-content: flex-end;
     }
     .attribute {
-        @include font-type(light);
+        @include font-type(regular);
         flex: 1;
         position: relative;
         text-align: center;
         .icon {
             @include svg-size(1.75rem);
-            fill: $gray;
+            fill: $color-black600;
         }
         .points {
             @include font-size(larger);
-            @include font-type(light);
-            color: $grayer;
+            @include font-type(regular);
+            color: $color-black700;
         }
         .top {
-            fill: $primary-light;
+            fill: $color-link-primary;
             opacity: 1;
         }
         &:hover {
-            .popover {
+            .tooltip {
                 display: block;
             }
         }
     }
     .leave-project {
         @include font-size(small);
-        color: $red-light;
+        color: $color-link-red;
+        display: flex;
         .icon {
             @include svg-size(.8rem);
             fill: currentColor;
@@ -54,15 +55,15 @@
         }
     }
     .team-header {
-        @include font-type(text);
-        @include font-type(bold);
+        @include font-type(regular);
+        @include font-type(medium);
         border-bottom: 0;
     }
     .hero {
         width: 100%;
         .row {
-            border-bottom: 1px solid $whitish;
-            border-top: 1px solid $whitish;
+            border-bottom: 1px solid $color-gray100;
+            border-top: 1px solid $color-gray100;
             margin: 1rem 0;
             padding: 1.5rem 1rem;
         }
@@ -91,18 +92,35 @@
             width: 100%;
         }
         .name {
-            @include font-type(bold);
+            @include font-type(medium);
+            align-items: center;
+            display: flex;
+
+            tg-svg {
+                display: block;
+                margin-left: .5rem;
+            }
         }
         .position {
-            @include font-type(light);
+            @include font-type(regular);
             color: $gray-light;
         }
     }
-    .popover {
-        @include popover(100%, '', 0, 30px, '', 15px, '', 50%, -5px);
+    .tooltip {
+        @include tooltip-small(
+            $width: inherit,
+            $left: 0,
+            $bottom: 2rem,
+            $arrow-width: 15px,
+            $arrow-left: calc( 50% - 7px),
+            $arrow-top: calc( 100% - 7px),
+            $align: center
+        );
     }
     .icon-badge {
+        fill: $color-link-primary;
         position: relative;
+        stroke: $color-link-primary;
         top: .15rem;
     }
 }

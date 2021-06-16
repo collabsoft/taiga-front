@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,17 +14,31 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: filter.directive.coffee
+# File: components/filter/filter.directive.coffee
 ###
 
 FilterDirective = () ->
     link = (scope, el, attrs, ctrl) ->
-        unwatch = scope.$watch "vm.defaultQ", (q) ->
-            if q && !scope.vm.filtersForm.$dirty
-                scope.vm.q = q
-                unwatch()
-            else if scope.vm.filtersForm.$dirty
-                unwatch()
+        watchTaskboardHeight = (taskboard) =>
+            resizeObserver = new ResizeObserver () =>
+                maxSize = null
+                currentMax = Number(el[0].style.getPropertyValue('--filter-list-max-height').replace('px', ''))
+
+                if scope.vm.opened
+                    maxSize = taskboard.offsetHeight - el[0].offsetHeight + currentMax
+                else
+                    maxSize = taskboard.offsetHeight - el[0].offsetHeight
+
+                if maxSize < 100
+                    maxSize = 100
+                else if maxSize > 380
+                    maxSize = 380
+
+                el[0].style.setProperty('--filter-list-max-height', maxSize + "px")
+
+                resizeObserver.unobserve(el[0]);
+
+            resizeObserver.observe(taskboard);
 
         attrs.$observe "open", (open) ->
             open = scope.$eval(open)
@@ -33,6 +47,10 @@ FilterDirective = () ->
                 el.addClass('open')
             else
                 el.removeClass('open')
+
+        taskboard = $('.js-taskboard-manager')
+        if taskboard.length
+            watchTaskboardHeight(taskboard[0])
 
     return {
         scope: {
@@ -43,7 +61,6 @@ FilterDirective = () ->
             onRemoveCustomFilter: "&",
             onSaveCustomFilter: "&",
             customFilters: "<",
-            defaultQ: "=q",
             filters: "<"
             customFilters: "<"
             selectedFilters: "<"

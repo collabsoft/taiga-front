@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -55,16 +50,20 @@ class IssueDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         "$translate",
         "$tgQueueModelTransformation",
         "tgErrorHandlingService",
-        "tgProjectService"
+        "tgProjectService",
+        "tgAttachmentsFullService",
     ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @params, @q, @location,
                   @log, @appMetaService, @analytics, @navUrls, @translate, @modelTransform,
-                  @errorHandlingService, @projectService) ->
+                  @errorHandlingService, @projectService, @attachmentsFullService) ->
         bindMethods(@)
 
         @scope.issueRef = @params.issueref
         @scope.sectionName = @translate.instant("ISSUES.SECTION_NAME")
+        @scope.attachmentsReady = false
+        @scope.$on "attachments:loaded", () =>
+            @scope.attachmentsReady = true
         @.initializeEventHandlers()
 
         promise = @.loadInitialData()
@@ -91,6 +90,9 @@ class IssueDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
             issueDescription: angular.element(@scope.issue.description_html or "").text()
         })
         @appMetaService.setAll(title, description)
+
+    loadAttachments: ->
+        @attachmentsFullService.loadAttachments('issue', @scope.issueId, @scope.projectId)
 
     initializeEventHandlers: ->
         @scope.$on "attachment:create", =>
@@ -143,6 +145,8 @@ class IssueDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
             @scope.issue = issue
             @scope.issueId = issue.id
             @scope.commentModel = issue
+
+            @.loadAttachments()
 
             @modelTransform.setObject(@scope, 'issue')
 
@@ -647,60 +651,6 @@ module.directive("tgIssuePriorityButton", ["$rootScope", "$tgRepo", "$tgConfirm"
 
 
 #############################################################################
-## Promote Issue to US button directive
-#############################################################################
-
-PromoteIssueToUsButtonDirective = ($rootScope, $repo, $confirm, $translate) ->
-    link = ($scope, $el, $attrs, $model) ->
-
-        save = (issue, askResponse) =>
-            data = {
-                generated_from_issue: issue.id
-                project: issue.project,
-                subject: issue.subject
-                description: issue.description
-                tags: issue.tags
-                is_blocked: issue.is_blocked
-                blocked_note: issue.blocked_note
-                due_date: issue.due_date
-            }
-
-            onSuccess = ->
-                askResponse.finish()
-                $confirm.notify("success")
-                $rootScope.$broadcast("promote-issue-to-us:success")
-
-            onError = ->
-                askResponse.finish()
-                $confirm.notify("error")
-
-            $repo.create("userstories", data).then(onSuccess, onError)
-
-        $el.on "click", "a", (event) ->
-            event.preventDefault()
-            issue = $model.$modelValue
-
-            title = $translate.instant("ISSUES.CONFIRM_PROMOTE.TITLE")
-            message = $translate.instant("ISSUES.CONFIRM_PROMOTE.MESSAGE")
-            subtitle = issue.subject
-
-            $confirm.ask(title, subtitle, message).then (response) =>
-                save(issue, response)
-
-        $scope.$on "$destroy", ->
-            $el.off()
-
-    return {
-        restrict: "AE"
-        require: "ngModel"
-        templateUrl: "issue/promote-issue-to-us-button.html"
-        link: link
-    }
-
-module.directive("tgPromoteIssueToUsButton", ["$rootScope", "$tgRepo", "$tgConfirm", "$translate"
-                                              PromoteIssueToUsButtonDirective])
-
-#############################################################################
 ## Add Issue to Sprint button directive
 #############################################################################
 
@@ -738,8 +688,10 @@ lightboxService, $modelTransform, $confirm) ->
                 currentSprint = _.find(data.milestones, { "id": issue.milestone })
 
                 title = $translate.instant("ISSUES.CONFIRM_DETACH_FROM_SPRINT.TITLE")
-                message = $translate.instant("ISSUES.CONFIRM_DETACH_FROM_SPRINT.MESSAGE")
-                message += " <strong>#{currentSprint.name}</strong>"
+                message = $translate.instant(
+                    "ISSUES.CONFIRM_DETACH_FROM_SPRINT.MESSAGE",
+                    {sprintName: currentSprint.name}
+                )
 
                 $confirm.ask(title, null, message).then (askResponse) ->
                     onSuccess = ->

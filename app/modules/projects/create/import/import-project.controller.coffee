@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: import-project.controller.coffee
+# File: projects/create/import/import-project.controller.coffee
 ###
 
 class ImportProjectController
@@ -113,9 +113,12 @@ class ImportProjectController
         @.unfoldedOptions = options
 
     isActiveImporter: (importer) ->
-        if @config.get('importers').indexOf(importer) == -1
-            return false
-        return true
+        switch(importer)
+            when "asana" then @config.get('enableAsanaImporter')
+            when "github" then @config.get('enableGithubImporter')
+            when "jira" then @config.get('enableJiraImporter')
+            when "trello" then @config.get('enableTrelloImporter')
+            else return false
 
     cancelCurrentImport: () ->
         @location.url(@tgNavUrls.resolve('create-project-import'))

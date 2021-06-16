@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: create-project-form.controller.coffee
+# File: projects/create/create-project-form/create-project-form.controller.coffee
 ###
 
 class CreatetProjectFormController
@@ -28,6 +28,7 @@ class CreatetProjectFormController
    ]
 
     constructor: (@currentUserService, @projectsService, @projectUrl, @location, @navUrls, @analytics) ->
+        @.errorList = []
         @.projectForm = {
             is_private: false
         }
@@ -44,11 +45,15 @@ class CreatetProjectFormController
             @.projectForm.creation_template = 2
 
     submit: () ->
-        @.formSubmitLoading = true
-
-        @projectsService.create(@.projectForm).then (project) =>
-            @analytics.trackEvent("project", "create", "project creation", {slug: project.get('slug'), id: project.get('id')})
-            @location.url(@projectUrl.get(project))
+        @.errorList = []
+        if !@.projectForm.name then @.errorList.push('name')
+        if !@.projectForm.description then @.errorList.push ('description')
+        if(@.errorList.length == 0)
+            @.formSubmitLoading = true
+            @projectsService.create(@.projectForm).then (project) =>
+                @analytics.trackEvent("project", "create", "project creation", {slug: project.get('slug'), id: project.get('id')})
+                @location.url(@projectUrl.get(project))
+                @currentUserService.loadProjects()
 
     onCancelForm: () ->
         @location.path(@navUrls.resolve("create-project"))

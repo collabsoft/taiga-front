@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,16 +14,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: asana-import.service.coffee
+# File: projects/create/asana-import/asana-import.service.coffee
 ###
 
 class AsanaImportService extends taiga.Service
     @.$inject = [
         'tgResources',
-        '$location'
+        '$location',
+        '$q'
     ]
 
-    constructor: (@resources, @location) ->
+    constructor: (@resources, @location, @q) ->
         @.projects = Immutable.List()
         @.projectUsers = Immutable.List()
         @.token = null
@@ -41,13 +42,13 @@ class AsanaImportService extends taiga.Service
         return @resources.asanaImporter.importProject(@.token, name, description, projectId, userBindings, keepExternalReference, isPrivate, projectType)
 
     getAuthUrl: () ->
-        return new Promise (resolve) =>
+        return @q (resolve) =>
             @resources.asanaImporter.getAuthUrl().then (response) =>
                 @.authUrl = response.data.url
                 resolve(@.authUrl)
 
     authorize: (code) ->
-        return new Promise (resolve, reject) =>
+        return @q (resolve, reject) =>
             @resources.asanaImporter.authorize(code).then ((response) =>
                 @.token = response.data.token
                 resolve(@.token)

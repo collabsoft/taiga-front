@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: avatar.directive.coffee
+# File: components/avatar/avatar.directive.coffee
 ###
 
 AvatarDirective = (avatarService) ->
@@ -28,13 +28,15 @@ AvatarDirective = (avatarService) ->
             avatar = avatarService.getAvatar(user, attributeName)
 
             el.attr('src', avatar.url)
+            el.attr('title', "#{avatar.fullName}")
+            el.attr('alt', "#{avatar.fullName}")
             el.css('background', avatar.bg or "")
 
     return {
         link: link
         scope: {
-             avatar: "=tgAvatar"
-             avatarBig: "=tgAvatarBig"
+            avatar: "=tgAvatar"
+            avatarBig: "=tgAvatarBig"
         }
     }
 

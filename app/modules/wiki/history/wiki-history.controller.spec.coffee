@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: wiki-history.controller.spec.coffee
+# File: wiki/history/wiki-history.controller.spec.coffee
 ###
 
 describe "WikiHistorySection", ->
@@ -22,18 +22,18 @@ describe "WikiHistorySection", ->
     controller = null
     mocks = {}
 
-    _mockTgWikiHistoryService = () ->
-        mocks.tgWikiHistoryService = {
-            setWikiId: sinon.stub(),
-            loadHistoryEntries: sinon.stub()
+    _mockTgActivityService = () ->
+        mocks.tgActivityService = {
+            init: sinon.stub(),
+            fetchEntries: sinon.stub()
         }
 
-        provide.value "tgWikiHistoryService", mocks.tgWikiHistoryService
+        provide.value "tgActivityService", mocks.tgActivityService
 
     _mocks = () ->
         module ($provide) ->
             provide = $provide
-            _mockTgWikiHistoryService()
+            _mockTgActivityService()
             return null
 
     beforeEach ->
@@ -44,19 +44,19 @@ describe "WikiHistorySection", ->
         inject ($controller) ->
             controller = $controller
 
-    it "initialize histori entries with id", ->
+    it "initialize history entries with id", ->
         wikiId = 42
 
         historyCtrl = controller "WikiHistoryCtrl"
-        historyCtrl.initializeHistoryEntries(wikiId)
+        historyCtrl.initializeHistory(wikiId)
 
-        expect(mocks.tgWikiHistoryService.setWikiId).to.be.calledOnce
-        expect(mocks.tgWikiHistoryService.setWikiId).to.be.calledWith(wikiId)
-        expect(mocks.tgWikiHistoryService.loadHistoryEntries).to.be.calledOnce
+        expect(mocks.tgActivityService.init).to.be.calledOnce
+        expect(mocks.tgActivityService.init).to.be.calledWith('wiki', wikiId)
+        expect(mocks.tgActivityService.fetchEntries).to.be.calledOnce
 
     it "initialize history entries without id",  ->
         historyCtrl = controller "WikiHistoryCtrl"
-        historyCtrl.initializeHistoryEntries()
+        historyCtrl.initializeHistory()
 
-        expect(mocks.tgWikiHistoryService.setWikiId).to.not.be.calledOnce
-        expect(mocks.tgWikiHistoryService.loadHistoryEntries).to.be.calledOnce
+        expect(mocks.tgActivityService.init).to.not.be.calledOnce
+        expect(mocks.tgActivityService.fetchEntries).to.be.calledOnce

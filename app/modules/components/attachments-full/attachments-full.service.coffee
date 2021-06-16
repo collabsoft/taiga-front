@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,21 +14,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: attachments-full.service.coffee
+# File: components/attachments-full/attachments-full.service.coffee
 ###
 
 class AttachmentsFullService extends taiga.Service
     @.$inject = [
         "tgAttachmentsService",
-        "$rootScope"
+        "$rootScope",
+        "$q"
     ]
 
-    constructor: (@attachmentsService, @rootScope) ->
+    constructor: (@attachmentsService, @rootScope, @q) ->
         @._attachments = Immutable.List()
         @._deprecatedsCount = 0
         @._attachmentsVisible = Immutable.List()
         @._deprecatedsVisible = false
         @.uploadingAttachments = []
+        @.types = @attachmentsService.types
 
         taiga.defineImmutableProperty @, 'attachments', () => return @._attachments
         taiga.defineImmutableProperty @, 'deprecatedsCount', () => return @._deprecatedsCount
@@ -48,7 +50,7 @@ class AttachmentsFullService extends taiga.Service
             @._attachmentsVisible = @._attachments.filter (it) -> !it.getIn(['file', 'is_deprecated'])
 
     addAttachment: (projectId, objId, type, file, editable = true, comment = false) ->
-        return new Promise (resolve, reject) =>
+        return @q (resolve, reject) =>
             if @attachmentsService.validate(file)
                 @.uploadingAttachments.push(file)
 
@@ -87,6 +89,8 @@ class AttachmentsFullService extends taiga.Service
                     file: file
                 })
 
+            @rootScope.$broadcast("attachments:loaded", @._attachments)
+
             @.regenerate()
 
     deleteAttachment: (toDeleteAttachment, type) ->
@@ -110,8 +114,8 @@ class AttachmentsFullService extends taiga.Service
             patch = {order: attachment.getIn(['file', 'order'])}
 
             promises.push @attachmentsService.patch(attachment.getIn(['file', 'id']), type, patch)
-            
-        return Promise.all(promises).then () =>
+
+        return @q.all(promises).then () =>
             @._attachments = attachments
 
             @.regenerate()

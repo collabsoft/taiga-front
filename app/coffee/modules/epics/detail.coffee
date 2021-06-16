@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -55,15 +50,20 @@ class EpicDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         "$translate",
         "$tgQueueModelTransformation",
         "tgErrorHandlingService",
-        "tgProjectService"
+        "tgProjectService",
+        "tgAttachmentsFullService",
     ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @rs2, @params, @q, @location,
-                  @log, @appMetaService, @analytics, @navUrls, @translate, @modelTransform, @errorHandlingService, @projectService) ->
+                  @log, @appMetaService, @analytics, @navUrls, @translate, @modelTransform, @errorHandlingService, @projectService, @attachmentsFullService) ->
         bindMethods(@)
 
         @scope.epicRef = @params.epicref
         @scope.sectionName = @translate.instant("EPIC.SECTION_NAME")
+        @scope.attachmentsReady = false
+        @scope.$on "attachments:loaded", () =>
+            @scope.attachmentsReady = true
+
         @.initializeEventHandlers()
 
         promise = @.loadInitialData()
@@ -87,6 +87,9 @@ class EpicDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
             epicDescription: angular.element(@scope.epic.description_html or "").text()
         })
         @appMetaService.setAll(title, description)
+
+    loadAttachments: ->
+        @attachmentsFullService.loadAttachments('epic', @scope.epicId, @scope.projectId)
 
     initializeEventHandlers: ->
         @scope.$on "attachment:create", =>
@@ -119,6 +122,8 @@ class EpicDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
             @scope.immutableEpic = Immutable.fromJS(epic._attrs)
             @scope.epicId = epic.id
             @scope.commentModel = epic
+
+            @.loadAttachments()
 
             @modelTransform.setObject(@scope, 'epic')
 

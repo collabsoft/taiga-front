@@ -6,80 +6,76 @@ div.wrapper(
 )
     tg-project-menu
 
-    div.main.us-detail
-        div.us-detail-header.header-with-actions
-            include ../includes/components/mainTitle
-
-        section.us-story-main-data
-            header
-                tg-vote-button.upvote-btn(
+    div.main.detail
+        .detail-header-container(ng-class="{blocked: epic.is_blocked}")
+            tg-detail-nav(item="epic")
+            .detail-header
+                tg-detail-header(
                     item="epic"
-                    on-upvote="ctrl.onUpvote"
-                    on-downvote="ctrl.onDownvote"
+                    section-name="sectionName"
+                    project="project"
+                    required-perm="modify_epic"
+                    ng-if="project && epic"
+                    format="text"
                 )
-
-                .detail-header-container.epic-header-container(ng-class="{blocked: epic.is_blocked}")
+                .epic-selector
+                    span.epic-selector-text {{'EPIC.EPIC_COLOR' | translate}}
                     tg-color-selector.color-selector(
                         is-color-required="true"
                         init-color="epic.color"
                         on-select-color="ctrl.onSelectColor(color)"
                         required-perm="modify_epic"
                     )
-                    tg-detail-header(
-                        item="epic"
+                .subheader
+                    tg-tag-line.tags-block(
+                        ng-if="epic && project"
                         project="project"
-                        required-perm="modify_epic"
-                        ng-if="project && epic"
-                        format="text"
+                        item="epic"
+                        permissions="modify_epic"
                     )
-            .subheader
-                tg-tag-line.tags-block(
-                    ng-if="epic && project"
-                    project="project"
-                    item="epic"
-                    permissions="modify_epic"
-                )
-                tg-created-by-display.ticket-created-by(ng-model="epic")
+                    tg-created-by-display.ticket-created-by(ng-model="epic")
 
-        section.duty-content
-            tg-item-wysiwyg(
-                type="epic",
-                model="epic",
-                required-perm="modify_epic"
+
+        .detail-content(ng-if="attachmentsReady")
+            section.duty-content
+                tg-item-wysiwyg(
+                    type="epic",
+                    model="epic",
+                    required-perm="modify_epic"
+                )
+
+            // Custom Fields
+            tg-custom-attributes-values(
+                ng-model="epic"
+                type="epic"
+                project="project"
+                required-edition-perm="modify_epic"
             )
 
-        // Custom Fields
-        tg-custom-attributes-values(
-            ng-model="epic"
-            type="epic"
-            project="project"
-            required-edition-perm="modify_epic"
-        )
+            tg-attachments-full(
+                obj-id="epic.id"
+                type="epic",
+                project-id="projectId"
+                edit-permission = "modify_epic"
+            )
 
-        tg-related-userstories(
-            project="immutableProject"
-            userstories="userstories"
-            epic="immutableEpic"
-        )
+            tg-related-userstories(
+                project="immutableProject"
+                userstories="userstories"
+                epic="immutableEpic"
+            )
 
-        tg-attachments-full(
-            obj-id="epic.id"
-            type="epic",
-            project-id="projectId"
-            edit-permission = "modify_epic"
-        )
+            tg-history-section(
+                ng-if="epic"
+                type="epic"
+                name="epic"
+                id="epic.id"
+                project="project"
+            )
 
-        tg-history-section(
-            ng-if="epic"
-            type="epic"
-            name="epic"
-            id="epic.id"
-            project-id="projectId"
-        )
+    sidebar.sidebar.ticket-data
 
-    sidebar.menu-secondary.sidebar.ticket-data
-
-        .ticket-header
+        section.ticket-header
             span.ticket-title(
                 tg-epic-status-display
                 ng-model="epic"
@@ -89,27 +85,22 @@ div.wrapper(
                 ng-model="epic"
             )
 
-        section.ticket-assigned-to(
+        section.ticket-section.ticket-assigned-to(
             tg-assigned-to
             ng-model="epic"
             required-perm="modify_epic"
         )
 
-        section.ticket-watch-buttons
-            div.ticket-watch(
-                tg-watch-button
-                item="epic"
-                data-environment="ticket"
-                on-watch="ctrl.onWatch"
-                on-unwatch="ctrl.onUnwatch"
-            )
-            div.ticket-watchers(
-                tg-watchers
-                ng-model="epic"
-                required-perm="modify_epic"
-            )
+        section.ticket-section.ticket-watchers(
+            tg-watchers
+            item="epic"
+            active-users="activeUsers"
+            on-watch="ctrl.onWatch"
+            on-unwatch="ctrl.onUnwatch"
+            required-perm="modify_epic"
+        )
 
-        section.ticket-detail-settings
+        section.ticket-section.ticket-detail-settings
             tg-us-team-requirement-button(ng-model="epic")
             tg-us-client-requirement-button(ng-model="epic")
             tg-block-button(
@@ -124,5 +115,3 @@ div.wrapper(
             )
 
     div.lightbox.lightbox-block(tg-lb-block, ng-model="epic", title="EPIC.LIGHTBOX_TITLE_BLOKING_EPIC")
-    div.lightbox.lightbox-select-user(tg-lb-assignedto)
-    div.lightbox.lightbox-select-user(tg-lb-watchers)

@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,25 +14,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: dropdown-user.directive.coffee
+# File: navigation-bar/dropdown-user/dropdown-user.directive.coffee
 ###
 
 DropdownUserDirective = (authService, configService, locationService,
-        navUrlsService, feedbackService, $rootScope) ->
+        navUrlsService, $rootScope) ->
 
     link = (scope, el, attrs, ctrl) ->
         scope.vm = {}
         scope.vm.isFeedbackEnabled = configService.get("feedbackEnabled")
-        scope.vm.supportUrl = configService.get("supportUrl")
+        scope.vm.customSupportUrl = configService.get("supportUrl")
         taiga.defineImmutableProperty(scope.vm, "user", () -> authService.userData)
 
         scope.vm.logout = ->
             authService.logout()
             locationService.url(navUrlsService.resolve("discover"))
             locationService.search({})
-
-        scope.vm.sendFeedback = ->
-            feedbackService.sendFeedback()
 
         scope.vm.userSettingsPlugins = _.filter($rootScope.userSettingsPlugins, {userMenu: true})
 
@@ -49,7 +46,6 @@ DropdownUserDirective.$inject = [
     "$tgConfig",
     "$tgLocation",
     "$tgNavUrls",
-    "tgFeedbackService",
     "$rootScope"
 ]
 

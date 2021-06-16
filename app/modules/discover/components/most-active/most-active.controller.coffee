@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: most-active.controller.coffee
+# File: discover/components/most-active/most-active.controller.coffee
 ###
 
 class MostActiveController
@@ -25,7 +25,7 @@ class MostActiveController
     constructor: (@discoverProjectsService) ->
         taiga.defineImmutableProperty @, "highlighted", () => return @discoverProjectsService.mostActive
 
-        @.currentOrderBy = 'week'
+        @.currentOrderBy = 'year'
         @.order_by = @.getOrderBy()
 
     fetch: () ->

@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -64,11 +59,13 @@ UsStatusDirective = ($repo, $template) ->
             event.stopPropagation()
             $el.find(".pop-status").popover().open()
 
-        $el.on "click", ".status", debounce 2000, (event) ->
+        $el.on "click", ".popover-status", debounce 2000, (event) ->
             event.preventDefault()
             event.stopPropagation()
 
-            target = angular.element(event.currentTarget)
+            statusElement = $(event.currentTarget).find('#js-status-btn')
+
+            target = angular.element(statusElement)
 
             us = $scope.$eval($attrs.tgUsStatus)
             us.status = target.data("status-id")
@@ -89,7 +86,10 @@ UsStatusDirective = ($repo, $template) ->
         render(us)
 
         bindOnce $scope, "project", (project) ->
-            html = template({"statuses": project.us_statuses})
+            html = template({
+                "statuses": project.us_statuses,
+                "currentStatus": us.status
+            })
             $el.append(html)
 
             # If the user has not enough permissions the click events are unbinded

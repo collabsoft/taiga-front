@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: filter.controller.spec.coffee
+# File: components/filter/filter.controller.spec.coffee
 ###
 
 describe "Filter", ->
@@ -22,11 +22,27 @@ describe "Filter", ->
     $controller = null
     mocks = {}
 
+    _mockTranslate = ->
+        mocks.translate = {
+            instant: sinon.stub()
+        }
+
+        $provide.value("$translate", mocks.translate)
+
+    _mocks = ->
+        module (_$provide_) ->
+            $provide = _$provide_
+
+            _mockTranslate()
+
+            return null
+
     _inject = ->
         inject (_$controller_) ->
             $controller = _$controller_
 
     _setup = ->
+        _mocks()
         _inject()
 
     beforeEach ->
@@ -55,6 +71,7 @@ describe "Filter", ->
 
     it "save custom filter", () ->
         ctrl = $controller("Filter")
+        ctrl.customFilters = []
         ctrl.customFilterName = "custom-name"
         ctrl.customFilterForm = true
         ctrl.onSaveCustomFilter = sinon.spy()
@@ -68,6 +85,7 @@ describe "Filter", ->
 
     it "is filter selected", () ->
         ctrl = $controller("Filter")
+        ctrl.customFilters = []
         ctrl.selectedFilters = [
             {id: 1, dataType: "1"},
             {id: 2, dataType: "2"},

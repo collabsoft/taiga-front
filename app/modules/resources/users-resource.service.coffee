@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: users-resource.service.coffee
+# File: resources/users-resource.service.coffee
 ###
 
 Resource = (urlsService, http, paginateResponseService) ->
@@ -149,6 +149,41 @@ Resource = (urlsService, http, paginateResponseService) ->
         }).then (result) ->
             result = Immutable.fromJS(result)
             return paginateResponseService(result)
+
+    service.getNotifications = (userId, page, onlyUnread) ->
+        params = {
+            page: page
+        }
+        if onlyUnread
+            params['only_unread'] = true
+
+        url = urlsService.resolve("notifications")
+
+        return http.get(url, params, {
+            headers: {
+                'x-lazy-pagination': true
+            }
+        }).then (result) ->
+            result = Immutable.fromJS(result)
+            paginateResponse = Immutable.Map({
+                "data": result.get("data").get("objects"),
+                "next": !!result.get("headers")("x-pagination-next"),
+                "prev": !!result.get("headers")("x-pagination-prev"),
+                "current": result.get("headers")("x-pagination-current"),
+                "count": result.get("headers")("x-pagination-count"),
+                "total": result.get("data").get("total")
+            })
+            return paginateResponse
+
+    service.setNotificationAsRead = (notificationId) ->
+        url = "#{urlsService.resolve("notifications")}/#{notificationId}/set-as-read"
+        return http.patch(url).then (result) ->
+            return result
+
+    service.setNotificationsAsRead = () ->
+        url = "#{urlsService.resolve("notifications")}/set-as-read"
+        return http.post(url).then (result) ->
+            return result
 
     return () ->
         return {"users": service}

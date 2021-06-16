@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: projects.service.coffee
+# File: projects/projects.service.coffee
 ###
 
 taiga = @.taiga
@@ -42,6 +42,11 @@ class ProjectsService extends taiga.Service
 
     getProjectsByUserId: (userId, paginate) ->
         return @rs.projects.getProjectsByUserId(userId, paginate)
+            .then (projects) =>
+                return projects.map @._decorate.bind(@)
+
+    getListProjectsByUserId: (userId, paginate) ->
+        return @rs.projects.getListProjectsByUserId(userId, paginate)
             .then (projects) =>
                 return projects.map @._decorate.bind(@)
 

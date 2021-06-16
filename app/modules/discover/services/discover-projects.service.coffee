@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: discover-projects.service.coffee
+# File: discover/services/discover-projects.service.coffee
 ###
 
 taiga = @.taiga
@@ -49,7 +49,7 @@ class DiscoverProjectsService extends taiga.Service
         _params = _.extend({}, _discoverParams, params)
         return @rs.projects.getProjects(_params, false)
             .then (result) =>
-                data = result.data.slice(0, 5)
+                data = result.data.slice(0, 4)
 
                 projects = Immutable.fromJS(data)
                 projects = projects.map(@.decorate)
@@ -60,7 +60,7 @@ class DiscoverProjectsService extends taiga.Service
         _params = _.extend({}, _discoverParams, params)
         return @rs.projects.getProjects(_params, false)
             .then (result) =>
-                data = result.data.slice(0, 5)
+                data = result.data.slice(0, 4)
 
                 projects = Immutable.fromJS(data)
                 projects = projects.map(@.decorate)

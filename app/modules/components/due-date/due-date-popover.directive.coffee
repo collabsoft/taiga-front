@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2018 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: due-date.directive.coffee
+# File: components/due-date/due-date-popover.directive.coffee
 ###
 
 module = angular.module("taigaComponents")
@@ -22,33 +22,40 @@ module = angular.module("taigaComponents")
 dueDatePopoverDirective = ($translate, datePickerConfigService) ->
     return {
         link: (scope, el, attrs, ctrl) ->
+            scope.open = false
+
             datePickerConfig = datePickerConfigService.get()
             _.merge(datePickerConfig, {
-                field: el.find('input.due-date')[0]
+                field: el.find('.due-date-button')[0]
                 container: el.find('.date-picker-container')[0]
-                bound: false
+                bound: true
+                onClose: () ->
+                    scope.open = false
+                    scope.$apply()
                 onSelect: () ->
                     ctrl.dueDate = this.getMoment().format('YYYY-MM-DD')
-                    el.find(".date-picker-popover").popover().close()
-                    scope.$apply()
             })
             el.picker = new Pikaday(datePickerConfig)
 
-            el.on "click", ".date-picker-popover-trigger", (event) ->
-                if ctrl.disabled()
-                    return
+            el.on "click", ".due-date-button", (event) ->
                 event.preventDefault()
                 event.stopPropagation()
+                if scope.open
+                    el.picker.hide()
+                    return
                 if !el.picker.getDate() && ctrl.dueDate
                     el.picker.setDate(moment(ctrl.dueDate).format('YYYY-MM-DD'))
-                el.find(".date-picker-popover").popover().open()
+                el.picker.show()
+                scope.open = true
+                scope.$apply()
 
             el.on "click", ".date-picker-clean", (event) ->
                 event.preventDefault()
                 event.stopPropagation()
                 ctrl.dueDate = null
                 el.picker.setDate(ctrl.dueDate)
-                el.find(".date-picker-popover").popover().close()
+                scope.open = false
+                el.picker.hide()
                 scope.$apply()
 
             scope.$on "status:changed", (ctx, status) ->

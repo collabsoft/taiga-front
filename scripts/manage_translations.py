@@ -1,4 +1,21 @@
 #!/usr/bin/env python
+
+# Copyright (C) 2014-present Taiga Agile LLC
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
 #
 # NOTE: This script is based on taiga-back manage_translations.py script
 #       (https://github.com/taigaio/taiga-back/blob/master/scripts/manage_translations.py)
@@ -19,11 +36,14 @@
 #  $ python scripts/manage_translations.py fetch --language=es --resources=locale
 
 
-import os
+import os, errno
 from argparse import ArgumentParser
 from argparse import RawTextHelpFormatter
 
 from subprocess import PIPE, Popen, call
+
+
+SOURCE_LANG = "en"
 
 
 def _tx_resource_for_name(name):
@@ -59,7 +79,7 @@ def commit(resources=None, languages=None):
     """
     if not resources:
         if languages is None:
-            call("tx push -s -l en", shell=True)
+            call("tx push -s -l {lang}".format(lang=SOURCE_LANG), shell=True)
         else:
             for lang in languages:
                 call("tx push -t -l {lang}".format(lang=lang), shell=True)
@@ -67,24 +87,25 @@ def commit(resources=None, languages=None):
         for resource in resources:
             # Transifex push
             if languages is None:
-                call("tx push -r {res} -s -l en".format(res=_tx_resource_for_name(resource)), shell=True)
+                call("tx push -r {res} -s -l {lang}".format(res=_tx_resource_for_name(resource), lang=SOURCE_LANG), shell=True)
             else:
                 for lang in languages:
-                    call("tx push -r {res} -t -l {lang}".format(res= _tx_resource_for_name(resource), lang=lang), shell=True)
+                    type = "-s" if lang == SOURCE_LANG else "-t"
+                    call("tx push -r {res} -l {lang} {type}".format(res= _tx_resource_for_name(resource), lang=lang, type=type), shell=True)
 
 
 if __name__ == "__main__":
     try:
         devnull = open(os.devnull)
         Popen(["tx"], stdout=devnull, stderr=devnull).communicate()
-    except OSError as e:
-        if e.errno == os.errno.ENOENT:
+    except (OSError, ) as e:
+        if e.errno == errno.ENOENT:
             print("""
 You need transifex-client, install it.
 
  1. Install transifex-client, use
 
-       $ pip install --upgrade transifex-client==0.12.2
+       $ pip install --upgrade transifex-client
 
  2. Create ~/.transifexrc file:
 

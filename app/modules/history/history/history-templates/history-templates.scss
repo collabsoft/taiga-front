@@ -1,6 +1,9 @@
 .activity-diff {
+    tg-svg {
+        display: inline-block;
+    }
     .key {
-        @include font-type(bold);
+        @include font-type(medium);
         background: $whitish;
         margin-right: .5rem;
         padding: .25rem;
@@ -16,6 +19,7 @@
     .diff-status-wrapper {
         p {
             display: inline-block;
+            vertical-align: top;
         }
         ins {
             background: lighten(rgba($primary-light, .3), 20%);

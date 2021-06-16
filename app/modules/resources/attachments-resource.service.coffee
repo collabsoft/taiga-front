@@ -1,11 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -20,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: attachments-resource.service.coffee
+# File: resources/attachments-resource.service.coffee
 ###
 
 taiga = @.taiga
@@ -43,6 +37,13 @@ Resource = (urlsService, http, config, $rootScope, $q, storage) ->
 
         return http.get(url, params, httpOptions)
             .then (result) -> Immutable.fromJS(result.data)
+
+    service.get = (type, id) ->
+        urlname = "attachments/#{type}"
+
+        url = urlsService.resolve(urlname) + "/#{id}"
+
+        return http.get(url)
 
     service.delete = (type, id) ->
         urlname = "attachments/#{type}"
@@ -85,7 +86,7 @@ Resource = (urlsService, http, config, $rootScope, $q, storage) ->
                 file.status = "in-progress"
                 file.size = sizeFormat(evt.total)
                 file.progressMessage = "upload #{sizeFormat(evt.loaded)} of #{sizeFormat(evt.total)}"
-                file.progressPercent = "#{Math.round((evt.loaded / evt.total) * 100)}%"
+                file.progressPercent = "#{Math.round((evt.loaded / evt.total) * 100)}"
 
         uploadComplete = (evt) =>
             $rootScope.$apply ->

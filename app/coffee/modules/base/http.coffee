@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -25,11 +20,10 @@
 taiga = @.taiga
 
 class HttpService extends taiga.Service
-    @.$inject = ["$http", "$q", "$tgStorage", "$rootScope", "$cacheFactory", "$translate"]
+    @.$inject = ["$http", "$q", "tgLoader", "$tgStorage", "$rootScope", "$cacheFactory", "$translate"]
 
-    constructor: (@http, @q, @storage, @rootScope, @cacheFactory, @translate) ->
+    constructor: (@http, @q, @tgLoader, @storage, @rootScope, @cacheFactory, @translate) ->
         super()
-
         @.cache = @cacheFactory("httpget")
     headers: ->
         headers = {}
@@ -66,6 +60,7 @@ class HttpService extends taiga.Service
 
         options.data = data if data
         options.params = params if params
+        options.responseType = 'text'
 
         return @.request(options)
 

@@ -7,12 +7,12 @@ section.home-project-list(ng-if="vm.projects.size")
     )
         .project-card-inner(
             href="#"
-            tg-nav="project:project=project.get('slug')"
+            tg-nav="project:project=project.get('slug'),section=project.get('my_homepage')"
         )
             .project-card-header
                 a.project-card-logo(
                     href="#"
-                    tg-nav="project:project=project.get('slug')"
+                    tg-nav="project:project=project.get('slug'),section=project.get('my_homepage')"
                     title="{{::project.get('name')}}"
                 )
                     img(
@@ -22,7 +22,7 @@ section.home-project-list(ng-if="vm.projects.size")
                 h3.project-card-name
                     a.project-title(
                         href="#"
-                        tg-nav="project:project=project.get('slug')"
+                        tg-nav="project:project=project.get('slug'),section=project.get('my_homepage')"
                         title="{{::project.get('name')}}"
                     ) {{::project.get('name')}}
 
@@ -69,9 +69,9 @@ section.home-project-list(ng-if="vm.projects.size")
                     ng-if="::project.get('is_private')"
                     title="{{ 'PROJECT.PRIVATE' | translate }}"
                 )
-                    tg-svg(svg-icon="icon-lock")
-
-    a.see-more-projects-btn.button-gray(
+                    tg-svg(svg-icon="icon-private")
+    a.btn-small.see-more-projects-btn(
+        variant="primary"
         href="#",
         ng-show="vm.projects.size",
         tg-nav="projects",
@@ -82,8 +82,9 @@ section.home-project-list(ng-if="vm.projects.size")
 section.projects-empty(ng-if="vm.projects != undefined && vm.projects.size === 0")
     tg-svg(svg-icon="icon-project")
     p(translate="HOME.EMPTY_PROJECT_LIST")
-    a.create-project-button.button-green(
-        href="#"
+    a.btn-small.create-project-button(
+        variant="primary"
+        href="#",
         tg-nav="create-project"
         title="{{'PROJECT.NAVIGATION.TITLE_CREATE_PROJECT' | translate}}"
         translate="PROJECT.NAVIGATION.ACTION_CREATE_PROJECT"

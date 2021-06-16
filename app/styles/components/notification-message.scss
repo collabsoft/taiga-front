@@ -22,7 +22,7 @@
     }
     .warning {
         @include font-size(large);
-        @include font-type(bold);
+        @include font-type(medium);
         color: $white;
         line-height: 1.2;
     }
@@ -51,8 +51,14 @@
 }
 
 @keyframes animSlideOut {
-    0% { opacity: 1; transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -400, 0, 0, 1); }
-    100% { opacity: 0; transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -400, 0, 0, 1); }
+    0% {
+        opacity: 1;
+        transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -400, 0, 0, 1);
+    }
+    100% {
+        opacity: 0;
+        transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -400, 0, 0, 1);
+    }
 }
 
 
@@ -78,7 +84,7 @@
     }
     .warning {
         @include font-size(xlarge);
-        @include font-type(bold);
+        @include font-type(medium);
         color: $white;
         line-height: 2.4rem;
     }
@@ -104,10 +110,11 @@
 
 .notification-message {
     color: $white;
+    display: flex;
     opacity: 0;
     padding: 1rem;
     position: fixed;
-    z-index: 99920;
+    z-index: $overall-layer;
 }
 
 .notification-light {
@@ -123,7 +130,7 @@
     transform: translateY(-100%);
     transition: all .6s;
     width: 100%;
-    z-index: 99999;
+    z-index: $overall-layer;
     &.inactive {
         opacity: 0;
         transform: translateY(-100%);
@@ -135,7 +142,7 @@
         transition: all .6s;
     }
     p {
-        @include font-type(light);
+        @include font-type(regular);
         @include font-size(small);
         margin: 0;
     }

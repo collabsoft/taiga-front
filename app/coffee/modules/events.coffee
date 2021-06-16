@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -109,14 +104,24 @@ class EventsService
                 if data.url
                     notification.onclick = () =>
                         window.open data.url
-        if !Notification
-            console.log("This browser does not support desktop notification")
+        if !(window.Notification)
+            @log.info("This browser does not support desktop notification")
         else if Notification.permission == "granted"
             subscribe()
         else if Notification.permission != 'denied'
             Notification.requestPermission (permission) =>
               if (permission == "granted")
                   subscribe()
+
+    webNotifications: ->
+        if not @.auth.userData?
+            return
+        userId = @.auth.userData.get('id')
+
+        routingKey = "web_notifications.#{userId}"
+        randomTimeout = taiga.randomInt(700, 1000)
+        @.subscribe null, routingKey, (data) =>
+            @rootScope.$broadcast "notifications:new"
 
     ###########################################
     # Heartbeat (Ping - Pong)
@@ -156,7 +161,7 @@ class EventsService
 
     processHeartBeatPongMessage: (data) ->
         @.missedHeartbeats = 0
-        @log.debug("HeartBeat recived PONG")
+        @log.debug("HeartBeat received PONG")
 
     ###########################################
     # Messages
@@ -248,9 +253,10 @@ class EventsService
         @.startHeartBeatMessages()
         @.notifications()
         @.liveNotifications()
+        @.webNotifications()
 
     onMessage: (event) ->
-        @.log.debug "WebSocket message received: #{event.data}"
+        @log.debug "WebSocket message received: #{event.data}"
 
         data = JSON.parse(event.data)
 

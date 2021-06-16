@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,25 +14,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: modules/components/wysiwyg/comment-edit-wysiwyg.directive.coffee
+# File: components/wysiwyg/comment-edit-wysiwyg.directive.coffee
 ###
 
 CommentEditWysiwyg = (attachmentsFullService) ->
     link = ($scope, $el, $attrs) ->
-        types = {
-            epics: "epic",
-            userstories: "us",
-            issues: "issue",
-            tasks: "task"
-        }
+        $scope.uploadFiles = (file, cb) ->
+            projectId = parseInt($scope.vm.projectId, 10)
+            object = parseInt($scope.vm.object, 10)
 
-        uploadFile = (file, cb) ->
-            return attachmentsFullService.addAttachment($scope.vm.projectId, $scope.vm.comment.comment.id, types[$scope.vm.comment.comment._name], file, true, true).then (result) ->
-                cb(result.getIn(['file', 'name']), result.getIn(['file', 'url']))
+            if !projectId
+                projectId = parseInt($scope.vm.project.id, 10)
 
-        $scope.uploadFiles = (files, cb) ->
-            for file in files
-                uploadFile(file, cb)
+            return attachmentsFullService.addAttachment(
+                projectId,
+                object,
+                attachmentsFullService.types[$scope.vm.name],
+                file,
+                true,
+                true
+            ).then (result) ->
+                cb({
+                    default: result.getIn(['file', 'url'])
+                })
 
     return {
         scope: true,
@@ -47,10 +46,11 @@ CommentEditWysiwyg = (attachmentsFullService) ->
                 <tg-wysiwyg
                     editonly
                     required
+                    project="vm.project"
                     content='vm.comment.comment'
                     on-save="vm.saveComment(text, cb)"
                     on-cancel="vm.onEditMode({commentId: vm.comment.id})"
-                    on-upload-file='uploadFiles(files, cb)'>
+                    on-upload-file='uploadFiles'>
                 </tg-wysiwyg>
             </div>
         """

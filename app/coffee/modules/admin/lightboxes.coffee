@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -24,6 +19,7 @@
 
 taiga = @.taiga
 debounce = @.taiga.debounce
+normalizeString = @.taiga.normalizeString
 
 module = angular.module("taigaKanban")
 
@@ -79,19 +75,11 @@ class ChangeOwnerLightboxController
 
     limit: 3
 
-    normalizeString: (normalizedString) ->
-        normalizedString = normalizedString.replace("Á", "A").replace("Ä", "A").replace("À", "A")
-        normalizedString = normalizedString.replace("É", "E").replace("Ë", "E").replace("È", "E")
-        normalizedString = normalizedString.replace("Í", "I").replace("Ï", "I").replace("Ì", "I")
-        normalizedString = normalizedString.replace("Ó", "O").replace("Ö", "O").replace("Ò", "O")
-        normalizedString = normalizedString.replace("Ú", "U").replace("Ü", "U").replace("Ù", "U")
-        return normalizedString
-
     filterUsers: (user) ->
         username = user.full_name_display.toUpperCase()
-        username = @.normalizeString(username)
+        username = normalizeString(username)
         text = @.q.toUpperCase()
-        text = @.normalizeString(text)
+        text = normalizeString(text)
 
         return _.includes(username, text)
 
@@ -101,10 +89,13 @@ class ChangeOwnerLightboxController
         else
             users = @.users
 
-        users = users.slice(0, @.limit)
+        users = _.reject(users, {"id": @.currentOwnerId})
         users = _.reject(users, {"selected": true})
 
-        return _.reject(users, {"id": @.currentOwnerId})
+        @.totalUsers = _.size(users)
+
+        return users.slice(0, @.limit)
+
 
     userSearch: () ->
         @.users = @.activeUsers

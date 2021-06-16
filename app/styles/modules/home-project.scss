@@ -21,29 +21,33 @@
     }
     .intro-title {
         align-items: center;
+        column-gap: .25rem;
         display: flex;
+        row-gap: .25rem;
+        .icon-private {
+            fill: $color-black600;
+            height: 24px;
+            width: 24px;
+        }
     }
-    h1 {
-        color: $primary;
-        display: inline-block;
-        line-height: 1.2;
+    .project-name {
+        color: $color-link-primary;
         margin-bottom: 0;
-        vertical-align: middle;
     }
     .private {
         @include svg-size(1.1rem);
     }
     .track-buttons-container {
+        align-items: center;
+        column-gap: .75rem;
         display: flex;
-    }
-    .like-button {
-        margin-right: .75rem;
+        row-gap: .75rem;
     }
     .track-container {
         @include list-itemtype-track;
     }
     .description {
-        @include font-type(light);
+        @include font-type(regular);
         @include font-size(medium);
         margin: 0;
     }
@@ -52,8 +56,8 @@
     }
     .title {
         @include font-size(medium);
-        @include font-type(text);
-        @include font-type(bold);
+        @include font-type(regular);
+        @include font-type(medium);
         align-content: center;
         background: $mass-white;
         display: flex;
@@ -62,8 +66,18 @@
         padding: .5rem 1rem;
     }
     .single-project-tags {
+        align-items: center;
+        column-gap: .5rem;
+        display: flex;
         margin-bottom: 1rem;
         margin-top: 1rem;
+        row-gap: .5rem;
+        .tag {
+            @include font-size(small);
+            align-items: center;
+            display: flex;
+            min-height: 2rem;
+        }
     }
     .timeline {
         flex: 1;
@@ -73,6 +87,9 @@
         width: 0;
     }
     .looking-for-people {
+        .looking-for-people-content {
+            margin: .5rem auto 2rem;
+        }
         img {
             width: 100%;
         }
@@ -84,8 +101,13 @@
         }
         p {
             @include font-size(small);
-            @include font-type(light);
+            @include font-type(regular);
             margin-bottom: .5rem;
+        }
+        a {
+            color: $color-link-primary;
+            font-size: .8rem;
+            font-weight: 600;
         }
         .contact-team {
             margin-bottom: 1rem;
@@ -111,13 +133,14 @@
             display: block;
         }
         img {
-            border-radius: .2rem;
+            border-radius: 50%;
             width: 100%;
         }
         .icon-badge {
             @include svg-size(1.2rem);
-            background: rgba($black, .5);
+            background-color: $white;
             bottom: 5%;
+            fill: $color-link-primary;
             padding: .1rem;
             position: absolute;
             right: 5%;

@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: external-app.controller.coffee
+# File: external-apps/external-app.controller.coffee
 ###
 
 taiga = @.taiga
@@ -41,7 +41,7 @@ class ExternalAppController extends taiga.Controller
         @._application = null
         nextUrl = encodeURIComponent(@location.url())
         loginUrl = @navUrls.resolve("login")
-        @.loginWithAnotherUserUrl = "#{loginUrl}?next=#{nextUrl}"
+        @.loginWithAnotherUserUrl = "#{loginUrl}?next=#{nextUrl}&force_login=1"
 
         taiga.defineImmutableProperty @, "user", () => @._user
         taiga.defineImmutableProperty @, "application", () => @._application

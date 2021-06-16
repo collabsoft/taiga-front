@@ -15,27 +15,40 @@
 
 .epics-table-header {
     @include epics-table;
-    @include font-type(bold);
-    border-bottom: 1px solid $gray-light;
+    @include font-type(medium);
     display: flex;
-    padding: .5rem;
+    padding-left: 1rem;
     position: relative;
+    > div {
+        @include font-type(regular);
+        @include font-size(xsmall);
+        @include font-type(medium);
+
+        color: $color-link-tertiary;
+        flex-wrap: nowrap;
+        text-transform: uppercase;
+    }
     .project,
     .assigned {
         padding: 1rem .5rem;
     }
+    .status-holder {
+        padding-right: 1.5rem;
+    }
 }
 
 .epics-table-options-wrapper {
-    bottom: 1rem;
+    bottom: 3rem;
     position: absolute;
     right: .5rem;
 }
 
 .epics-table-option-button {
-    @include font-type(light);
+    @include font-type(regular);
     @include font-size(small);
+    align-items: center;
     background: none;
+    display: flex;
     .icon {
         @include svg-size(.7rem);
     }
@@ -50,9 +63,9 @@
     padding: .5rem;
     position: absolute;
     right: 0;
-    top: 1.3rem;
+    top: 1rem;
     width: 250px;
-    z-index: 99;
+    z-index: $first-layer;
     &.ng-hide-remove {
         animation: dropdownFade .2s;
     }

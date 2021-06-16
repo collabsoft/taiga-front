@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: current-user.service.coffee
+# File: services/current-user.service.coffee
 ###
 
 taiga = @.taiga
@@ -25,10 +25,11 @@ class CurrentUserService
     @.$inject = [
         "tgProjectsService",
         "$tgStorage",
-        "tgResources"
+        "tgResources",
+        "$q"
     ]
 
-    constructor: (@projectsService, @storageService, @rs) ->
+    constructor: (@projectsService, @storageService, @rs, @q) ->
         @._user = null
         @._projects = Immutable.Map()
         @._projectsById = Immutable.Map()
@@ -60,7 +61,6 @@ class CurrentUserService
 
     setUser: (user) ->
         @._user = user
-
         return @._loadUserInfo()
 
     bulkUpdateProjectsOrder: (sortData) ->
@@ -69,6 +69,10 @@ class CurrentUserService
 
     loadProjects: () ->
         return @projectsService.getProjectsByUserId(@._user.get("id"))
+            .then (projects) => @.setProjects(projects)
+
+    loadProjectsList: () ->
+        return @projectsService.getListProjectsByUserId(@._user.get("id"), null,)
             .then (projects) => @.setProjects(projects)
 
     disableJoyRide: (section) ->
@@ -87,7 +91,7 @@ class CurrentUserService
         @rs.user.setUserStorage('joyride', @._joyride)
 
     loadJoyRideConfig: () ->
-        return new Promise (resolve) =>
+        return @q (resolve) =>
             if @._joyride != null
                 resolve(@._joyride)
                 return
@@ -109,13 +113,13 @@ class CurrentUserService
                     resolve(@._joyride)
 
     _loadUserInfo: () ->
-        return Promise.all([
-            @.loadProjects()
+        return @q.all([
+            @.loadProjectsList()
         ])
 
     setProjects: (projects) ->
         @._projects = @._projects.set("all", projects)
-        @._projects = @._projects.set("recents", projects.slice(0, 10))
+        @._projects = @._projects.set("recents", projects.slice(0, 4))
         @._projects = @._projects.set("unblocked",
                                       projects.filter((project) -> project.toJS().blocked_code == null))
 
@@ -140,7 +144,7 @@ class CurrentUserService
     canCreatePublicProjects: () ->
         user = @.getUser()
 
-        if user.get('max_public_projects') != null &&
+        if user && user.get('max_public_projects') != null &&
             user.get('total_public_projects') >= user.get('max_public_projects')
                 return {
                     valid: false,

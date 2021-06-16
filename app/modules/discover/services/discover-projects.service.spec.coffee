@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: discover-projects.service.spec.coffee
+# File: discover/services/discover-projects.service.spec.coffee
 ###
 
 describe "tgDiscoverProjectsService", ->
@@ -79,7 +79,7 @@ describe "tgDiscoverProjectsService", ->
         discoverProjectsService.fetchMostLiked(params).then () ->
             result = discoverProjectsService._mostLiked.toJS()
 
-            expect(result).to.have.length(5)
+            expect(result).to.have.length(4)
             expect(result[0].decorate).to.be.ok
 
             done()
@@ -102,7 +102,7 @@ describe "tgDiscoverProjectsService", ->
         discoverProjectsService.fetchMostActive(params).then () ->
             result = discoverProjectsService._mostActive.toJS()
 
-            expect(result).to.have.length(5)
+            expect(result).to.have.length(4)
             expect(result[0].decorate).to.be.ok
 
             done()

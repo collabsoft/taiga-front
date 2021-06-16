@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: projects-resource.service.coffee
+# File: resources/projects-resource.service.coffee
 ###
 
 pagination = () ->
@@ -77,6 +77,21 @@ Resource = (urlsService, http, paginateResponseService) ->
             }
 
         params = {"member": userId, "order_by": "user_order"}
+
+        return http.get(url, params, httpOptions)
+            .then (result) ->
+                return Immutable.fromJS(result.data)
+
+    service.getListProjectsByUserId = (userId, paginate=false) ->
+        url = urlsService.resolve("projects")
+        httpOptions = {}
+
+        if !paginate
+            httpOptions.headers = {
+                "x-disable-pagination": "1"
+            }
+
+        params = {"member": userId, "order_by": "user_order", "slight": true}
 
         return http.get(url, params, httpOptions)
             .then (result) ->

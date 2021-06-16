@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -30,6 +25,8 @@ generateHash = taiga.generateHash
 resourceProvider = ($repo, $http, $urls, $storage, $q) ->
     service = {}
     hashSuffix = "issues-queryparams"
+    hashSprintShowTags = "taskboard-issues"
+    hashIssuesShowTags = "issues-list"
 
     service.get = (projectId, issueId) ->
         params = service.getQueryParams(projectId)
@@ -103,6 +100,40 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
         ns = "#{projectId}:#{hashSuffix}"
         hash = generateHash([projectId, ns])
         return $storage.get(hash) or {}
+
+    service.bulkUpdateMilestone = (projectId, milestoneId, data) ->
+        url = $urls.resolve("bulk-update-issue-milestone")
+        params = {project_id: projectId, milestone_id: milestoneId, bulk_issues: data}
+        return $http.post(url, params)
+
+    service.promoteToUserStory = (issueId, projectId) ->
+        url = $urls.resolve("promote-issue-to-us", issueId)
+        data = {project_id: projectId}
+        return $http.post(url, data)
+
+    # Persist display Tags on issues section
+
+    service.storeIssuesShowTags = (projectId, params) ->
+        ns = "#{projectId}:#{hashIssuesShowTags}"
+        hash = generateHash([projectId, ns])
+        $storage.set(hash, params)
+
+    service.getIssuesShowTags = (projectId) ->
+        ns = "#{projectId}:#{hashIssuesShowTags}"
+        hash = generateHash([projectId, ns])
+        return $storage.get(hash)
+
+    # Persist display Tags on taskboard issues list
+
+    service.storeSprintShowTags = (projectId, params) ->
+        ns = "#{projectId}:#{hashSprintShowTags}"
+        hash = generateHash([projectId, ns])
+        $storage.set(hash, params)
+
+    service.getSprintShowTags = (projectId) ->
+        ns = "#{projectId}:#{hashSprintShowTags}"
+        hash = generateHash([projectId, ns])
+        return $storage.get(hash)
 
     return (instance) ->
         instance.issues = service

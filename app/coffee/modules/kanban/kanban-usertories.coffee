@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,54 +14,92 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: kanban-userstories.service.coffee
+# File: modules/kanban/kanban-usertories.coffee
 ###
 
 groupBy = @.taiga.groupBy
 
 class KanbanUserstoriesService extends taiga.Service
-    @.$inject = []
+    @.$inject = [
+        "$translate"
+    ]
 
-    constructor: () ->
+    constructor: (@translate) ->
         @.reset()
 
-    reset: () ->
+    reset: (resetSwimlanesList = true) ->
         @.userstoriesRaw = []
         @.archivedStatus = []
         @.statusHide = []
+        @.swimlanes = []
         @.foldStatusChanged = {}
         @.usByStatus = Immutable.Map()
+        @.usMap = Immutable.Map()
+        @.usByStatusSwimlanes = Immutable.Map()
 
-    init: (project, usersById) ->
+        if resetSwimlanesList
+            @.swimlanesList = Immutable.List()
+
+    init: (project, swimlanes, usersById) ->
         @.project = project
+        @.swimlanes = swimlanes
         @.usersById = usersById
 
     resetFolds: () ->
         @.foldStatusChanged = {}
-        @.refresh()
 
     toggleFold: (usId) ->
         @.foldStatusChanged[usId] = !@.foldStatusChanged[usId]
-        @.refresh()
+        @.refreshUserStory(usId)
 
     set: (userstories) ->
         @.userstoriesRaw = userstories
         @.refreshRawOrder()
         @.refresh()
 
-    add: (us) ->
-        @.userstoriesRaw = @.userstoriesRaw.concat(us)
+    initUsByStatusList: (userstories) ->
+        for key, usModel of userstories
+            status = String(usModel.status)
+
+            if (!@.usByStatus.has(status))
+                @.usByStatus = @.usByStatus.set(status, Immutable.List())
+
+    # don't call refresh to prevent unnecessary mutations in every single us
+    add: (usList) ->
+        if !Array.isArray(usList)
+            usList = [usList]
+        @.userstoriesRaw = @.userstoriesRaw.concat(usList)
+        @.userstoriesRaw = @.userstoriesRaw.map (us) =>
+            return us
+
         @.refreshRawOrder()
-        @.refresh()
+
+        @.userstoriesRaw = _.sortBy @.userstoriesRaw, (it) => @.order[it.id]
+
+        for key, usModel of usList
+            us = @.retrieveUserStoryData(usModel)
+            status = String(usModel.status)
+
+            if (!@.usByStatus.has(status))
+                @.usByStatus = @.usByStatus.set(status, Immutable.List())
+
+            if !@.usMap.get(usModel.id)
+                @.usMap = @.usMap.set(usModel.id, Immutable.fromJS(us))
+
+                @.usByStatus = @.usByStatus.set(
+                    status,
+                    @.usByStatus.get(status).push(usModel.id)
+                )
+
+        @.refreshSwimlanes()
 
     addArchivedStatus: (statusId) ->
         @.archivedStatus.push(statusId)
 
     isUsInArchivedHiddenStatus: (usId) ->
         us = @.getUsModel(usId)
-
-        return @.archivedStatus.indexOf(us.status) != -1 &&
-            @.statusHide.indexOf(us.status) != -1
+        return @.archivedStatus.indexOf(us?.status) != -1 &&
+            @.statusHide.indexOf(us?.status) != -1
 
     hideStatus: (statusId) ->
         @.deleteStatus(statusId)
@@ -70,8 +108,9 @@ class KanbanUserstoriesService extends taiga.Service
     showStatus: (statusId) ->
         _.remove @.statusHide, (it) -> return it == statusId
 
-    getStatus: (statusId) ->
-        return _.filter @.userstoriesRaw, (us) -> return us.status == statusId
+    getStatus: (statusId, swimlaneId) ->
+        return _.filter @.userstoriesRaw, (it) =>
+            return it.status == statusId && (!swimlaneId || it.swimlane == swimlaneId)
 
     deleteStatus: (statusId) ->
         toDelete = _.filter @.userstoriesRaw, (us) -> return us.status == statusId
@@ -79,104 +118,56 @@ class KanbanUserstoriesService extends taiga.Service
 
         @.archived = _.difference(@.archived, toDelete)
 
-        @.userstoriesRaw = _.filter @.userstoriesRaw, (us) -> return us.status != statusId
-
-        @.refresh()
-
     refreshRawOrder: () ->
         @.order = {}
-
-        @.order[it.id] = it.kanban_order for it in @.userstoriesRaw
+        if (@.userstoriesRaw)
+            @.order[it.id] = it.kanban_order for it in @.userstoriesRaw
 
     assignOrders: (order) ->
         @.order = _.assign(@.order, order)
 
-        @.refresh()
+        @.refresh(false)
 
-    move: (usList, statusId, index) ->
-
-        initialLength = usList.length
-
-        usByStatus = _.filter @.userstoriesRaw, (it) =>
-            return it.status == statusId
-
+    move: (usList, statusId, swimlaneId, index, previousCard, nextCard) ->
+        usByStatus = @.getStatus(statusId, swimlaneId)
         usByStatus = _.sortBy usByStatus, (it) => @.order[it.id]
 
+        if previousCard
+            previousUsOrder = @.order[previousCard] + 1
+            previousUsIndex = (usByStatus.findIndex (it) => it.id == previousCard) + 1
+        else
+            previousUsOrder = 0
+            previousUsIndex = 0
+
         usByStatusWithoutMoved = _.filter usByStatus, (listIt) ->
-            return !_.find usList, (moveIt) -> return listIt.id == moveIt.id
+            return !_.find usList, (moveIt) -> return listIt.id == moveIt
 
-        beforeDestination = _.slice(usByStatusWithoutMoved, 0, index)
-        afterDestination = _.slice(usByStatusWithoutMoved, index)
+        afterDestination = _.slice(usByStatusWithoutMoved, previousUsIndex)
 
-        setOrders = {}
+        initialLength = usList.length + 1
 
-        previous = beforeDestination[beforeDestination.length - 1]
+        for usModel, key in afterDestination # increase position of the us after the dragged us's
+            @.order[usModel.id] = previousUsOrder + initialLength + key
 
-        previousWithTheSameOrder = _.filter beforeDestination, (it) =>
-            @.order[it.id] == @.order[previous.id]
+        for usId, key in usList
+            usModel = @.getUsModel(usId)
+            usModel.status = statusId
 
+            usModel.swimlane = swimlaneId
 
-        if previousWithTheSameOrder.length > 1
-            for it in previousWithTheSameOrder
-                setOrders[it.id] = @.order[it.id]
+            @.order[usModel.id] = previousUsOrder + key
 
-        modifiedUs = []
-        setPreviousOrders = []
-        setNextOrders = []
+            us = @.retrieveUserStoryData(usModel)
+            @.usMap = @.usMap.set(us.id, Immutable.fromJS(us))
 
-        isArchivedHiddenStatus = @.archivedStatus.indexOf(statusId) != -1 &&
-            @.statusHide.indexOf(statusId) != -1
-
-        if isArchivedHiddenStatus
-            startIndex = new Date().getTime()
-
-        else if !previous
-            startIndex = 0
-
-            for it, key in afterDestination # increase position of the us after the dragged us's
-                @.order[it.id] = key + initialLength + 1
-                it.kanban_order = @.order[it.id]
-
-            setNextOrders = _.map(afterDestination, (it) =>
-                {us_id: it.id, order: @.order[it.id]}
-            )
-
-        else if previous
-            startIndex = @.order[previous.id] + 1
-
-            previousWithTheSameOrder = _.filter(beforeDestination, (it) =>
-                it.kanban_order == @.order[previous.id]
-            )
-            for it, key in afterDestination # increase position of the us after the dragged us's
-                @.order[it.id] = @.order[previous.id] + key + initialLength + 1
-                it.kanban_order = @.order[it.id]
-
-            setNextOrders = _.map(afterDestination, (it) =>
-                {us_id: it.id, order: @.order[it.id]}
-            )
-
-            # we must send the USs previous to the dropped USs to tell the backend
-            # which USs are before the dropped USs, if they have the same value to
-            # order, the backend doens't know after which one do you want to drop
-            # the USs
-            if previousWithTheSameOrder.length > 1
-                setPreviousOrders = _.map(previousWithTheSameOrder, (it) =>
-                    {us_id: it.id, order: @.order[it.id]}
-                )
-
-        for us, key in usList
-            us.status = statusId
-            us.kanban_order = startIndex + key
-            @.order[us.id] = us.kanban_order
-
-            modifiedUs.push({us_id: us.id, order: us.kanban_order})
-
-        @.refresh()
+        @.refresh(false)
 
         return {
-            bulkOrders: modifiedUs.concat(setPreviousOrders, setNextOrders),
-            usList: modifiedUs,
-            set_orders: setOrders
+            statusId: statusId,
+            swimlaneId: swimlaneId,
+            afterUserstoryId: previousCard,
+            beforeUserstoryId: nextCard,
+            bulkUserstories: usList,
         }
 
     moveToEnd: (id, statusId) ->
@@ -187,72 +178,119 @@ class KanbanUserstoriesService extends taiga.Service
         us.status = statusId
         us.kanban_order = @.order[us.id]
 
-        @.refresh()
+        @.refresh(false)
 
         return {"us_id": us.id, "order": -1}
 
     replace: (us) ->
-        @.usByStatus = @.usByStatus.map (status) ->
-            findedIndex = status.findIndex (usItem) ->
-                return usItem.get('id') == us.get('id')
+        @.usMap = @.usMap.set(us.get('id'), us)
 
-            if findedIndex != -1
-                status = status.set(findedIndex, us)
-
-            return status
-
-    replaceModel: (us) ->
+    replaceModel: (usModel) ->
         @.userstoriesRaw = _.map @.userstoriesRaw, (usItem) ->
-            if us.id == usItem.id
-                return us
+            if usModel.id == usItem.id
+                return usModel
             else
                 return usItem
 
-        @.refresh()
+        us = @.retrieveUserStoryData(usModel)
+        @.usMap = @.usMap.set(usModel.id, Immutable.fromJS(us))
 
     getUs: (id) ->
-        findedUs = null
-
-        @.usByStatus.forEach (status) ->
-            findedUs = status.find (us) -> return us.get('id') == id
-
-            return false if findedUs
-
-        return findedUs
+        return @.usMap.get(id)
 
     getUsModel: (id) ->
         return _.find @.userstoriesRaw, (us) -> return us.id == id
 
-    refresh: ->
-        @.userstoriesRaw = _.sortBy @.userstoriesRaw, (it) => @.order[it.id]
+    refreshUserStory: (usId) ->
+        usModel = @.getUsModel(usId)
+        us = @.retrieveUserStoryData(usModel)
+        @.usMap = @.usMap.set(usId, Immutable.fromJS(us))
 
-        userstories = @.userstoriesRaw
-        userstories = _.map userstories, (usModel) =>
-            us = {}
+    retrieveUserStoryData: (usModel) ->
+        us = {}
+        model = usModel.getAttrs()
 
-            model = usModel.getAttrs()
+        us.foldStatusChanged = @.foldStatusChanged[usModel.id]
 
-            us.foldStatusChanged = @.foldStatusChanged[usModel.id]
+        us.model = model
+        us.images = _.filter model.attachments, (it) -> return !!it.thumbnail_card_url
 
-            us.model = model
-            us.images = _.filter model.attachments, (it) -> return !!it.thumbnail_card_url
+        us.id = usModel.id
+        us.swimlane = usModel.swimlane
+        us.assigned_to = @.usersById[usModel.assigned_to]
+        us.assigned_users = []
 
-            us.id = usModel.id
-            us.assigned_to = @.usersById[usModel.assigned_to]
-            us.assigned_users = []
-
-            usModel.assigned_users.forEach (assignedUserId) =>
-                assignedUserData = @.usersById[assignedUserId]
+        usModel.assigned_users.forEach (assignedUserId) =>
+            assignedUserData = @.usersById[assignedUserId]
+            if assignedUserData
                 us.assigned_users.push(assignedUserData)
 
-            us.colorized_tags = _.map us.model.tags, (tag) =>
-                return {name: tag[0], color: tag[1]}
+        us.assigned_users_preview = us.assigned_users.slice(0, 3)
 
-            return us
+        us.colorized_tags = _.map us.model.tags, (tag) =>
+            return {name: tag[0], color: tag[1]}
 
-        usByStatus = _.groupBy userstories, (us) ->
-            return us.model.status
+        return us
 
-        @.usByStatus = Immutable.fromJS(usByStatus)
+    refresh: (refreshUsMap = true) ->
+        @.userstoriesRaw = _.sortBy @.userstoriesRaw, (it) => @.order[it.id]
+
+        collection = {}
+
+        for key, usModel of @.userstoriesRaw
+            us = @.retrieveUserStoryData(usModel)
+            if (!collection[usModel.status])
+                collection[usModel.status] = []
+
+            collection[usModel.status].push(usModel.id)
+
+            if refreshUsMap
+                @.usMap = @.usMap.set(usModel.id, Immutable.fromJS(us))
+
+        @.usByStatus = Immutable.fromJS(collection)
+
+        @.refreshSwimlanes()
+
+    refreshSwimlanes: () ->
+        if !@.swimlanes || !@.swimlanes.length
+            return
+
+        @.swimlanesList = Immutable.List()
+        @.usByStatusSwimlanes = Immutable.Map()
+
+        userstoriesNoSwimlane = @.userstoriesRaw.filter (us) =>
+            return us.swimlane == null
+
+        emptySwimlaneExists = @.swimlanesList.filter (swimlane) =>
+            return swimlane.id == null
+
+        if userstoriesNoSwimlane.length && !emptySwimlaneExists.size
+            @.swimlanes.forEach (swimlane) =>
+                if (!@.swimlanesList.includes(swimlane))
+                    @.swimlanesList = @.swimlanesList.push(swimlane)
+
+            emptySwimlane = {
+                id: -1,
+                kanban_order: 1,
+                name: @translate.instant("KANBAN.UNCLASSIFIED_USER_STORIES")
+            }
+            @.swimlanesList = @.swimlanesList.insert(0, emptySwimlane)
+
+        else
+            @.swimlanes.forEach (swimlane) =>
+                if (!@.swimlanesList.includes(swimlane))
+                    @.swimlanesList = @.swimlanesList.push(swimlane)
+
+        @.swimlanesList.forEach (swimlane) =>
+            swimlaneUsByStatus = Immutable.Map()
+            @.usByStatus.forEach (usList, statusId) =>
+                usListSwimlanes = usList.filter (usId) =>
+                    us = @.usMap.get(usId)
+                    swimlaneId = if swimlane.id == -1 then null else swimlane.id
+                    return us.getIn(['model', 'swimlane']) == swimlaneId
+
+                swimlaneUsByStatus = swimlaneUsByStatus.set(Number(statusId), usListSwimlanes)
+
+            @.usByStatusSwimlanes = @.usByStatusSwimlanes.set(swimlane.id, swimlaneUsByStatus)
 
 angular.module("taigaKanban").service("tgKanbanUserstories", KanbanUserstoriesService)

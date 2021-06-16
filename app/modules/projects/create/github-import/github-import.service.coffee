@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,15 +14,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: github-import.service.coffee
+# File: projects/create/github-import/github-import.service.coffee
 ###
 
 class GithubImportService extends taiga.Service
     @.$inject = [
-        'tgResources'
+        'tgResources',
+        '$q'
     ]
 
-    constructor: (@resources, @location) ->
+    constructor: (@resources, @q) ->
         @.projects = Immutable.List()
         @.projectUsers = Immutable.List()
 
@@ -39,13 +40,13 @@ class GithubImportService extends taiga.Service
         return @resources.githubImporter.importProject(@.token, name, description, projectId, userBindings, keepExternalReference, isPrivate, projectType)
 
     getAuthUrl: (callbackUri) ->
-        return new Promise (resolve) =>
+        return @q (resolve) =>
             @resources.githubImporter.getAuthUrl(callbackUri).then (response) =>
                 @.authUrl = response.data.url
                 resolve(@.authUrl)
 
     authorize: (code) ->
-        return new Promise (resolve, reject) =>
+        return @q (resolve, reject) =>
             @resources.githubImporter.authorize(code).then ((response) =>
                 @.token = response.data.token
                 resolve(@.token)

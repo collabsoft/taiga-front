@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -57,7 +52,7 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
         return $repo.queryOneRaw("task-filters", null, params)
 
     service.list = (projectId, sprintId=null, userStoryId=null, params) ->
-        params = _.merge(params, {project: projectId})
+        params = _.merge(params, {project: projectId, order_by: 'us_order'})
         params.milestone = sprintId if sprintId
         params.user_story = userStoryId if userStoryId
         service.storeQueryParams(projectId, params)
@@ -89,6 +84,19 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
         url = $urls.resolve("bulk-update-task-taskboard-order")
         params = {project_id: projectId, bulk_tasks: data}
         return $http.post(url, params)
+
+    service.bulkUpdateMilestone = (projectId, milestoneId, data) ->
+        url = $urls.resolve("bulk-update-task-milestone")
+        params = {project_id: projectId, milestone_id: milestoneId, bulk_tasks: data}
+        return $http.post(url, params)
+
+    service.reorder = (id, data, setOrders) ->
+        url = $urls.resolve("tasks") + "/#{id}"
+
+        options = {"headers": {"set-orders": JSON.stringify(setOrders)}}
+
+        return $http.patch(url, data, null, options)
+            .then (result) -> result.data
 
     service.listValues = (projectId, type) ->
         params = {"project": projectId}
@@ -130,6 +138,11 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
         hash = generateHash([projectId, sprintId, ns])
 
         return $storage.get(hash) or {}
+
+    service.promoteToUserStory = (taskId, projectId) ->
+        url = $urls.resolve("promote-task-to-us", taskId)
+        data = {project_id: projectId}
+        return $http.post(url, data)
 
     return (instance) ->
         instance.tasks = service

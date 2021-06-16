@@ -18,8 +18,8 @@ div.wrapper(
             p.admin-subtitle(translate="ADMIN.PROJECT_EXPORT.SUBTITLE")
 
         div.admin-project-export-buttons
-            a.button-green.button-export(
-                href=""
+            button.btn-small.button-export(
+                variant="primary"
                 title="{{ 'ADMIN.PROJECT_EXPORT.EXPORT_BUTTON_TITLE' | translate }}"
             )
                 span(translate="ADMIN.PROJECT_EXPORT.EXPORT_BUTTON")
@@ -30,8 +30,8 @@ div.wrapper(
             h3.result-title
             p.result-message
 
-        a.help-button(
-            href="https://tree.taiga.io/support/admin/import-export-projects/"
+        a.admin-project-export-button.help-button(
+            href="https://resources.taiga.io/extend/import-export-projects/"
             target="_blank"
         )
             tg-svg(svg-icon="icon-question")

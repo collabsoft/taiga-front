@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,14 +14,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: history.directive.coffee
+# File: history/history.directive.coffee
 ###
 
 module = angular.module('taigaHistory')
 
+bindOnce = @.taiga.bindOnce
+
 HistorySectionDirective = () ->
     link = (scope, el, attr, ctrl) ->
-        scope.$on "object:updated", -> ctrl._loadHistory(scope.type, scope.id)
+        scope.$on "object:updated", -> ctrl._loadActivity()
+
+        scope.$watch 'vm.id', (value) ->
+            ctrl._loadHistory()
 
     return {
         link: link,
@@ -33,7 +38,7 @@ HistorySectionDirective = () ->
             type: "=",
             name: "@",
             id: "=",
-            projectId: "="
+            project: "="
         }
     }
 

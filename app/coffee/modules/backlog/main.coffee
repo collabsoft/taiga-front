@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -25,7 +20,6 @@
 taiga = @.taiga
 
 mixOf = @.taiga.mixOf
-toggleText = @.taiga.toggleText
 scopeDefer = @.taiga.scopeDefer
 bindOnce = @.taiga.bindOnce
 groupBy = @.taiga.groupBy
@@ -60,17 +54,33 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         "tgErrorHandlingService",
         "$tgStorage",
         "tgFilterRemoteStorageService",
-        "tgProjectService"
+        "tgProjectService",
+        "tgLoader"
     ]
 
     storeCustomFiltersName: 'backlog-custom-filters'
     storeFiltersName: 'backlog-filters'
     backlogOrder: {}
     milestonesOrder: {}
+    newUs: []
+    validQueryParams: [
+        'exclude_status',
+        'status',
+        'exclude_tags',
+        'tags',
+        'exclude_assigned_users',
+        'assigned_users',
+        'exclude_role',
+        'role',
+        'exclude_epic',
+        'epic',
+        'exclude_owner',
+        'owner'
+    ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @params, @q, @location, @appMetaService, @navUrls,
                   @events, @analytics, @translate, @loading, @rs2, @modelTransform, @errorHandlingService,
-                  @storage, @filterRemoteStorageService, @projectService) ->
+                  @storage, @filterRemoteStorageService, @projectService, @tgLoader) ->
         bindMethods(@)
 
         @.backlogOrder = {}
@@ -79,12 +89,16 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         @.page = 1
         @.disablePagination = false
         @.firstLoadComplete = false
+        @.translationData = {q: @.filterQ}
         @scope.userstories = []
+        @.totalUserStories = 0
+        @scope.noSwimlaneUserStories = false
+        @scope.swimlanesList = Immutable.List()
 
-        return if @.applyStoredFilters(@params.pslug, "backlog-filters")
+        return if @.applyStoredFilters(@params.pslug, "backlog-filters", @.validQueryParams)
 
         @scope.sectionName = @translate.instant("BACKLOG.SECTION_NAME")
-        @showTags = false
+        @showTags = true
         @activeFilters = false
         @scope.showGraphPlaceholder = null
         @displayVelocity = false
@@ -95,6 +109,7 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
 
         # On Success
         promise.then =>
+            @.loadSwimlanes()
             @.firstLoadComplete = true
 
             title = @translate.instant("BACKLOG.PAGE_TITLE", {projectName: @scope.project.name})
@@ -116,7 +131,10 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         @.loadUserstories(true)
 
     initializeEventHandlers: ->
-        @scope.$on "usform:bulk:success", =>
+        @scope.$on "usform:bulk:success", (event, els) =>
+            @.newUs = _.map els, (it) ->
+                return it.id
+
             @.loadUserstories(true)
             @.loadProjectStats()
             @confirm.notify("success")
@@ -130,12 +148,12 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
             @confirm.notify("success")
             @analytics.trackEvent("sprint", "create", "create sprint on backlog", 1)
 
-        @scope.$on "usform:new:success", =>
+        @scope.$on "usform:new:success", (event, el) =>
+            @.newUs = [el.id]
             @.loadUserstories(true)
             @.loadProjectStats()
 
             @rootscope.$broadcast("filters:update")
-            @confirm.notify("success")
             @analytics.trackEvent("userstory", "create", "create userstory on backlog", 1)
 
         @scope.$on "sprintform:edit:success", =>
@@ -159,10 +177,13 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
 
             @rootscope.$broadcast("filters:update")
 
+        @scope.$on "filters:update", () => @.generateFilters(milestone = "null")
+
         @scope.$on("sprint:us:move", @.moveUs)
         @scope.$on "sprint:us:moved", () =>
             @.loadSprints()
             @.loadProjectStats()
+            @rootscope.$broadcast("filters:update")
 
         @scope.$on("backlog:load-closed-sprints", @.loadClosedSprints)
         @scope.$on("backlog:unload-closed-sprints", @.unloadClosedSprints)
@@ -238,6 +259,12 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
             @rootscope.$broadcast("closed-sprints:reloaded", sprints)
             return sprints
 
+    loadSwimlanes: ->
+        if (@scope.project.swimlanes)
+            @scope.project.swimlanes.forEach (swimlane) =>
+                if (!@scope.swimlanesList.includes(swimlane))
+                    @scope.swimlanesList = @scope.swimlanesList.push(swimlane)
+
     loadSprints: ->
         params = {closed: false}
         return @rs.sprints.list(@scope.projectId, params).then (result) =>
@@ -267,7 +294,7 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
             return sprints
 
     openSprints: ->
-        return _.filter(@scope.sprints, (sprint) => not sprint.closed).reverse()
+        return _.filter(@scope.sprints, (sprint) => not sprint.closed)
 
     loadAllPaginatedUserstories: () ->
         page = @.page
@@ -280,19 +307,23 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
 
         @.loadingUserstories = true
         @.disablePagination = true
-        params = _.clone(@location.search())
+        params = _.pick(_.clone(@location.search()), @.validQueryParams)
         @rs.userstories.storeQueryParams(@scope.projectId, params)
 
         if resetPagination
             @.page = 1
 
         params.page = @.page
+        params.q = @.filterQ
+
+        @.translationData.q = params.q
 
         promise = @rs.userstories.listUnassigned(@scope.projectId, params, pageSize)
 
         return promise.then (result) =>
 
             userstories = result[0]
+
             header = result[1]
 
             if resetPagination
@@ -304,6 +335,9 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                 return it.ref
 
             for it in @scope.userstories
+                if @.newUs.includes(it.id)
+                    it.new = true
+
                 @.backlogOrder[it.id] = it.backlog_order
 
             @.loadingUserstories = false
@@ -312,10 +346,19 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                 @.disablePagination = false
                 @.page++
 
+            if header('Taiga-Info-Backlog-Total-Userstories')
+                @.totalUserStories = header('Taiga-Info-Backlog-Total-Userstories')
+
+            if header('Taiga-Info-Userstories-Without-Swimlane')
+                @scope.noSwimlaneUserStories = header('Taiga-Info-Userstories-Without-Swimlane')
+
+            @rootscope.$broadcast("backlog:userstories:loaded")
+
             # The broadcast must be executed when the DOM has been fully reloaded.
             # We can't assure when this exactly happens so we need a defer
             scopeDefer @scope, =>
                 @scope.$broadcast("userstories:loaded")
+                @tgLoader.pageLoaded()
 
             return userstories
 
@@ -364,15 +407,28 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         @.fillUsersAndRoles(project.members, project.roles)
         @.initializeSubscription()
 
+        if @rs.userstories.getShowTags(@scope.projectId) == false
+            @showTags = false
+
         return @.loadBacklog()
             .then(=> @.generateFilters(milestone = "null"))
             .then(=> @scope.$emit("backlog:loaded"))
 
+    toggleTags: () ->
+        @rs.userstories.storeShowTags(@scope.projectId, @showTags)
+
     prepareBulkUpdateData: (uses, field="backlog_order") ->
          return _.map(uses, (x) -> {"us_id": x.id, "order": x[field]})
 
+    moveUsToTopOfBacklog: (us) ->
+      self = @
+      $('.first').each(() ->
+        $(this).removeClass('first');
+      )
+      @.moveUs('sprint:us:move', [us], 0, null)
+
     # --move us api behavior--
-    # If your are moving multiples USs you must use the bulk api
+    # If you are moving multiples USs you must use the bulk api
     # If there is only one US you must use patch (repo.save)
     #
     # The new US position is the position of the previous US + 1.
@@ -485,6 +541,14 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         @scope.userstories = _.sortBy @scope.userstories, (it) => @.backlogOrder[it.id]
         @scope.visibleUserStories = _.map @scope.userstories, (it) -> return it.ref
 
+        usListIds = _.map(usList.map (it) => it.id)
+
+        for userstory in @scope.userstories
+            if usListIds.includes(userstory.id)
+                userstory.new = true
+            else
+                userstory.new = false
+
         for sprint in @scope.sprints
             sprint.user_stories = _.sortBy sprint.user_stories, (it) => @.milestonesOrder[sprint.id][it.id]
 
@@ -531,14 +595,6 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                 @.filtersReloadContent()
 
     editUserStory: (projectId, ref, $event) ->
-        target = $($event.target)
-
-        currentLoading = @loading()
-            .target(target)
-            .removeClasses("edit-story")
-            .timeout(200)
-            .start()
-
         return @rs.userstories.getByRef(projectId, ref).then (us) =>
             @rs2.attachments.list("us", us.id, projectId).then (attachments) =>
                 @rootscope.$broadcast("genericform:edit", {
@@ -546,14 +602,13 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                     'obj': us,
                     'attachments': attachments.toJS()
                 })
-                currentLoading.finish()
 
     deleteUserStory: (us) ->
-        title = @translate.instant("US.TITLE_DELETE_ACTION")
+        title = @translate.instant("US.TITLE_DELETE_ACTION",  {projectName: @scope.project.name})
 
-        message = us.subject
+        message = @translate.instant("US.TITLE_DELETE_MESSAGE",  {subject: us.subject})
 
-        @confirm.askOnDelete(title, message).then (askResponse) =>
+        @confirm.askOnDelete(title, message, '').then (askResponse) =>
             # We modify the userstories in scope so the user doesn't see the removed US for a while
             @scope.userstories = _.without(@scope.userstories, us)
             promise = @.repo.remove(us)
@@ -589,6 +644,16 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
             end = moment(sprint.estimated_finish, 'YYYY-MM-DD').format('x')
 
             return currentDate >= start && currentDate <= end
+
+    addFilterBacklog: (newFilter) ->
+        @.selectFilter(newFilter.category.dataType, newFilter.filter.id, false, newFilter.mode)
+        @.filtersReloadContent()
+        @.generateFilters('null')
+
+    removeFilterBacklog: (filter) ->
+        @.unselectFilter(filter.dataType, filter.id, false, filter.mode)
+        @.filtersReloadContent()
+        @.generateFilters('null')
 
 module.controller("BacklogController", BacklogController)
 
@@ -688,7 +753,8 @@ BacklogDirective = ($repo, $rootscope, $translate, $rs) ->
             moveUssToSprint(selectedUss, $scope.sprints[0])
 
         $scope.$on "sprintform:create:success:callback", (e, ussToMove) ->
-            _.partial(moveToCurrentSprint, ussToMove)()
+            if ussToMove
+                _.partial(moveToCurrentSprint, ussToMove)()
 
         shiftPressed = false
         lastChecked = null
@@ -700,7 +766,7 @@ BacklogDirective = ($repo, $rootscope, $translate, $rs) ->
             selectedUsDom = $el.find(".backlog-table-body input:checkbox:checked")
 
             if selectedUsDom.length > 0 and $scope.sprints.length > 0
-                moveToSprintDom.show()
+                moveToSprintDom.css('display', 'flex')
             else
                 moveToSprintDom.hide()
 
@@ -743,7 +809,7 @@ BacklogDirective = ($repo, $rootscope, $translate, $rs) ->
 
             $scope.$apply(_.partial(moveToCurrentSprint, ussToMove))
 
-        $el.on "click", "#show-tags", (event) ->
+        $el.on "change", "#show-tags > input", (event) ->
             event.preventDefault()
 
             $ctrl.toggleShowTags()
@@ -772,37 +838,28 @@ BacklogDirective = ($repo, $rootscope, $translate, $rs) ->
         if $ctrl.showTags
             elm.addClass("active")
 
-            text = $translate.instant("BACKLOG.TAGS.HIDE")
-            elm.text(text)
+            # text = $translate.instant("BACKLOG.TAGS.HIDE")
+            # elm.text(text)
         else
             elm.removeClass("active")
 
-            text = $translate.instant("BACKLOG.TAGS.SHOW")
-            elm.text(text)
+            # text = $translate.instant("BACKLOG.TAGS.SHOW")
+            # elm.text(text)
 
     openFilterInit = ($scope, $el, $ctrl) ->
-        sidebar = $el.find("sidebar.backlog-filter")
+        sidebar = $el.find(".backlog-filter")
 
         sidebar.addClass("active")
 
         $ctrl.activeFilters = true
 
     showHideFilter = ($scope, $el, $ctrl) ->
-        sidebar = $el.find("sidebar.backlog-filter")
-        sidebar.one "transitionend", () ->
-            timeout 150, ->
-                $rootscope.$broadcast("resize")
-                $('.burndown').css("visibility", "visible")
+        filter = $el.find(".backlog-filter")
 
         target = angular.element("#show-filters-button")
-        $('.burndown').css("visibility", "hidden")
-        sidebar.toggleClass("active")
+
+        filter.toggleClass("active")
         target.toggleClass("active")
-
-        hideText = $translate.instant("BACKLOG.FILTERS.HIDE")
-        showText = $translate.instant("BACKLOG.FILTERS.SHOW")
-
-        toggleText(target, [hideText, showText])
 
         $ctrl.toggleActiveFilters()
 
@@ -825,7 +882,6 @@ BacklogDirective = ($repo, $rootscope, $translate, $rs) ->
         filters = $ctrl.location.search()
         if filters.status ||
            filters.tags ||
-           filters.q ||
            filters.assigned_to ||
            filters.owner
             openFilterInit($scope, $el, $ctrl)
@@ -843,6 +899,35 @@ BacklogDirective = ($repo, $rootscope, $translate, $rs) ->
 module.directive("tgBacklog", ["$tgRepo", "$rootScope", "$translate", "$tgResources", BacklogDirective])
 
 #############################################################################
+## User story edit directive
+#############################################################################
+
+UsEditSelector = ($rootscope, $tgTemplate, $compile, $translate) ->
+    mainTemplate = $tgTemplate.get("backlog/us-edit-popover.html", true)
+
+    link = ($scope, $el, $attrs) ->
+        $ctrl = $el.controller()
+
+        removePopupOpenState = () ->
+            $el.find(".js-popup-button").removeClass('popover-open')
+            $(this).remove()
+
+        $el.on "click", (event) ->
+            html = $compile(mainTemplate())($scope)
+            $el.find(".js-popup-button").addClass('popover-open')
+            $el.append(html)
+            $el.find(".us-option-popup").popover().open(() -> removePopupOpenState())
+            if event.target.parentNode.classList.contains('first')
+              $el.find(".us-option-popup").addClass('first')
+
+        $scope.$on "$destroy", ->
+            $el.off()
+
+    return {link: link}
+
+module.directive("tgUsEditSelector", ["$rootScope", "$tgTemplate", "$compile", "$translate", UsEditSelector])
+
+#############################################################################
 ## User story points directive
 #############################################################################
 
@@ -850,6 +935,9 @@ UsRolePointsSelectorDirective = ($rootscope, $template, $compile, $translate) ->
     selectionTemplate = $template.get("backlog/us-role-points-popover.html", true)
 
     link = ($scope, $el, $attrs) ->
+        removePopupOpenState = () ->
+            $el.removeClass('popover-open')
+
         # Watchers
         bindOnce $scope, "project", (project) ->
             roles = _.filter(project.roles, "computable")
@@ -863,7 +951,7 @@ UsRolePointsSelectorDirective = ($rootscope, $template, $compile, $translate) ->
 
         $scope.$on "uspoints:select", (ctx, roleId, roleName) ->
             $el.find(".popover").popover().close()
-            $el.find(".header-points").html("#{roleName}/<span>Total</span>")
+            $el.find(".header-points").html("#{roleName}")
 
         $scope.$on "uspoints:clear-selection", (ctx, roleId) ->
             $el.find(".popover").popover().close()
@@ -878,17 +966,22 @@ UsRolePointsSelectorDirective = ($rootscope, $template, $compile, $translate) ->
             if target.is("span") or target.is("div")
                 event.stopPropagation()
 
-            $el.find(".popover").popover().open()
+            $el.addClass('popover-open')
+            $el.find(".popover").popover().open(() -> removePopupOpenState())
 
         $el.on "click", ".clear-selection", (event) ->
             event.preventDefault()
             event.stopPropagation()
             $rootscope.$broadcast("uspoints:clear-selection")
+            $el.find('.active-popover').removeClass('active-popover')
+            target.addClass('active-popover')
 
         $el.on "click", ".role", (event) ->
             event.preventDefault()
             event.stopPropagation()
             target = angular.element(event.currentTarget)
+            $el.find('.active-popover').removeClass('active-popover')
+            target.addClass('active-popover')
             rolScope = target.scope()
             $rootscope.$broadcast("uspoints:select", target.data("role-id"), target.text())
 
@@ -977,7 +1070,7 @@ UsPointsDirective = ($tgEstimationsService, $repo, $tgTemplate) ->
             $el.find(".pop-role").popover().open(() -> $(this).remove())
 
         bindClickElements = () ->
-            $el.on "click", "a.us-points", (event) ->
+            $el.on "click", ".us-points", (event) ->
                 event.preventDefault()
                 event.stopPropagation()
                 us = $scope.$eval($attrs.tgBacklogUsPoints)
@@ -1078,40 +1171,42 @@ BurndownBacklogGraphDirective = ($translate) ->
         data.push({
             data: _.zip(milestonesRange, optimal_line)
             lines:
-                fillColor : "rgba(120,120,120,0.2)"
+                fillColor : "rgba(200,201,196,0.2)"
         })
         evolution_line = _.filter(_.map(dataToDraw.milestones, (ml) -> ml.evolution), (evolution) -> evolution?)
         data.push({
             data: _.zip(milestonesRange, evolution_line)
             lines:
-                fillColor : "rgba(102,153,51,0.3)"
+                fillColor : "rgba(147,196,0,0.2)"
         })
         client_increment_line = _.map dataToDraw.milestones, (ml) ->
             -ml["team-increment"] - ml["client-increment"]
         data.push({
             data: _.zip(milestonesRange, client_increment_line)
             lines:
-                fillColor : "rgba(255,51,51,0.3)"
+                fillColor : "rgba(200,201,196,0.2)"
         })
         team_increment_line = _.map(dataToDraw.milestones, (ml) -> -ml["team-increment"])
         data.push({
             data: _.zip(milestonesRange, team_increment_line)
             lines:
-                fillColor : "rgba(153,51,51,0.3)"
+                fillColor : "rgba(255,160,160,0.2)"
         })
         colors = [
-            "rgba(0,0,0,1)"
-            "rgba(120,120,120,0.2)"
-            "rgba(102,153,51,1)"
-            "rgba(153,51,51,1)"
-            "rgba(255,51,51,1)"
+            "rgba(200,201,196,0.2)"
+            "rgba(216,222,233,1)"
+            "rgba(168,228,64,1)"
+            "rgba(216,222,233,1)"
+            "rgba(255,160,160,1)"
         ]
 
         options = {
             grid: {
                 borderWidth: { top: 0, right: 1, left:0, bottom: 0 }
-                borderColor: "#ccc"
+                borderColor: "#D8DEE9"
+                color: "#D8DEE9"
                 hoverable: true
+                margin: { top: 0, right: 20, left: 5, bottom: 0 }
             }
             xaxis: {
                 ticks: dataToDraw.milestones.length
@@ -1147,16 +1242,16 @@ BurndownBacklogGraphDirective = ($translate) ->
             tooltipOpts: {
                 content: (label, xval, yval, flotItem) ->
                     if flotItem.seriesIndex == 1
-                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval)}
+                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval * 10) / 10}
                         return $translate.instant("BACKLOG.CHART.OPTIMAL", ctx)
                     else if flotItem.seriesIndex == 2
-                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval)}
+                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval * 10) / 10}
                         return $translate.instant("BACKLOG.CHART.REAL", ctx)
                     else if flotItem.seriesIndex == 3
-                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval)}
+                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval * 10) / 10}
                         return $translate.instant("BACKLOG.CHART.INCREMENT_CLIENT", ctx)
                     else
-                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval)}
+                        ctx = {sprintName: dataToDraw.milestones[xval].name, value: Math.abs(yval * 10) / 10}
                         return $translate.instant("BACKLOG.CHART.INCREMENT_TEAM", ctx)
             }
         }

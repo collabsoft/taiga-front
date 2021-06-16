@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,16 +14,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: jira-import.service.coffee
+# File: projects/create/jira-import/jira-import.service.coffee
 ###
 
 class JiraImportService extends taiga.Service
     @.$inject = [
         'tgResources',
-        '$location'
+        '$location',
+        '$q'
     ]
 
-    constructor: (@resources, @location) ->
+    constructor: (@resources, @location, @q) ->
         @.projects = Immutable.List()
         @.projectUsers = Immutable.List()
 
@@ -41,7 +42,7 @@ class JiraImportService extends taiga.Service
             @resources.jiraImporter.importProject(@.url, @.token, name, description, projectId, userBindings, keepExternalReference, isPrivate, projectType, importerType)
 
     getAuthUrl: (url) ->
-        return new Promise (resolve, reject) =>
+        return @q (resolve, reject) =>
             @resources.jiraImporter.getAuthUrl(url).then (response) =>
                 @.authUrl = response.data.url
                 resolve(@.authUrl)
@@ -49,7 +50,7 @@ class JiraImportService extends taiga.Service
                 reject(err.data._error_message)
 
     authorize: (oauth_verifier) ->
-        return new Promise (resolve, reject) =>
+        return @q (resolve, reject) =>
             @resources.jiraImporter.authorize(oauth_verifier).then ((response) =>
                 @.token = response.data.token
                 @.url = response.data.url

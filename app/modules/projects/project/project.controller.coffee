@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: project.controller.coffee
+# File: projects/project/project.controller.coffee
 ###
 
 class ProjectController
@@ -23,14 +23,24 @@ class ProjectController
         "tgAppMetaService",
         "$tgAuth",
         "$translate",
-        "tgProjectService"
+        "tgProjectService",
+        "$tgConfig",
+        "$tgNavUrls",
+        "$location"
     ]
 
-    constructor: (@routeParams, @appMetaService, @auth, @translate, @projectService) ->
+    constructor: (@routeParams, @appMetaService, @auth, @translate, @projectService, @config, @navUrls, @location) ->
         @.user = @auth.userData
 
         taiga.defineImmutableProperty @, "project", () => return @projectService.project
         taiga.defineImmutableProperty @, "members", () => return @projectService.activeMembers
+        taiga.defineImmutableProperty @, "isAuthenticated", () => return !!@.user
+
+        nextUrl = @location.url()
+        @.registerUrl = "#{@navUrls.resolve("register")}?next=#{nextUrl}"
+        @.loginUrl = "#{@navUrls.resolve("login")}?next=#{nextUrl}"
+
+        @.publicRegisterEnabled = @config.get("publicRegisterEnabled")
 
         @appMetaService.setfn @._setMeta.bind(this)
 

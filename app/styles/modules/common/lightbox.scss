@@ -2,7 +2,7 @@
     @include lightbox;
     h2 {
         @include font-size(xlarge);
-        @include font-type(light);
+        @include font-type(regular);
     }
 }
 
@@ -58,6 +58,26 @@
         }
     }
 
+    .tags-block {
+        width: 100%;
+        .tags-container {
+            align-items: center;
+            column-gap: .5rem;
+            display: flex;
+            flex-wrap: wrap;
+            row-gap: .5rem;
+        }
+        .tag {
+            align-items: center;
+            display: flex;
+            font-size: .875rem;
+            min-height: 2rem;
+            &:first-child {
+                margin-inline-start: 0;
+            }
+        }
+    }
+
     .settings {
         display: flex;
         justify-content: center;
@@ -77,7 +97,7 @@
             vertical-align: middle;
             &:hover {
                 background: $primary-light;
-                border: 1px solid $primary;
+                border: 1px solid $color-link-primary;
             }
             svg {
                 @include svg-size(.75rem);
@@ -94,8 +114,8 @@
         .team-requirement,
         .iocaine-flag {
             input:checked+label {
-                background: $primary;
-                border: 1px solid $primary;
+                background: $color-link-primary;
+                border: 1px solid $color-link-primary;
                 color: $white;
 
             }
@@ -126,13 +146,12 @@
     .attachment-delete {
         right: .5rem;
         svg {
-            fill: $gray-light;
-            height: 1.25rem;
-            width: 1.25rem;
+            fill: $color-link-tertiary;
         }
         &:hover {
+            cursor: pointer;
             svg {
-                fill: $red;
+                fill: $color-link-red;
             }
         }
     }
@@ -147,6 +166,70 @@
     textarea {
         max-height: 12rem;
         min-height: 15rem;
+    }
+    .swimlane-select {
+        margin-block-end: 1rem;
+    }
+    .label {
+        @include font-size(xsmall);
+        @include font-type(medium);
+        color: $color-black900;
+        display: block;
+        margin-block-end: .25rem;
+        text-transform: uppercase;
+    }
+    .lb-action-wrapper {
+        display: flex;
+        justify-content: flex-end;
+    }
+    .bulk-status-selector-wrapper {
+        position: relative;
+    }
+    .bulk-status-selector {
+        @include font-size(small);
+        border: 2px solid transparent;
+        border-radius: 3px;
+        color: $color-white;
+        display: flex;
+        justify-content: space-between;
+        padding: .25rem 1rem;
+        width: 100%;
+        &.active {
+            border: 2px solid $color-link-tertiary;
+        }
+        .icon {
+            fill: currentColor;
+        }
+    }
+    .bulk-status-option-wrapper {
+        background-color: $color-white;
+        border: 1px solid $color-gray400;
+        border-radius: 4px;
+        box-shadow: 4px 4px 8px rgba($color-gray400, .5);
+        padding: .5rem;
+        position: absolute;
+        // Calc font + padding + borders
+        top: calc(1.5rem + 4px);
+        width: 100%;
+        z-index: $first-layer;
+    }
+    .bulk-status-option {
+        @include font-size(small);
+        background: transparent;
+        color: $color-link-primary;
+        cursor: pointer;
+        display: block;
+        padding: .25rem;
+        text-align: left;
+        width: 100%;
+
+        &:hover {
+            background: $color-gray200;
+        }
+
+        &.selected {
+            color: $color-link-tertiary;
+        }
     }
 }
 
@@ -172,7 +255,7 @@
         opacity: 1;
         position: absolute;
         right: 1rem;
-        top: .7rem;
+        top: .5rem;
         transition: opacity .3s linear;
         &.disappear {
             opacity: 0;
@@ -194,10 +277,12 @@
     }
     .delete-sprint {
         @include font-size(small);
-        color: $gray;
-        float: right;
-        margin: 1rem .25rem 0 0;
+        color: $color-link-primary;
+        display: flex;
         transition: color .3s linear;
+        .delete-sprint-text {
+            margin: .1rem 0 0 .25rem;
+        }
         .icon {
             fill: currentColor;
         }
@@ -208,6 +293,11 @@
                 fill: currentColor;
             }
         }
+    }
+    .sprint-add-edit-actions {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
     }
 }
 
@@ -220,24 +310,49 @@
     .subtitle,
     .message {
         display: block;
-        line-height: 2rem;
+        line-height: 1.5rem;
+        margin: 1rem 0;
         text-align: center;
     }
     .subtitle {
         @include font-size(large);
-        @include font-type(text);
+        @include font-type(regular);
         white-space: pre-line;
     }
     .options {
+        align-items: center;
         display: flex;
-        a {
-            padding: 8px 0;
-            text-align: center;
-            width: 100%;
-            &:first-child {
-                margin-right: .5rem;
-            }
-        }
+        justify-content: space-around;
+    }
+}
+
+.lightbox-generic-delete {
+    form {
+        flex-basis: 420px;
+        flex-flow: 0;
+        max-width: 420px;
+    }
+    .subtitle,
+    .message {
+        @include font-size(large);
+        display: block;
+        line-height: 1.5rem;
+        margin: 1rem 0;
+        text-align: center;
+    }
+    .subtitle {
+        @include font-size(large);
+        @include font-type(regular);
+        white-space: pre-line;
+    }
+    .options {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+    .btn-link {
+        margin-right: 2rem;
+        padding: .25rem 2rem;
     }
 }
 
@@ -255,7 +370,7 @@
     }
     .subtitle {
         @include font-size(large);
-        @include font-type(text);
+        @include font-type(regular);
     }
     .replacement {
         display: block;
@@ -267,7 +382,9 @@
         margin-bottom: 2rem;
     }
     .options {
+        align-items: center;
         display: flex;
+        justify-content: space-between;
         a {
             flex-grow: 1;
             padding: 8px 0;
@@ -278,7 +395,7 @@
         }
     }
     .warning {
-        @include font-type(bold);
+        @include font-type(medium);
     }
 }
 
@@ -304,12 +421,13 @@
             margin-right: .5rem;
             +label {
                 @include font-size(small);
-                @include font-type(text);
+                @include font-type(regular);
             }
         }
     }
     .options {
         display: flex;
+        justify-content: space-between;
         a {
             flex-grow: 1;
             padding: 8px 0;
@@ -335,10 +453,11 @@
     }
     .subtitle {
         @include font-size(large);
-        @include font-type(text);
+        @include font-type(regular);
     }
     .options {
         display: flex;
+        justify-content: space-between;
         a {
             flex-grow: 1;
             padding: 8px 0;
@@ -366,6 +485,15 @@
     p {
         text-align: center;
     }
+    .message {
+        margin: 0 auto;
+        max-width: 300px;
+    }
+    .options {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
 }
 
 .lightbox-generic-loading {
@@ -392,8 +520,8 @@
             transition: width .1s linear;
         }
         .progress {
-            @include font-type(text);
-            @include font-type(bold);
+            @include font-type(regular);
+            @include font-type(medium);
             @include font-size(large);
             background: darken($whitish, 5%);
             bottom: 35px;
@@ -443,6 +571,9 @@
         max-height: 12rem;
         min-height: 8rem;
     }
+    .button-block {
+        width: 100%;
+    }
 }
 
 .lightbox-select-user {
@@ -450,6 +581,9 @@
         flex-basis: 600px;
         flex-grow: 0;
         width: 600px;
+    }
+    .search {
+        margin-top: 2rem;
     }
     .user-list-single {
         &:hover,
@@ -463,15 +597,16 @@
         }
     }
     .more-watchers {
-        @include font-type(text);
+        @include font-type(regular);
         @include font-size(medium);
         padding: .5rem;
         text-align: center;
     }
-    .submit-button {
-        margin-top: 1rem;
+    .btn-big.btn-big-full {
+        width: 100%;
     }
     .add-comment {
+        padding: 1rem 0;
         position: relative;
         text-align: center;
         .icon-close {
@@ -488,11 +623,14 @@
                 @include svg-size(2rem);
             }
         }
+        fieldset {
+            margin: 0;
+        }
         textarea {
             margin-top: 1rem;
         }
         a {
-            color: $primary;
+            color: $color-link-primary;
         }
     }
 }
@@ -530,7 +668,7 @@
     }
     .description {
         a {
-            color: $primary;
+            color: $color-link-primary;
         }
     }
     img {
@@ -549,6 +687,12 @@
     .content {
         width: 500px;
     }
+    .btn-big {
+        color: $color-black900;
+        &:hover {
+            color: $color-white;
+        }
+    }
 }
 
 .lightbox-request-ownership {
@@ -559,7 +703,7 @@
 }
 
 .lightbox-set-due-date {
-    z-index: 9999;
+    z-index: $loading-layer;
     form {
         flex-basis: 600px;
         flex-flow: 0;
@@ -619,42 +763,44 @@
 }
 
 .lightbox-create-edit {
-    z-index: 9998;
-    $control-height: 30px;
-    $spacing: 15px;
+    z-index: $overall-layer;
+    $control-height: 2rem;
+    $spacing: 1rem;
     $width: 700px;
     $pop-width: 203px;
-    $sidebar-width: 220px;
+    $sidebar-width: calc(200px + 2rem);
     form {
         flex-basis: $width;
         max-width: $width;
         width: $width;
     }
+    label {
+        @include font-size(small);
+        color: $color-link-primary;
+        padding-left: .25rem;
+    }
     .form-wrapper {
         display: flex;
-        flex-basis: $width;
-        flex-direction: row;
-        flex-grow: 0;
-        margin-bottom: $spacing * 2;
-        main {
-            flex-grow: 1;
-            max-width: $width - $sidebar-width;
-        }
+        margin-bottom: $spacing;
+        width: $width;
         .sidebar {
-            border-left: 2px solid $whitish;
+            background: none;
+            flex-basis: $sidebar-width;
+            flex-shrink: 0;
             margin-left: $spacing;
+            min-width: $sidebar-width;
             padding-left: $spacing;
-            $min-width: $sidebar-width;
             width: $sidebar-width;
         }
     }
     .existing-item-wrapper {
         margin-bottom: $spacing * 2;
         select .strong {
-            @include font-type(bold);
+            @include font-type(medium);
         }
     }
-    .add-existing-button {
+    .add-existing-button,
+    .add-item {
         width: 100%;
     }
     .status-button {
@@ -663,48 +809,49 @@
     }
     .status-dropdown {
         align-content: center;
-        color: $white;
+        border-radius: 3px;
+        color: $color-white;
         cursor: pointer;
         display: flex;
-        flex-basis: 100%;
-        height: $control-height;
-        padding: .25rem .5rem;
-        .status-text {
-            flex-grow: 1;
-            text-transform: uppercase;
-        }
+        justify-content: space-between;
+        padding: .5rem .75rem;
+        width: 100%;
         svg {
-            fill: $white;
+            fill: $color-white;
             height: .9rem;
             width: .9rem;
         }
     }
 
-    .popover {
-        a {
-            color: $white;
+    .assigned-inline {
+        position: relative;
+        .user-list-avatar img {
+            height: 3rem;
+            width: 3rem;
+        }
+    }
+
+    .swimlane-select {
+        margin-block-end: 1rem;
+        .label {
+            @include font-size(xsmall);
+            @include font-type(medium);
+            color: $color-black900;
             display: block;
-            padding: .5rem 1rem;
-            text-align: left;
-            &:hover,
-            &.active {
-                color: $primary-light;
-            }
+            margin-block-end: .25rem;
+            text-transform: uppercase;
         }
     }
 
     .ticket-assigned-to {
         border: 0;
+        margin: 0 0 1rem;
         padding: 0;
-        &.single-assign {
-            margin: 0;
-        }
         &.multiple-assign {
             align-items: start;
             flex-direction: column;
-            margin: 0;
         }
-        .assigned-to-options {
+        .assigned-to-actions {
             display: block;
         }
         .remove-user {
@@ -737,6 +884,10 @@
         }
     }
 
+    .ticket-user-list .remove-user {
+        margin-right: 0;
+    }
+
     .tg-add-assigned {
         align-items: center;
         display: flex;
@@ -755,7 +906,7 @@
 
         span {
             @include font-size(small);
-            @include font-type(light);
+            @include font-type(regular);
             color: $gray;
             margin: .2rem .5rem;
         }
@@ -765,12 +916,29 @@
         position: relative;
     }
 
+    .self-assign {
+        display: block;
+    }
+
     .pop-status {
-        @include popover($pop-width, $control-height - 2px);
+        @include popover(
+            $width: $pop-width,
+            $top: 2rem
+        );
     }
 
     .pop-users {
-        @include popover($pop-width, 60px, 0, '', '', 16px, -7px, ($pop-width / 3));
+        @include popover(
+            $width: $pop-width,
+            $top: 60px,
+            $left: 0,
+            $arrow-width: 16px,
+            $arrow-top: -10px,
+            $arrow-left: calc($pop-width / 3)
+        );
+        &::after {
+            z-index: $negative-layer;
+        }
         &.multiple {
             top: 84px;
             &::after {
@@ -786,32 +954,63 @@
                 border: 0;
             }
         }
+        .users-search {
+            margin-bottom: .5rem;
+        }
         .user-list-single {
-            align-content: center;
             align-items: center;
             display: flex;
-            flex-direction: row;
-            flex-grow: 0;
-            padding: .5rem 0;
-            &.selected {
-                color: $primary;
+            height: auto;
+            margin-bottom: .25rem;
+            min-height: 2rem;
+            padding: .25rem;
+            tg-svg {
+                display: none;
+                flex: 0 0 auto;
             }
-        }
-        .user-list-avatar {
-            height: 32px;
-            margin-right: .5rem;
-            width: 32px;
-        }
-        .user-list-name {
-            @include font-type(text);
-            flex-grow: 1;
-            position: relative;
-        }
 
-        .remove svg {
-            fill: $whitish;
-            height: .8rem;
-            width: .8rem;
+            &.selected {
+                background: $color-gray200;
+                .user-list-name {
+                    color: $color-link-tertiary;
+                }
+
+                tg-svg {
+                    display: flex;
+                    fill: $color-link-tertiary;
+                    margin-right: .5rem;
+                }
+            }
+
+            &:hover {
+                background: $color-gray200;
+                .user-list-name {
+                    color: $color-link-primary;
+                }
+                tg-svg {
+                    fill: $color-link-primary;
+                }
+            }
+
+            .user-list-avatar {
+                border-radius: 50%;
+                flex: 0 0 auto;
+                height: 1.75rem;
+                margin-right: .5rem;
+                width: 1.75rem;
+            }
+            .user-list-name {
+                @include font-type(regular);
+                color: $color-black600;
+                flex: 0 1 auto;
+                flex-grow: 1;
+                min-width: 0;
+                overflow: hidden;
+                position: relative;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+            }
         }
 
         .show-more {
@@ -819,6 +1018,9 @@
             padding-top: .5rem;
             text-align: center;
         }
+    }
+    .ticket-data {
+        padding-top: 0;
     }
 
     .ticket-data-container {
@@ -834,24 +1036,19 @@
     }
 
     .ticket-detail-settings {
-        height: 52px;
         justify-content: left;
         margin: 1rem 0 0;
-        label {
-            border: 0;
-            padding: 12px 13px;
-            width: auto;
-        }
-        .item-block,
-        .item-unblock {
-            display: block;
-            margin: 0;
-        }
     }
 
     .blocked-note {
         margin-top: .5rem;
     }
+
+    .btn-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+
 }
 
 .ticket-detail-settings .lightbox-assign-sprint-to-issue {
@@ -969,5 +1166,57 @@
     }
     button {
         width: 100%;
+    }
+}
+
+.lightbox-feedback {
+    h2 {
+        @include font-size(xlarge);
+        @include font-type(bold);
+        text-align: left;
+    }
+
+    textarea {
+        height: 120px;
+    }
+
+    .title {
+        text-align: left;
+    }
+
+    label {
+        @include font-size(small);
+        color: $color-black600;
+        display: block;
+        margin-bottom: .5rem;
+        margin-left: .5rem;
+        text-align: left;
+    }
+    fieldset {
+        margin-bottom: .9rem;
+    }
+    .actions {
+        display: flex;
+        margin-bottom: 1rem;
+
+        button {
+            margin-left: auto;
+        }
+    }
+    .can-also {
+        background: $color-gray100;
+        padding: 1rem;
+        h3 {
+            @include font-size(large);
+            @include font-type(bold);
+            color: $color-black900;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .text {
+            @include font-size(small);
+            color: $color-black600;
+            margin-bottom: .5rem;
+        }
     }
 }

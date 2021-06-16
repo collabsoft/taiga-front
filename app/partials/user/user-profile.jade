@@ -28,8 +28,9 @@ div.wrapper(
                         tg-avatar-model="avatarAttachment"
                     )
 
-                a.button-green.change-image.js-change-avatar(
-                    href="#"
+                button.btn-small.button-full.js-change-avatar(
+                    type="text"
+                    variant="secondary"
                     title="{{'USER_PROFILE.CHANGE_PHOTO' | translate}}"
                 ) {{'USER_PROFILE.CHANGE_PHOTO' | translate}}
 
@@ -56,6 +57,13 @@ div.wrapper(
 
                 fieldset
                     label(for="email", translate="USER_PROFILE.FIELD.EMAIL")
+                    div(ng-if="user.verified_email === false")
+                        a.verify-email(
+                            href=""
+                            title="{{'USER_PROFILE.ACTION_VERIFY_EMAIL' | translate}}"
+                            ng-click="ctrl.verifyEmail()"
+                            translate="USER_PROFILE.ACTION_VERIFY_EMAIL"
+                        )
                     input(
                         type="email"
                         name="email"
@@ -89,7 +97,7 @@ div.wrapper(
                     )
                         option(value="", translate="USER_PROFILE.FIELD.LANGUAGE_DEFAULT")
 
-                 fieldset
+                fieldset
                     label(for="theme", translate="USER_PROFILE.FIELD.THEME")
                     select(
                         name="theme"
@@ -111,7 +119,8 @@ div.wrapper(
                     )
 
                 fieldset.submit
-                    button.button-green.submit-button(
+                    button.btn-small(
+                        variant="primary"
                         type="submit"
                         title="{{'COMMON.SAVE' | translate}}",
                         translate="COMMON.SAVE"

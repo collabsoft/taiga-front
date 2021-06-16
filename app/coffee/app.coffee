@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -42,8 +37,8 @@ taiga.generateUniqueSessionIdentifier = ->
 taiga.sessionId = taiga.generateUniqueSessionIdentifier()
 
 
-configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEventsProvider,
-             $compileProvider, $translateProvider, $translatePartialLoaderProvider, $animateProvider) ->
+configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEventsProvider, $compileProvider,
+             $translateProvider, $translatePartialLoaderProvider, $animateProvider, $logProvider) ->
 
     $animateProvider.classNameFilter(/^(?:(?!ng-animate-disabled).)*$/)
 
@@ -56,7 +51,7 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
             languageLoad: ["$q", "$translate", ($q, $translate) ->
                 deferred = $q.defer()
 
-                $translate().then () -> deferred.resolve()
+                $translate("COMMON.YES").then () -> deferred.resolve()
 
                 return deferred.promise
             ],
@@ -178,6 +173,15 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
     # Project
     $routeProvider.when("/project/:pslug/",
         {
+            template: "",
+            loader: true,
+            controller: "ProjectRouter"
+        }
+    )
+
+    # Project
+    $routeProvider.when("/project/:pslug/timeline",
+        {
             templateUrl: "projects/project/project.html",
             loader: true,
             controller: "Project",
@@ -206,7 +210,7 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
 
     # Epics
     $routeProvider.when("/project/:pslug/epics",
-    {
+        {
             section: "epics",
             templateUrl: "epics/dashboard/epics-dashboard.html",
             loader: true,
@@ -391,6 +395,12 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
             section: "admin"
         }
     )
+    $routeProvider.when("/project/:pslug/admin/project-values/kanban-power-ups",
+        {
+            templateUrl: "admin/admin-project-values-kanban-power-ups.html",
+            section: "admin"
+        }
+    )
     $routeProvider.when("/project/:pslug/admin/memberships",
         {
             templateUrl: "admin/admin-memberships.html",
@@ -455,12 +465,18 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
         {templateUrl: "user/user-profile.html"})
     $routeProvider.when("/user-settings/user-change-password",
         {templateUrl: "user/user-change-password.html"})
+    $routeProvider.when("/user-settings/user-project-settings",
+        {templateUrl: "user/user-project-settings.html"})
     $routeProvider.when("/user-settings/mail-notifications",
         {templateUrl: "user/mail-notifications.html"})
     $routeProvider.when("/user-settings/live-notifications",
         {templateUrl: "user/live-notifications.html"})
+    $routeProvider.when("/user-settings/web-notifications",
+        {templateUrl: "user/web-notifications.html"})
     $routeProvider.when("/change-email/:email_token",
         {templateUrl: "user/change-email.html"})
+    $routeProvider.when("/verify-email/:email_token",
+        {templateUrl: "user/verify-email.html"})
     $routeProvider.when("/cancel-account/:cancel_token",
         {templateUrl: "user/cancel-account.html"})
 
@@ -477,6 +493,19 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
                 requiresLogin: true
             },
             controller: "Profile",
+            controllerAs: "vm"
+        }
+    )
+
+    # Notifications
+    $routeProvider.when("/notifications",
+        {
+            templateUrl: "notifications/notifications.html",
+            loader: true,
+            access: {
+                requiresLogin: true
+            },
+            controller: "Notifications",
             controllerAs: "vm"
         }
     )
@@ -500,14 +529,15 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
             controller: "LoginPage",
         }
     )
-    $routeProvider.when("/register",
-        {
-            templateUrl: "auth/register.html",
-            title: "REGISTER.PAGE_TITLE",
-            description: "REGISTER.PAGE_DESCRIPTION",
-            disableHeader: true
-        }
-    )
+    if window.taigaConfig.publicRegisterEnabled
+        $routeProvider.when("/register",
+            {
+                templateUrl: "auth/register.html",
+                title: "REGISTER.PAGE_TITLE",
+                description: "REGISTER.PAGE_DESCRIPTION",
+                disableHeader: true
+            }
+        )
     $routeProvider.when("/forgot-password",
         {
             templateUrl: "auth/forgot-password.html",
@@ -708,6 +738,7 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
         .useSanitizeValueStrategy('escapeParameters')
         .addInterpolation('$translateMessageFormatInterpolation')
         .preferredLanguage(preferedLangCode)
+        .useMissingTranslationHandlerLog()
 
     $translateProvider.fallbackLanguage(preferedLangCode)
 
@@ -717,10 +748,50 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
     _.each decorators, (decorator) ->
         $provide.decorator decorator.provider, decorator.decorator
 
+    # Enable or disable debug log messages
+    $logProvider.debugEnabled(window.taigaConfig.debug)
+    if window.taigaConfig.debug
+        console.info("Debug mode is enable")
+
+    ## debug-events
+    ##
+    ## NOTE: This code is useful to debug Angular events, overwrite $rootScope methos
+    ##       $broadcast and $emit to log info in the browser console. Uncomment this for
+    ##       debug purpose.
+    ##
+    # $provide.decorator '$rootScope', ($delegate) ->
+    #     ignore_events = [
+    #         "$routeChangeStart",
+    #         "$routeChangeSuccess",
+    #         "$locationChangeStart",
+    #         "$locationChangeSuccess",
+    #         "$translateChangeStart",
+    #         "$translateChangeEnd",
+    #         "$translateChangeSuccess",
+    #         "$translateLoadingStart",
+    #         "$translateLoadingEnd",
+    #         "$translateLoadingSuccess",
+    #         "$viewContentLoaded",
+    #         "$destroy",
+    #     ]
+    #     Scope = $delegate.constructor
+    #     origBroadcast = Scope.prototype.$broadcast
+    #     origEmit = Scope.prototype.$emit
+    #     Scope.prototype.$broadcast = ($scope) ->
+    #         if arguments[0] not in ignore_events
+    #             console.log(">> $BROADCAST:", arguments[0], arguments)
+    #         return origBroadcast.apply(this, arguments)
+    #     Scope.prototype.$emit = ($scope) ->
+    #         if arguments[0] not in ignore_events
+    #             console.log(">> $EMIT:", arguments[0], arguments)
+    #         return origEmit.apply(this, arguments)
+    #     return $delegate
+    ## end debug-events
 
 i18nInit = (lang, $translate) ->
     # i18n - moment.js
     moment.locale(lang)
+    document.querySelector('html').setAttribute('lang', lang)
 
     if (lang != 'en') # en is the default, the file doesn't exist
         ljs.load "/#{window._version}/locales/moment-locales/" + lang + ".js"
@@ -758,8 +829,9 @@ i18nInit = (lang, $translate) ->
     checksley.updateMessages('default', messages)
 
 
-init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $navUrls, appMetaService,
-        loaderService, navigationBarService, errorHandlingService, lightboxService, $tgConfig) ->
+init = ($log, $rootscope, $auth, $events, $analytics, $tagManager, $userPilot, $translate, $location, $navUrls, appMetaService,
+        loaderService, navigationBarService, errorHandlingService, lightboxService, $tgConfig,
+        projectService) ->
     $log.debug("Initialize application")
 
     $rootscope.$on '$translatePartialLoaderStructureChanged', () ->
@@ -777,40 +849,92 @@ init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $na
         pikaday: (val) ->
             prettyDate = $translate.instant("COMMON.PICKERDATE.FORMAT")
             return moment(val, prettyDate).isValid()
+        url: (val) ->
+            re_weburl = new RegExp(
+                "^" +
+                    # protocol identifier
+                    "(?:(?:https?|ftp)://)" +
+                    # user:pass authentication
+                    "(?:\\S+(?::\\S*)?@)?" +
+                    "(?:" +
+                    # IP address exclusion
+                    # private & local networks
+                    "(?!(?:10|127)(?:\\.\\d{1,3}){3})" +
+                    "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" +
+                    "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" +
+                    # IP address dotted notation octets
+                    # excludes loopback network 0.0.0.0
+                    # excludes reserved space >= 224.0.0.0
+                    # excludes network & broacast addresses
+                    # (first & last IP address of each class)
+                    "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
+                    "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
+                    "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
+                "|" +
+                    # host name
+                    "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" +
+                    # domain name
+                    "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" +
+                    # TLD identifier
+                    "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" +
+                    # TLD may end with dot
+                    "\\.?" +
+                    ")" +
+                    # port number
+                    "(?::\\d{2,5})?" +
+                    # resource path
+                    "(?:[/?#]\\S*)?" +
+                "$", "i"
+            )
+            return re_weburl.test(val)
+
     }
     checksley.updateValidators(validators)
 
     # Taiga Plugins
     $rootscope.contribPlugins = @.taigaContribPlugins
     $rootscope.adminPlugins = _.filter(@.taigaContribPlugins, {"type": "admin"})
+    $rootscope.authPlugins = _.filter(@.taigaContribPlugins, {"type": "auth"})
     $rootscope.userSettingsPlugins = _.filter(@.taigaContribPlugins, {"type": "userSettings"})
 
-    $rootscope.$on "$translateChangeEnd", (e, ctx) ->
-        lang = ctx.language
-        i18nInit(lang, $translate)
-        # RTL
-        rtlLanguages = $tgConfig.get("rtlLanguages", [])
-        $rootscope.isRTL = rtlLanguages.indexOf(lang) > -1
+    lang = null
 
-    # bluebird
-    Promise.setScheduler (cb) ->
-        $rootscope.$evalAsync(cb)
+    $rootscope.$on "$translateChangeEnd", (e, ctx) ->
+        if lang != ctx.language
+            lang = ctx.language
+            i18nInit(lang, $translate)
+            # RTL
+            rtlLanguages = $tgConfig.get("rtlLanguages", [])
+            $rootscope.isRTL = rtlLanguages.indexOf(lang) > -1
+
+            legacy = document.querySelector('tg-legacy')
+            legacy.translations = {
+                translationTable: $translate.getTranslationTable(lang),
+                lan: lang
+            }
 
     $events.setupConnection()
 
     # Load user
     if $auth.isAuthenticated()
         user = $auth.getUser()
-        $auth.showTerms()
+
     # Analytics
     $analytics.initialize()
+
+    # Tag Manager
+    $tagManager.initialize()
+
+    # UserPilot
+    $userPilot.initialize()
+    $userPilot.identify()
 
     # Initialize error handling service when location change start
     $rootscope.$on '$locationChangeStart',  (event) ->
         errorHandlingService.init()
 
         if lightboxService.getLightboxOpen().length
-            event.preventDefault();
+            event.preventDefault()
 
             lightboxService.closeAll()
 
@@ -825,6 +949,9 @@ init = ($log, $rootscope, $auth, $events, $analytics, $translate, $location, $na
         un()
 
     $rootscope.$on '$routeChangeSuccess', (event, next) ->
+        if projectService.project?.get('blocked_code')
+            errorHandlingService.block()
+
         if next.loader
             loaderService.start(true)
 
@@ -892,6 +1019,7 @@ modules = [
     "taigaExternalApps",
     "taigaDiscover",
     "taigaHistory",
+    "taigaNotifications",
     "taigaWikiHistory",
     "taigaEpics",
     "taigaUtils"
@@ -906,7 +1034,7 @@ modules = [
     "ngAria",
     "pascalprecht.translate",
     "infinite-scroll",
-    "tgRepeat"
+    "tgRepeat",
 ].concat(pluginsModules)
 
 # Main module definition
@@ -922,6 +1050,7 @@ module.config([
     "$translateProvider",
     "$translatePartialLoaderProvider",
     "$animateProvider",
+    "$logProvider"
     configure
 ])
 
@@ -931,6 +1060,8 @@ module.run([
     "$tgAuth",
     "$tgEvents",
     "$tgAnalytics",
+    "$tgTagManager",
+    "$tgUserPilot",
     "$translate",
     "$tgLocation",
     "$tgNavUrls",
@@ -940,5 +1071,6 @@ module.run([
     "tgErrorHandlingService",
     "lightboxService",
     "$tgConfig",
+    "tgProjectService",
     init
 ])

@@ -2,12 +2,14 @@
 .watching {
     margin-bottom: 2rem;
     .duty-single {
-        border-bottom: 1px solid $whitish;
+        border-bottom: 1px solid $color-gray400;
         cursor: pointer;
         transition: background .2s;
-        transition-delay: .2s;
         &:hover {
-            background: rgba($primary-light, .1);
+            background: $color-gray100;
+            .button-hide {
+                opacity: 1;
+            }
         }
         &:last-child {
             border: 0;
@@ -18,13 +20,20 @@
             display: flex;
             flex-direction: row;
             &.blocked {
-                background: rgba($red-light, .2);
-                color: $red;
+                background: $color-solid-red;
+                color: $color-link-red;
             }
         }
     }
     .see-more {
         display: block;
         margin: 2rem 30%;
+    }
+    .button-hide {
+        opacity: 0;
+        svg {
+            @include svg-size(1.4rem);
+            fill: $color-black600;
+        }
     }
 }

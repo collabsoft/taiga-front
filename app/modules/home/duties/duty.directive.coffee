@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: duty.directive.coffee
+# File: home/duties/duty.directive.coffee
 ###
 
 DutyDirective = (navurls, $translate) ->
@@ -22,6 +22,7 @@ DutyDirective = (navurls, $translate) ->
         scope.vm = {}
         scope.vm.duty = scope.duty
         scope.vm.type = scope.type
+        scope.vm.isHidden = scope.isHidden
 
         scope.vm.getDutyType = () ->
             if scope.vm.duty
@@ -34,10 +35,16 @@ DutyDirective = (navurls, $translate) ->
                 if scope.vm.duty.get('_name') == "issues"
                     return $translate.instant("COMMON.ISSUE")
 
+        el.on "click", ".button-hide", (event) ->
+            event.preventDefault()
+            el.remove()
+            scope.$emit('duty:toggle-hidden', scope.vm.duty, scope.vm.type)
+
     return {
         templateUrl: "home/duties/duty.html"
         scope: {
             "duty": "=tgDuty",
+            "isHidden": "=",
             "type": "@"
         }
         link: link

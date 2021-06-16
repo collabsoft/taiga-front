@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -62,19 +57,16 @@ ColorizeTagsBacklogDirective = ($emojis) ->
     template = _.template("""
         <% _.each(tags, function(tag) { %>
             <% if (tag[1] !== null) { %>
-            <span class="tag"
-                  style="border-left: 5px solid <%- tag[1] %>"
-                  title="<%- tag[0] %>">
-                  <%= emojify(tag[0]) %>
-            </span>
+            <div class="tag" style="background: <%- tag[1] %>">
+                <%= emojify(tag[0]) %>
+            </div>
             <% } %>
         <% }) %>
         <% _.each(tags, function(tag) { %>
             <% if (tag[1] === null) { %>
-            <span class="tag"
-                  title="<%- tag[0] %>">
-                  <%= emojify(tag[0]) %>
-            </span>
+            <div class="tag">
+                <%= emojify(tag[0]) %>
+            </div>
             <% } %>
         <% }) %>
     """)

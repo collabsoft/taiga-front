@@ -7,7 +7,7 @@
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 99910;
+    z-index: $lightbox-layer;
     .close {
         @include svg-size(2rem);
         cursor: pointer;
@@ -17,7 +17,6 @@
         right: 3rem;
         top: 3rem;
         transition: fill .2s;
-        display: block;
         &:hover {
             fill: $red-light;
         }
@@ -39,9 +38,9 @@
         transition: opacity .3s ease;
     }
     .lb-icon {
-        margin: 1rem auto;
         display: flex;
         justify-content: center;
+        margin: 1rem auto;
         svg {
             @include svg-size(6rem);
             display: block;
@@ -56,11 +55,5 @@
     }
     textarea {
         resize: vertical;
-    }
-    .button-green,
-    .button-gray {
-        display: block;
-        padding: 12px;
-        text-align: center;
     }
 }

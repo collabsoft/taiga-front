@@ -1,7 +1,8 @@
 .colors-table {
+    overflow-x: inherit;
     .table-header {
         @include font-size(medium);
-        @include font-type(bold);
+        @include font-type(medium);
         border-bottom: 3px solid $whitish;
         &:hover {
             background: transparent;
@@ -16,8 +17,8 @@
     .row {
         align-items: center;
         display: flex;
-        justify-content: center;
         padding: 1rem;
+        width: 100%;
         &:last-child {
             border: 0;
         }
@@ -49,10 +50,18 @@
                 cursor: auto;
             }
         }
+        &.new-value {
+            padding-left: 3rem;
+            .icon-check-empty,
+            .icon-close {
+                fill: $color-link-primary;
+            }
+        }
         .color-column {
-            flex-basis: 60px;
-            flex-grow: 1;
-            max-width: 100px;
+            display: flex;
+            flex-basis: 80px;
+            justify-content: center;
+            min-width: 80px;
             position: relative;
         }
         .is-archived-column,
@@ -69,7 +78,6 @@
             padding: 0 10px;
         }
 
-        .status-name,
         .color-name {
             flex-basis: 150px;
             flex-grow: 1;
@@ -81,23 +89,28 @@
                 display: block;
             }
         }
-        .color-name {
-            flex-basis: 100px;
-        }
+
+        .status-name,
         .status-slug {
-            display: none;
-            flex-basis: 150px;
-            flex-grow: 6;
+            flex-grow: 1;
+            min-width: 150px;
             padding: 0 10px;
-            @include breakpoint(desktop) {
-                display: block;
-            }
             span {
                 @include ellipsis(100%);
             }
         }
+        .status-name {
+            flex-basis: 40%;
+        }
+        .status-slug {
+            flex-basis: 30%;
+            @include until($desktop) {
+                display: none;
+            }
+        }
         .options-column {
-            max-width: 100px;
+            max-width: 60px;
+            min-width: 100px;
             opacity: 0;
             text-align: right;
         }
@@ -111,11 +124,10 @@
             text-align: center;
         }
         .status-wip-limit {
-            display: none;
             max-width: 100px;
             padding: 0 0 0 10px;
             text-align: center;
-            @include breakpoint(desktop) {
+            @include until($desktop) {
                 display: block;
             }
         }
@@ -173,9 +185,9 @@
 
     .current-color {
         background-color: $whitish;
-        border-radius: 2px;
-        height: 40px;
-        width: 40px;
+        border-radius: 3px;
+        height: 2rem;
+        width: 2rem;
     }
 
     .icon {
@@ -189,7 +201,7 @@
         }
         &.icon-check {
             cursor: default;
-            fill: $primary;
+            fill: $color-link-primary;
             opacity: 1;
         }
         &.icon-merge {
@@ -198,14 +210,14 @@
         }
         &.icon-search {
             cursor: none;
-            fill: $primary;
+            fill: $color-link-primary;
             opacity: 1;
         }
         &.icon-drag {
             cursor: move;
         }
         &.icon-trash {
-            fill: $red-light;
+            fill: $color-link-red;
         }
     }
     .gu-mirror {
@@ -217,5 +229,4 @@
             visibility: hidden;
         }
     }
-
 }

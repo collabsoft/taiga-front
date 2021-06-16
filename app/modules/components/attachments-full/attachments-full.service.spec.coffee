@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,11 +14,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: attchments-full.service.spec.coffee
+# File: components/attachments-full/attachments-full.service.spec.coffee
 ###
 
 describe "tgAttachmentsFullService", ->
     $provide = null
+    $q = null
     attachmentsFullService = null
     mocks = {}
 
@@ -30,7 +31,9 @@ describe "tgAttachmentsFullService", ->
         $provide.value("tgAttachmentsService", mocks.attachmentsService)
 
     _mockRootScope = ->
-        mocks.rootScope = {}
+        mocks.rootScope = {
+            $evalAsync: (cb) -> cb()
+        }
 
         $provide.value("$rootScope", mocks.rootScope)
 
@@ -44,8 +47,9 @@ describe "tgAttachmentsFullService", ->
             return null
 
     _inject = ->
-        inject (_tgAttachmentsFullService_) ->
+        inject (_tgAttachmentsFullService_, _$q_) ->
             attachmentsFullService = _tgAttachmentsFullService_
+            $q = _$q_
 
     _setup = ->
         _mocks()
@@ -177,6 +181,7 @@ describe "tgAttachmentsFullService", ->
                 done()
 
     it "reorder attachments", (done) ->
+        deferred = $q.defer();
         attachments = Immutable.fromJS([
             {file: {id: 0, is_deprecated: false, order: 0}},
             {file: {id: 1, is_deprecated: true, order: 1}},
@@ -186,7 +191,8 @@ describe "tgAttachmentsFullService", ->
         ])
 
         mocks.attachmentsService.patch = sinon.stub()
-        mocks.attachmentsService.patch.promise().resolve()
+        mocks.attachmentsService.patch.returns(deferred)
+        deferred.resolve()
 
         attachmentsFullService._attachments = attachments
 

@@ -6,23 +6,18 @@
     }
     input,
     textarea {
-        @include font-type(text);
+        @include font-type(regular);
     }
     fieldset {
         margin-bottom: 1rem;
     }
     label {
-        @include font-type(text);
+        @include font-type(regular);
         display: block;
         margin-bottom: .2rem;
     }
     textarea {
         height: 10rem;
-    }
-    .submit-button {
-        color: $white;
-        display: block;
-        text-align: center;
     }
     .select-input-text {
         .field-with-option {
@@ -30,7 +25,7 @@
         }
         .option-wrapper {
             align-items: center;
-            border: 1px solid $gray-light;
+            border: 2px solid $color-gray400;
             border-left: 0;
             border-radius: 0 5px 5px 0;
             cursor: pointer;

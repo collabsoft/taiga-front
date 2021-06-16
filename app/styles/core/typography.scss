@@ -2,22 +2,12 @@
 // Font face
 
 @each $font-face in
-OpenSans-CondLight,
-OpenSans-Light,
-OpenSans-Regular,
-OpenSans-Semibold {
+    Ubuntu-Regular,
+    Ubuntu-Medium {
     @font-face {
         font-family: '#{$font-face}';
         src: url('../fonts/#{$font-face}.ttf') format('truetype');
     }
-}
-
-@font-face {
-    font-family: taiga; font-style: normal; font-weight: normal;
-    src: url('../fonts/taiga.eot');
-    src: url('../fonts/taiga.eot?') format('eot'),
-        url('../fonts/taiga.woff') format('woff'),
-        url('../fonts/taiga.ttf')  format('truetype');
 }
 
 h1,
@@ -26,7 +16,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: $blackish;
+    color: $color-black900;
     font-weight: normal;
     line-height: 1.5;
 
@@ -36,49 +26,21 @@ h6 {
 }
 
 h1 {
-    @include font-size(xlarge);
-    @include font-type(light);
-    line-height: 1.5;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-
-    span {
-        @include font-size(larger);
-        margin-right: .5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        vertical-align: bottom;
-        white-space: nowrap;
-
-        &.green,
-        &:last-child {
-            flex-shrink: 0;
-        }
-    }
-
-    .project-name {
-        display: inline-block;
-        margin-bottom: 0;
-    }
-
-    .project-name-short {
-        display: inline-block;
-        max-width: 40%;
-    }
-
-    .green {
-        color: $primary;
-    }
-
+    @include font-type(bold);
+    @include font-size(larger);
+    color: $color-link-primary;
+    margin-block-end: 1rem;
     .date {
         @include ellipsis(500px);
-        color: $gray-light;
+        @include font-type(regular);
+        @include font-size(small);
+        color: $grey-70;
     }
 }
 
 h2 {
     @include font-size(larger);
-    @include font-type(text);
+    @include font-type(regular);
     line-height: 1.2;
     margin-bottom: 1rem;
 }
@@ -115,9 +77,22 @@ hr {
 // __Links__
 a,
 a:visited {
+    color: $color-link-primary;
     text-decoration: none;
 
     &:hover {
+        color: $color-black600;
+        transition: color .3s linear;
+    }
+}
+
+a.secondary,
+a.secondary:visited {
+    color: $color-black600;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-link-primary;
         transition: color .3s linear;
     }
 }

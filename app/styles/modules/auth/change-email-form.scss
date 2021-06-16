@@ -1,9 +1,10 @@
-.change-email-form {
+.change-email-form,
+.verify-email-form {
     fieldset {
         text-align: center;
     }
     p {
-        color: $grayer;
+        color: $color-white;
         margin-bottom: .5rem;
         text-align: center;
     }

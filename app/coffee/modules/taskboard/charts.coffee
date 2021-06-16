@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -34,33 +29,35 @@ timeout = @.taiga.timeout
 module = angular.module("taigaTaskboard")
 
 #############################################################################
-## Sprint burndown graph directive
+## Sprint burndown chart directive
 #############################################################################
 
-SprintGraphDirective = ($translate)->
+SprintChartDirective = ($translate)->
     redrawChart = (element, dataToDraw) ->
         width = element.width()
         element.height(240)
 
-        days = _.map(dataToDraw, (x) -> moment(new Date(x.day).getTime()))
+        days = _.map(dataToDraw, (x) -> moment.utc(x.day))
 
         data = []
         data.unshift({
-            data: _.zip(days, _.map(dataToDraw, (d) -> d.optimal_points))
-            lines:
-                fillColor : "rgba(120,120,120,0.2)"
-        })
-        data.unshift({
             data: _.zip(days, _.map(dataToDraw, (d) -> d.open_points))
             lines:
-                fillColor : "rgba(102,153,51,0.3)"
+                fillColor : "rgba(147,196,0,0.2)"
+        })
+        data.unshift({
+            data: _.zip(days, _.map(dataToDraw, (d) -> d.optimal_points))
+            lines:
+                fillColor : "rgba(200,201,196,0.2)"
         })
 
         options =
             grid:
                 borderWidth: { top: 0, right: 1, left:0, bottom: 0 }
-                borderColor: '#ccc'
+                borderColor: "#D8DEE9"
+                color: "#D8DEE9"
                 hoverable: true
+                margin: { top: 0, right: 30, left: 5, bottom: 5 }
             xaxis:
                 tickSize: [1, "day"]
                 min: days[0]
@@ -89,21 +86,24 @@ SprintGraphDirective = ($translate)->
                     fill: true
                     radius: 4
                     lineWidth: 2
-            colors: ["rgba(102,153,51,1)", "rgba(120,120,120,0.2)"]
+            colors: [
+                "rgba(216,222,233,1)"
+                "rgba(168,228,64,1)"
+            ]
             tooltip: true
             tooltipOpts:
                 content: (label, xval, yval, flotItem) ->
                     formattedDate = moment(xval).format($translate.instant("TASKBOARD.CHARTS.DATE"))
-                    roundedValue = Math.round(yval)
+                    roundedValue = Math.round(yval * 10) / 10
 
                     if flotItem.seriesIndex == 1
-                        return $translate.instant("TASKBOARD.CHARTS.OPTIMAL", {
+                        return $translate.instant("TASKBOARD.CHARTS.REAL", {
                             formattedDate: formattedDate,
                             roundedValue: roundedValue
                         })
 
                     else
-                        return $translate.instant("TASKBOARD.CHARTS.REAL", {
+                        return $translate.instant("TASKBOARD.CHARTS.OPTIMAL", {
                             formattedDate: formattedDate,
                             roundedValue: roundedValue
                         })
@@ -135,4 +135,4 @@ SprintGraphDirective = ($translate)->
 
     return {link: link}
 
-module.directive("tgSprintGraph", ["$translate", SprintGraphDirective])
+module.directive("tgSprintChart", ["$translate", SprintChartDirective])

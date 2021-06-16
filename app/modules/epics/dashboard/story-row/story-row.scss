@@ -4,16 +4,31 @@
     @include font-size(small);
     @include epics-table;
     align-items: center;
-    background: $white;
-    border-bottom: 1px solid $whitish;
+    background: $color-white;
+    border-radius: 3px;
     display: flex;
-    margin-left: 4rem;
+    margin-left: 1.5rem;
+    padding-left: 1rem;
     transition: background .2s;
     &:hover {
-        background: rgba($primary-light, .05);
+        background-color: $color-gray100;
     }
     &.is-blocked {
-        background: rgba($red-light, .5);
+        background: $color-solid-red;
+        a,
+        span,
+        div {
+            color: $color-white;
+        }
+        svg {
+            fill: $color-white;
+            stroke: $color-white;
+        }
+    }
+    .deco-space {
+        display: inline-block;
+        margin-left: .75rem;
+        width: 1rem;
     }
     &.is-closed {
         .name {
@@ -22,9 +37,28 @@
         }
     }
     .name {
-        flex-basis: 17.5vw;
+        flex-basis: calc(20vw - 1.5rem);
+        flex-shrink: 1;
+        padding-left: 0;
+
+        .name-container {
+            @media (max-width: 1110px) {
+                word-break: break-word;
+            }
+        }
         a {
             cursor: pointer;
+
+            &:hover {
+                .ref,
+                .subject {
+                    color: $color-link-primary;
+                }
+            }
+        }
+        .subject {
+            color: $color-black600;
+            margin-left: .25rem;
         }
     }
     .progress-bar,
@@ -35,34 +69,35 @@
         top: .25rem;
     }
     .progress-bar {
-        background: $mass-white;
+        background: $color-gray100;
         max-width: 40vw;
         width: 100%;
     }
     .progress-status {
-        background: $primary-light;
+        background-color: $color-link-primary;
         width: 10vw;
     }
-    .vote {
-        color: $gray;
-        &.is-voter {
-            color: $primary-light;
-            fill: $primary-light;
-        }
-    }
     .project {
+        align-items: center;
         cursor: pointer;
+        display: flex;
+        justify-content: center;
     }
     .project,
     .assigned {
         img {
-            width: 40px;
+            width: 25px;
         }
     }
-    .icon-upvote {
-        @include svg-size(.75rem);
-        fill: $gray;
-        margin-right: .25rem;
-        vertical-align: middle;
+    .assigned {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        img {
+            border-radius: 50%;
+            height: 2rem;
+            overflow: hidden;
+            width: 2rem;
+        }
     }
 }

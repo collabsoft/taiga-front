@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,25 +14,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: taskboard-zoom.directive.coffee
+# File: components/taskboard-zoom/taskboard-zoom.directive.coffee
 ###
 
 TaskboardZoomDirective = (storage) ->
     link = (scope, el, attrs, ctrl) ->
-        scope.zoomIndex = storage.get("taskboard_zoom") or 2
+        scope.zoomIndex = storage.get("taskboard_zoom", 2)
 
         scope.levels = 4
 
         zooms = [
-            ["ref"],
+            ["assigned_to", "ref"],
             ["subject"],
-            ["owner", "tags", "extra_info", "unfold"],
-            ["attachments", "empty_extra_info"],
-            ["related_tasks"]
+            ["tags", "extra_info", "unfold", "card-data", "assigned_to_extended"],
+            ["related_tasks", "attachments"]
         ]
 
         getZoomView = (zoomIndex = 0) ->
-            if storage.get("taskboard_zoom") != zoomIndex
+            zoomIndex = Number(zoomIndex)
+
+            if Number(storage.get("taskboard_zoom")) != zoomIndex
                 storage.set("taskboard_zoom", zoomIndex)
 
             return _.reduce zooms, (result, value, key) ->

@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -66,15 +61,48 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
     filtersHashSuffix: "issues-filters"
     myFiltersHashSuffix: "issues-my-filters"
+    excludePrefix: "exclude_"
+    filterCategories: [
+        "tags",
+        "status",
+        "type",
+        "severity",
+        "priority",
+        "assigned_to",
+        "owner",
+        "role",
+    ]
+
+    validQueryParams: [
+        'exclude_tags',
+        'tags',
+        'exclude_status',
+        'status',
+        'exclude_type',
+        'type',
+        'exclude_severity',
+        'severity',
+        'exclude_priority',
+        'priority',
+        'exclude_assigned_to',
+        'assigned_to',
+        'exclude_role',
+        'role',
+        'exclude_owner',
+        'owner',
+        'order_by'
+    ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @urls, @params, @q, @location, @appMetaService,
                   @navUrls, @events, @analytics, @translate, @errorHandlingService, @storage, @filterRemoteStorageService, @projectService) ->
         bindMethods(@)
 
+        @showTags = true
         @scope.sectionName = @translate.instant("PROJECT.SECTION.ISSUES")
         @.voting = false
+        @.openFilter = false
 
-        return if @.applyStoredFilters(@params.pslug, @.filtersHashSuffix)
+        return if @.applyStoredFilters(@params.pslug, @.filtersHashSuffix, @.validQueryParams)
 
         promise = @.loadInitialData()
 
@@ -94,6 +122,26 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
             @analytics.trackEvent("issue", "create", "create issue on issues list", 1)
             @.loadIssues()
 
+        @scope.$on "assigned-to:changed", =>
+            @.generateFilters()
+            if @.isFilterDataTypeSelected('assigned_to') ||\
+                @.isFilterDataTypeSelected('role') ||\
+                @.isOrderedBy('assigned_to') || @.isOrderedBy('modified')
+                    @.loadIssues()
+
+        @scope.$on "status:changed", =>
+            @.generateFilters()
+            if @.isFilterDataTypeSelected('status') ||\
+                @.isOrderedBy('status') || @.isOrderedBy('modified')
+                    @.loadIssues()
+
+    toggleShowTags: ->
+        @rs.issues.storeIssuesShowTags(@scope.projectId, @showTags)
+
+    isOrderedBy: (fieldName) ->
+        pattern = new RegExp("-*"+fieldName)
+        return pattern.test(@location.search().order_by)
+
     changeQ: (q) ->
         @.unselectFilter("page")
         @.replaceFilter("q", q)
@@ -102,13 +150,13 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
     removeFilter: (filter) ->
         @.unselectFilter("page")
-        @.unselectFilter(filter.dataType, filter.id)
+        @.unselectFilter(filter.dataType, filter.id, false, filter.mode)
         @.loadIssues()
         @.generateFilters()
 
     addFilter: (newFilter) ->
         @.unselectFilter("page")
-        @.selectFilter(newFilter.category.dataType, newFilter.filter.id)
+        @.selectFilter(newFilter.category.dataType, newFilter.filter.id, false, newFilter.mode)
         @.loadIssues()
         @.generateFilters()
 
@@ -137,36 +185,32 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
     saveCustomFilter: (name) ->
         filters = {}
         urlfilters = @location.search()
-        filters.tags = urlfilters.tags
-        filters.status = urlfilters.status
-        filters.type = urlfilters.type
-        filters.severity = urlfilters.severity
-        filters.priority = urlfilters.priority
-        filters.assigned_to = urlfilters.assigned_to
-        filters.owner = urlfilters.owner
-        filters.role = urlfilters.role
+
+        for key in @.filterCategories
+            excludeKey = @.excludePrefix.concat(key)
+            filters[key] = urlfilters[key]
+            filters[excludeKey] = urlfilters[excludeKey]
 
         @filterRemoteStorageService.getFilters(@scope.projectId, @.myFiltersHashSuffix).then (userFilters) =>
             userFilters[name] = filters
 
             @filterRemoteStorageService.storeFilters(@scope.projectId, userFilters, @.myFiltersHashSuffix).then(@.generateFilters)
 
-    generateFilters: ->
-        @.storeFilters(@params.pslug, @location.search(), @.filtersHashSuffix)
+    getQueryParams: () ->
+        return _.pick(_.clone(@location.search()), @.validQueryParams)
 
-        urlfilters = @location.search()
+    generateFilters: ->
+        urlfilters = @.getQueryParams()
+        @.storeFilters(@params.pslug, urlfilters, @.filtersHashSuffix)
 
         loadFilters = {}
         loadFilters.project = @scope.projectId
-        loadFilters.tags = urlfilters.tags
-        loadFilters.status = urlfilters.status
-        loadFilters.type = urlfilters.type
-        loadFilters.severity = urlfilters.severity
-        loadFilters.priority = urlfilters.priority
-        loadFilters.assigned_to = urlfilters.assigned_to
-        loadFilters.owner = urlfilters.owner
-        loadFilters.role = urlfilters.role
         loadFilters.q = urlfilters.q
+
+        for key in @.filterCategories
+            excludeKey = @.excludePrefix.concat(key)
+            loadFilters[key] = urlfilters[key]
+            loadFilters[excludeKey] = urlfilters[excludeKey]
 
         return @q.all([
             @rs.issues.filtersData(loadFilters),
@@ -174,32 +218,33 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         ]).then (result) =>
             data = result[0]
             customFiltersRaw = result[1]
+            dataCollection = {}
 
-            statuses = _.map data.statuses, (it) ->
+            dataCollection.status = _.map data.statuses, (it) ->
                 it.id = it.id.toString()
 
                 return it
-            type = _.map data.types, (it) ->
+            dataCollection.type = _.map data.types, (it) ->
                 it.id = it.id.toString()
 
                 return it
-            severity = _.map data.severities, (it) ->
+            dataCollection.severity = _.map data.severities, (it) ->
                 it.id = it.id.toString()
 
                 return it
-            priority = _.map data.priorities, (it) ->
+            dataCollection.priority = _.map data.priorities, (it) ->
                 it.id = it.id.toString()
 
                 return it
-            tags = _.map data.tags, (it) ->
+            dataCollection.tags = _.map data.tags, (it) ->
                 it.id = it.name
 
                 return it
 
-            tagsWithAtLeastOneElement = _.filter tags, (tag) ->
+            tagsWithAtLeastOneElement = _.filter dataCollection.tags, (tag) ->
                 return tag.count > 0
 
-            assignedTo = _.map data.assigned_to, (it) ->
+            dataCollection.assigned_to = _.map data.assigned_to, (it) ->
                 if it.id
                     it.id = it.id.toString()
                 else
@@ -208,12 +253,12 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 it.name = it.full_name || "Unassigned"
 
                 return it
-            owner = _.map data.owners, (it) ->
+            dataCollection.owner = _.map data.owners, (it) ->
                 it.id = it.id.toString()
                 it.name = it.full_name
 
                 return it
-            role = _.map data.roles, (it) ->
+            dataCollection.role = _.map data.roles, (it) ->
                 if it.id
                     it.id = it.id.toString()
                 else
@@ -225,37 +270,14 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
             @.selectedFilters = []
 
-            if loadFilters.status
-                selected = @.formatSelectedFilters("status", statuses, loadFilters.status)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.tags
-                selected = @.formatSelectedFilters("tags", tags, loadFilters.tags)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.assigned_to
-                selected = @.formatSelectedFilters("assigned_to", assignedTo, loadFilters.assigned_to)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.owner
-                selected = @.formatSelectedFilters("owner", owner, loadFilters.owner)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.type
-                selected = @.formatSelectedFilters("type", type, loadFilters.type)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.severity
-                selected = @.formatSelectedFilters("severity", severity, loadFilters.severity)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.priority
-                selected = @.formatSelectedFilters("priority", priority, loadFilters.priority)
-                @.selectedFilters = @.selectedFilters.concat(selected)
-
-            if loadFilters.role
-                selected = @.formatSelectedFilters("role", role, loadFilters.role)
-                @.selectedFilters = @.selectedFilters.concat(selected)
+            for key in @.filterCategories
+                excludeKey = @.excludePrefix.concat(key)
+                if loadFilters[key]
+                    selected = @.formatSelectedFilters(key, dataCollection[key], loadFilters[key])
+                    @.selectedFilters = @.selectedFilters.concat(selected)
+                if loadFilters[excludeKey]
+                    selected = @.formatSelectedFilters(key, dataCollection[key], loadFilters[excludeKey], "exclude")
+                    @.selectedFilters = @.selectedFilters.concat(selected)
 
             @.filterQ = loadFilters.q
 
@@ -263,44 +285,44 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.TYPE"),
                     dataType: "type",
-                    content: type
+                    content: dataCollection.type
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.SEVERITY"),
                     dataType: "severity",
-                    content: severity
+                    content: dataCollection.severity
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.PRIORITIES"),
                     dataType: "priority",
-                    content: priority
+                    content: dataCollection.priority
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.STATUS"),
                     dataType: "status",
-                    content: statuses
+                    content: dataCollection.status
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.TAGS"),
                     dataType: "tags",
-                    content: tags,
+                    content: dataCollection.tags,
                     hideEmpty: true,
                     totalTaggedElements: tagsWithAtLeastOneElement.length
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.ASSIGNED_TO"),
                     dataType: "assigned_to",
-                    content: assignedTo
+                    content: dataCollection.assigned_to
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.ROLE"),
                     dataType: "role",
-                    content: role
+                    content: dataCollection.role
                 },
                 {
                     title: @translate.instant("COMMON.FILTERS.CATEGORIES.CREATED_BY"),
                     dataType: "owner",
-                    content: owner
+                    content: dataCollection.owner
                 }
             ]
 
@@ -363,6 +385,9 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         @.initializeSubscription()
         @.generateFilters()
 
+        if @rs.issues.getIssuesShowTags(@scope.projectId) == false
+            @showTags = false
+
         return @.loadIssues()
 
     # Functions used from templates
@@ -374,31 +399,10 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         })
 
     addIssuesInBulk: ->
-        @rootscope.$broadcast("issueform:bulk", @scope.projectId)
+        project = @projectService.project.toJS()
+        @rootscope.$broadcast("issueform:bulk", project.id)
 
-    upVoteIssue: (issueId) ->
-        @.voting = issueId
-        onSuccess = =>
-            @.loadIssues()
-            @.voting = null
-        onError = =>
-            @confirm.notify("error")
-            @.voting = null
-
-        return @rs.issues.upvote(issueId).then(onSuccess, onError)
-
-    downVoteIssue: (issueId) ->
-        @.voting = issueId
-        onSuccess = =>
-            @.loadIssues()
-            @.voting = null
-        onError = =>
-            @confirm.notify("error")
-            @.voting = null
-
-        return @rs.issues.downvote(issueId).then(onSuccess, onError)
-
-    getOrderBy: ->
+    getIssuesOrderBy: ->
         if _.isString(@location.search().order_by)
             return @location.search().order_by
         else
@@ -407,10 +411,10 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 module.controller("IssuesController", IssuesController)
 
 #############################################################################
-## Issues Directive
+## Issues Pagination Directive
 #############################################################################
 
-IssuesDirective = ($log, $location, $template, $compile) ->
+IssuesPaginationDirective = ($log, $location, $template, $compile) ->
     ## Issues Pagination
     template = $template.get("issue/issue-paginator.html", true)
 
@@ -494,25 +498,43 @@ IssuesDirective = ($log, $location, $template, $compile) ->
                 $ctrl.selectFilter("page", pagenum)
                 $ctrl.loadIssues()
 
+    ## Issues Link
+    link = ($scope, $el, $attrs) ->
+        $ctrl = $el.controller()
+        linkPagination($scope, $el, $attrs, $ctrl)
+
+        $scope.$on "$destroy", ->
+            $el.off()
+
+    return {link:link}
+
+module.directive("tgIssuesPagination", ["$log", "$tgLocation", "$tgTemplate", "$compile", IssuesPaginationDirective])
+
+#############################################################################
+## Issues Ordering Directive
+#############################################################################
+
+IssuesOrderingDirective = ($log, $location, $template, $compile) ->
     ## Issues Filters
     linkOrdering = ($scope, $el, $attrs, $ctrl) ->
         # Draw the arrow the first time
 
-        currentOrder = $ctrl.getOrderBy()
+        currentOrder = $ctrl.getIssuesOrderBy()
 
         if currentOrder
             icon = if startswith(currentOrder, "-") then "icon-arrow-up" else "icon-arrow-down"
             colHeadElement = $el.find(".row.title > div[data-fieldname='#{trim(currentOrder, "-")}']")
 
-            svg = $("<tg-svg>").attr("svg-icon", icon)
+            svg = colHeadElement.find('svg')
 
-            colHeadElement.append(svg)
+            svg.addClass(icon)
             $compile(colHeadElement.contents())($scope)
 
-        $el.on "click", ".row.title > div", (event) ->
+        $el.on "click", ".row.title > div:not(.skip-order)", (event) ->
+            event.preventDefault();
             target = angular.element(event.currentTarget)
 
-            currentOrder = $ctrl.getOrderBy()
+            currentOrder = $ctrl.getIssuesOrderBy()
             newOrder = target.data("fieldname")
 
             if newOrder == 'total_voters' and currentOrder != "-total_voters"
@@ -522,31 +544,31 @@ IssuesDirective = ($log, $location, $template, $compile) ->
             $scope.$apply ->
                 $ctrl.replaceFilter("order_by", finalOrder)
 
-                $ctrl.storeFilters($ctrl.params.pslug, $location.search(), $ctrl.filtersHashSuffix)
+                if $ctrl.filtersHashSuffix
+                    urlfilters = $ctrl.getQueryParams()
+                    $ctrl.storeFilters($ctrl.params.pslug, urlfilters, $ctrl.filtersHashSuffix)
+
                 $ctrl.loadIssues().then ->
                     # Update the arrow
-                    $el.find(".row.title > div > tg-svg").remove()
+                    $el.find('.row.title svg').removeClass()
+                    colHeadElement = $el.find(".row.title > div[data-fieldname='#{trim(finalOrder, "-")}']")
                     icon = if startswith(finalOrder, "-") then "icon-arrow-up" else "icon-arrow-down"
 
-                    svg = $("<tg-svg>")
-                        .attr("svg-icon", icon)
+                    colHeadElement.find('svg').addClass(icon)
 
-                    target.append(svg)
                     $compile(target.contents())($scope)
 
     ## Issues Link
     link = ($scope, $el, $attrs) ->
         $ctrl = $el.controller()
         linkOrdering($scope, $el, $attrs, $ctrl)
-        linkPagination($scope, $el, $attrs, $ctrl)
 
         $scope.$on "$destroy", ->
             $el.off()
 
     return {link:link}
 
-module.directive("tgIssues", ["$log", "$tgLocation", "$tgTemplate", "$compile", IssuesDirective])
-
+module.directive("tgIssuesOrdering", ["$log", "$tgLocation", "$tgTemplate", "$compile", IssuesOrderingDirective])
 
 #############################################################################
 ## Issue status Directive (popover for change status)
@@ -595,11 +617,16 @@ IssueStatusInlineEditionDirective = ($repo, $template, $rootscope) ->
             $el.find(".pop-status").popover().close()
             updateIssueStatus($el, issue, $scope.issueStatusById)
 
+            attachments = issue.attachments
+
             $scope.$apply () ->
-                $repo.save(issue).then ->
-                    $ctrl.generateFilters()
-                    if $ctrl.isFilterDataTypeSelected('status')
-                        $ctrl.loadIssues()
+                $repo.save(issue).then (response) ->
+                    issue.attachments = attachments
+                    issue._isModified = false
+                    issue._attrs = _.extend(issue.getAttrs(), issue)
+                    issue._modifiedAttrs = {}
+
+                    $rootscope.$broadcast("status:changed", response)
 
         taiga.bindOnce $scope, "project", (project) ->
             $el.append(selectionTemplate({ 'statuses':  project.issue_statuses }))
@@ -626,10 +653,9 @@ module.directive("tgIssueStatusInlineEdition", ["$tgRepo", "$tgTemplate", "$root
 ## Issue assigned to Directive
 #############################################################################
 
-IssueAssignedToInlineEditionDirective = ($repo, $rootscope, $translate, avatarService) ->
+IssueAssignedToInlineEditionDirective = ($repo, $rootscope, $translate, avatarService, $lightboxFactory) ->
     template = _.template("""
     <img style="background-color: <%- bg %>" src="<%- imgurl %>" alt="<%- name %>"/>
-    <figcaption><%- name %></figcaption>
     """)
 
     link = ($scope, $el, $attrs) ->
@@ -657,23 +683,37 @@ IssueAssignedToInlineEditionDirective = ($repo, $rootscope, $translate, avatarSe
         updateIssue(issue)
 
         $el.on "click", ".issue-assignedto", (event) ->
-            $rootscope.$broadcast("assigned-to:add", issue)
+            onClose = (assignedUsers) =>
+                issue.assigned_to = assignedUsers.pop() || null
+                attachments = issue.attachments
+                $repo.save(issue).then ->
+                    issue.attachments = attachments
+                    issue._isModified = false
+                    issue._attrs = _.extend(issue.getAttrs(), issue)
+                    issue._modifiedAttrs = {}
+
+                    updateIssue(issue)
+                    $rootscope.$broadcast("assigned-to:changed", issue)
+
+            $lightboxFactory.create(
+                'tg-lb-select-user',
+                {
+                    "class": "lightbox lightbox-select-user",
+                },
+                {
+                    "currentUsers": [issue.assigned_to],
+                    "activeUsers": $scope.activeUsers,
+                    "onClose": onClose,
+                    "single": true,
+                    "lbTitle": $translate.instant("COMMON.ASSIGNED_USERS.ADD"),
+                }
+            )
 
         taiga.bindOnce $scope, "project", (project) ->
             # If the user has not enough permissions the click events are unbinded
             if project.my_permissions.indexOf("modify_issue") == -1
                 $el.unbind("click")
                 $el.find("a").addClass("not-clickable")
-
-        $scope.$on "assigned-to:added", (ctx, userId, updatedIssue) ->
-            if updatedIssue.id == issue.id
-                updatedIssue.assigned_to = userId
-                $repo.save(issue).then ->
-                    updateIssue(updatedIssue)
-                    $ctrl.generateFilters()
-                    if $ctrl.isFilterDataTypeSelected('assigned_to') \
-                    || $ctrl.isFilterDataTypeSelected('role')
-                        $ctrl.loadIssues()
 
         $scope.$watch $attrs.tgIssueAssignedToInlineEdition, (val) ->
             updateIssue(val)
@@ -684,4 +724,4 @@ IssueAssignedToInlineEditionDirective = ($repo, $rootscope, $translate, avatarSe
     return {link: link}
 
 module.directive("tgIssueAssignedToInlineEdition", ["$tgRepo", "$rootScope", "$translate", "tgAvatarService",
-                                                    IssueAssignedToInlineEditionDirective])
+                                                    "tgLightboxFactory", IssueAssignedToInlineEditionDirective])

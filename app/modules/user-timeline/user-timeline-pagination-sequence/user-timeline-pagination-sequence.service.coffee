@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: user-timeline-pagination-sequence.service.coffee
+# File: user-timeline/user-timeline-pagination-sequence/user-timeline-pagination-sequence.service.coffee
 ###
 
 UserTimelinePaginationSequence = () ->
@@ -39,7 +39,7 @@ UserTimelinePaginationSequence = () ->
                 if config.filter
                     data = config.filter(data)
 
-                if config.map
+                if config.map && data
                     data = data.map(config.map)
 
                 items = items.concat(data)
@@ -47,10 +47,13 @@ UserTimelinePaginationSequence = () ->
                 if items.size < config.minItems && response.get("next")
                     return getContent()
 
-                return Immutable.Map({
+                pagination = Immutable.Map({
                     items: items,
+                    total: response.get("total"),
                     next: response.get("next")
                 })
+
+                return pagination
 
         return {
             next: () -> next()

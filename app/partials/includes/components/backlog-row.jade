@@ -1,61 +1,56 @@
 .row.us-item-row(
-    ng-repeat="us in userstories | inArray:visibleUserStories:'ref'"
+    ng-repeat="us in userstories | inArray:visibleUserStories:'ref' track by us.ref"
     tg-bind-scope
-    ng-class="{blocked: us.is_blocked}"
+    ng-class="{blocked: us.is_blocked, new: us.new}"
     tg-class-permission="{'readonly': '!modify_us'}"
+    data-id="{{ us.id }}"
 )
+    .us-item-row-left
+        .draggable-us-row(tg-check-permission="modify_us")
+            tg-svg(svg-icon="icon-draggable")
 
-    .input(tg-check-permission="modify_us")
-        input(
-          type="checkbox"
-          name=""
+        .input(tg-check-permission="modify_us")
+            .custom-checkbox
+                input(
+                    type="checkbox"
+                    name="filter-mode"
+                    id="us-check-{{us.ref}}"
+                    value="{{option}}"
+                    ng-model="vm.filterMode"
+                )
+                label(
+                    for="us-check-{{us.ref}}",
+                    tabindex="0"
+                )
+    .user-stories.user-story-main-data
+        a.user-story-link(
+            href=""
+            tg-nav="project-userstories-detail:project=project.slug,ref=us.ref"
+            tg-nav-get-params="{\"no-milestone\": 1}"
         )
-    .votes(
-        ng-class="{'inactive': !us.total_voters, 'is-voted': us.is_voter}"
-        title="{{ 'COMMON.VOTE_BUTTON.COUNTER_TITLE'|translate:{total:us.total_voters||0}:'messageformat' }}"
-    )
-        tg-svg(svg-icon="icon-upvote")
-        span {{ ::us.total_voters }}
-    .user-stories
-        .tags-block(tg-colorize-backlog-tags="us.tags")
-        .user-story-name
-            a.clickable(
-                href=""
-                tg-nav="project-userstories-detail:project=project.slug,ref=us.ref"
-                tg-nav-get-params="{\"no-milestone\": 1}"
-                title="#{{ us.ref }} {{ us.subject }}"
-            )
-                span(tg-bo-ref="us.ref")
-                span(ng-bind-html="us.subject | emojify")
-                tg-due-date(
-                    due-date="us.due_date"
-                    is-closed="us.is_closed"
-                    ng-if="us.due_date"
-                    obj-type="us"
-                )
-                tg-belong-to-epics(
-                    format="pill"
-                    ng-if="us.epics"
-                    epics="us.epics"
-                )
-            .us-settings
-                a.e2e-edit.edit-story(
-                    href=""
-                    tg-check-permission="modify_us"
-                    ng-click="ctrl.editUserStory(us.project, us.ref, $event)"
-                    title="{{'COMMON.EDIT' | translate}}"
-                )
-                    tg-svg(svg-icon="icon-edit")
+            span.user-story-number(tg-bo-ref="us.ref")
+            span.user-story-name(ng-bind-html="us.subject | emojify")
+        tg-due-date.due-date(
+            due-date="us.due_date"
+            is-closed="us.is_closed"
+            ng-if="us.due_date"
+            obj-type="us"
+        )
+        .tag(
+            ng-if="ctrl.showTags"
+            ng-attr-title="{{tag[0]}}"
+            ng-repeat="tag in us.tags"
+            ng-style="{background: tag[1]}"
+            ng-class="{'last':$last}"
+        ) {{tag[0]}}
+        - var hash = "#";
+        .belong-to-epic-pill(
+            ng-repeat="epic in us.epics"
+            ng-style="{'background': epic.color}"
+            ng-attr-title="#{hash}{{epic.ref}} {{epic.subject}}"
+        )
 
-                a.e2e-delete(
-                    href=""
-                    tg-check-permission="delete_us"
-                    ng-click="ctrl.deleteUserStory(us)"
-                    title="{{'COMMON.DELETE' | translate}}"
-                )
-                    tg-svg(svg-icon="icon-trash")
-
-    div.status(tg-us-status="us" on-update="ctrl.updateUserStoryStatus()")
+    .status(tg-us-status="us" on-update="ctrl.updateUserStoryStatus()")
         a.us-status(href="", title="{{'BACKLOG.STATUS_NAME' | translate}}")
             span.us-status-bind
             tg-svg(
@@ -64,7 +59,9 @@
             )
 
     div.points(tg-backlog-us-points="us")
-        a.us-points(href="", title="{{'COMMON.FIELDS.POINTS' | translate}}")
 
-    a.e2e-drag(tg-check-permission="modify_us", href="", title="{{'COMMON.DRAG' | translate}}")
-        tg-svg(svg-icon="icon-drag")
+    .us-option(tg-us-edit-selector, tg-check-permission="modify_us")
+        button.us-option-popup-button.js-popup-button(
+          ng-class="{first: us.backlog_order === 0}"
+        )
+            tg-svg(svg-icon="icon-more-vertical")

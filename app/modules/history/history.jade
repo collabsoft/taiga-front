@@ -21,16 +21,22 @@ section.history(
         on-add-comment="vm.addComment(callback)"
         on-edit-comment="vm.editComment(commentId, commentData, callback)"
         edit-mode="vm.editMode"
-
+        reverse="vm.reverse"
         object="{{vm.id}}"
         type="vm.type"
         name="{{vm.name}}"
         loading="vm.loading"
         editing="vm.editing"
         deleting="vm.deleting"
-        project-id="vm.projectId"
+        project="vm.project"
     )
-    tg-history(
+    div(
         ng-if="!vm.viewComments"
-        activities="vm.activities"
+        infinite-scroll="vm.nextActivityPage()"
+        infinite-scroll-disabled="vm.disabledActivityPagination"
+        infinite-scroll-immediate-check="false"
     )
+        tg-history(
+            model="vm.type"
+            activities="vm.activities"
+        )

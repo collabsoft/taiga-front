@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: modules/admin/memberships.coffee
+# File: modules/admin/roles.coffee
 ###
 
 taiga = @.taiga
@@ -31,6 +26,7 @@ bindMethods = @.taiga.bindMethods
 
 module = angular.module("taigaAdmin")
 
+publicPermissions = ['view_epics', 'view_milestones', 'view_us', 'view_tasks', 'view_issues', 'view_wiki_pages', 'view_wiki_links']
 
 #############################################################################
 ## Project Roles Controller
@@ -104,6 +100,11 @@ class RolesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fil
             @scope.roles = roles
             @scope.role = @scope.roles[0]
 
+            if !@scope.project.is_private
+                publicPermissions.forEach (permission) =>
+                    if !@scope.role.permissions.includes(permission)
+                        @scope.role.permissions.push(permission)
+
             return roles
 
     loadInitialData: ->
@@ -111,8 +112,7 @@ class RolesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fil
         return @.loadRoles()
 
     forceLoadProject: () ->
-        @projectService.fetchProject () =>
-            @.loadProject()
+        @rootscope.$broadcast("admin:project-roles:updated")
 
     setRole: (role) ->
         @scope.role = role
@@ -245,7 +245,7 @@ NewRoleDirective = ($tgrepo, $confirm) ->
         $scope.$on "$destroy", ->
             $el.off()
 
-        $el.on "click", "a.add-button", (event) ->
+        $el.on "click", "button.add-button", (event) ->
             event.preventDefault()
             $el.find(".new").removeClass("hidden")
             $el.find(".new").focus()
@@ -296,7 +296,7 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
     <div class="summary-role">
         <div class="count"><%- category.activePermissions %>/<%- category.permissions.length %></div>
         <% _.each(category.permissions, function(permission) { %>
-            <div class="role-summary-single <% if(permission.active) { %>active<% } %>"
+            <div class="role-summary-single check-toggle <% if(permission.active) { %>active<% } %>"
                  title="{{ '<%- permission.name %>' | translate }}"></div>
         <% }) %>
     </div>
@@ -367,6 +367,7 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
                 { key: "comment_epic", name: "COMMON.PERMISIONS_CATEGORIES.EPICS.COMMENT_EPICS"}
                 { key: "delete_epic", name: "COMMON.PERMISIONS_CATEGORIES.EPICS.DELETE_EPICS"}
             ]
+
             categories.push({
                 name: "COMMON.PERMISIONS_CATEGORIES.EPICS.NAME" ,
                 permissions: setActivePermissions(epicPermissions)
@@ -378,6 +379,7 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
                 { key: "modify_milestone", name: "COMMON.PERMISIONS_CATEGORIES.SPRINTS.MODIFY_SPRINTS"}
                 { key: "delete_milestone", name: "COMMON.PERMISIONS_CATEGORIES.SPRINTS.DELETE_SPRINTS"}
             ]
+
             categories.push({
                 name: "COMMON.PERMISIONS_CATEGORIES.SPRINTS.NAME",
                 permissions: setActivePermissions(milestonePermissions)
@@ -390,6 +392,7 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
                 { key: "comment_us", name: "COMMON.PERMISIONS_CATEGORIES.USER_STORIES.COMMENT_USER_STORIES"}
                 { key: "delete_us", name: "COMMON.PERMISIONS_CATEGORIES.USER_STORIES.DELETE_USER_STORIES"}
             ]
+
             categories.push({
                 name: "COMMON.PERMISIONS_CATEGORIES.USER_STORIES.NAME",
                 permissions: setActivePermissions(userStoryPermissions)
@@ -402,6 +405,7 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
                 { key: "comment_task", name: "COMMON.PERMISIONS_CATEGORIES.TASKS.COMMENT_TASKS"}
                 { key: "delete_task", name: "COMMON.PERMISIONS_CATEGORIES.TASKS.DELETE_TASKS"}
             ]
+
             categories.push({
                 name: "COMMON.PERMISIONS_CATEGORIES.TASKS.NAME" ,
                 permissions: setActivePermissions(taskPermissions)
@@ -414,6 +418,7 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
                 { key: "comment_issue", name: "COMMON.PERMISIONS_CATEGORIES.ISSUES.COMMENT_ISSUES"}
                 { key: "delete_issue", name: "COMMON.PERMISIONS_CATEGORIES.ISSUES.DELETE_ISSUES"}
             ]
+
             categories.push({
                 name: "COMMON.PERMISIONS_CATEGORIES.ISSUES.NAME",
                 permissions: setActivePermissions(issuePermissions)
@@ -424,10 +429,11 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
                 { key: "add_wiki_page", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.ADD_WIKI_PAGES"}
                 { key: "modify_wiki_page", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.MODIFY_WIKI_PAGES"}
                 { key: "delete_wiki_page", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.DELETE_WIKI_PAGES"}
-                { key: "view_wiki_links", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.VIEW_WIKI_LINKS"}
                 { key: "add_wiki_link", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.ADD_WIKI_LINKS"}
                 { key: "delete_wiki_link", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.DELETE_WIKI_LINKS"}
+                { key: "view_wiki_links", name: "COMMON.PERMISIONS_CATEGORIES.WIKI.VIEW_WIKI_LINKS"}
             ]
+
             categories.push({
                 name: "COMMON.PERMISIONS_CATEGORIES.WIKI.NAME",
                 permissions: setActivePermissions(wikiPermissions)
@@ -448,6 +454,11 @@ RolePermissionsDirective = ($rootscope, $repo, $confirm, $compile) ->
             $el.off()
             html = baseTemplate()
             _.each generateCategoriesFromRole($scope.role), (category, index) ->
+                if !$scope.project.is_private
+                    category.permissions.forEach (permission) =>
+                        if publicPermissions.includes(permission.key)
+                            permission.editable = false
+
                 html = angular.element(html).append(renderCategory(category, index))
 
             $el.html(html)

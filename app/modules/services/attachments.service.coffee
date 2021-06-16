@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: attachments.service.coffee
+# File: services/attachments.service.coffee
 ###
 
 sizeFormat = @.taiga.sizeFormat
@@ -28,6 +28,19 @@ class AttachmentsService
     ]
 
     constructor: (@confirm, @config, @translate, @rs) ->
+        @.types = {
+            epics: "epic",
+            userstories: "us",
+            userstory: "us",
+            issues: "issue",
+            tasks: "task",
+            epic: "epic",
+            us: "us"
+            issue: "issue",
+            task: "task",
+            wiki: "wiki",
+            wikipage: "wiki"
+        }
         @.maxFileSize = @.getMaxFileSize()
 
         if @.maxFileSize
@@ -56,6 +69,9 @@ class AttachmentsService
     list: (type, objId, projectId) ->
         return @rs.attachments.list(type, objId, projectId).then (attachments) =>
             return attachments.sortBy (attachment) => attachment.get('order')
+
+    get: (type, id) ->
+        return @rs.attachments.get(@.types[type], id)
 
     delete: (type, id) ->
         return @rs.attachments.delete(type, id)

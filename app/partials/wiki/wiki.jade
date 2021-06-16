@@ -5,16 +5,14 @@ div.wrapper(
     ng-init="section='wiki'"
 )
     tg-project-menu
-    sidebar.menu-secondary.extrabar.wiki-nav(
+    sidebar.menu-secondary.wiki-nav(
         ng-if="linksVisible"
         tg-wiki-nav
         ng-model="wikiLinks"
     )
-    section.main.wiki
+    section.main.wiki.wiki-main(ng-if="attachmentsReady")
         header
-            h1
-                span(tg-bo-bind="project.name")
-                span.green(translate="PROJECT.SECTION.WIKI")
+            h1(translate="PROJECT.SECTION.WIKI")
 
         tg-wiki-wysiwyg(model="wiki")
 

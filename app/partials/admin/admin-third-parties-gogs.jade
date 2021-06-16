@@ -38,18 +38,18 @@ div.wrapper.roles(
                                 ng-model="gogs.webhooks_url"
                                 placeholder="{{'ADMIN.THIRD_PARTIES.PAYLOAD_URL' | translate}}"
                             )
-                            .option-wrapper.select-input-content
+                            .option-wrapper.select-input-content(title="{{'COMMON.COPY_TO_CLIPBOARD' | translate}}")
                                 tg-svg(svg-icon="icon-clipboard")
-                        .help-copy(translate="COMMON.COPY_TO_CLIPBOARD")
 
-            button.button-green.submit-button(
+            button.btn-small(
+                variant="primary"
                 type="submit"
                 title="{{'COMMON.SAVE' | translate}}"
                 translate="COMMON.SAVE"
             )
 
         a.help-button(
-            href="https://tree.taiga.io/support/integrations/gogs-integration/"
+            href="https://taigaio.github.io/taiga-doc/dist/integrations-gogs.html"
             target="_blank"
         )
             tg-svg(svg-icon="icon-question")

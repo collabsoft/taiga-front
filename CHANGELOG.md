@@ -1,6 +1,469 @@
 # Changelog
 
-## Unreleased
+## 6.0.11 (unreleased)
+
+- ...
+
+## 6.0.10 (2021-04-13)
+
+- Feature: Add a "move to top" option to the context menu of the backlog ([#2239](https://github.com/taigaio/taiga-front/pull/2239))
+- Fix: Add simple line breaks to wysiwyg editor
+- Update translations
+
+## 6.0.9 (2021-04-06)
+
+- Fix: prevent invalid query params on filters
+- Fix: support more languages in the html editor
+- Fix: kanban search race condition
+- Layout adjustments on discover page
+- Fix: Support flex gap for webkit browsers
+- Fix: Clean and repair settings icon for webkit browser
+- Fix: empty cards in kanban with swimlanes after toggle swimlane visibility
+
+## 6.0.8 (2021-03-16)
+
+- Fix: Change html lang attribute when the lenguage is not en
+- Fix: epic screen on screen inferior to 1200px
+
+## 6.0.7 (2021-03-09)
+
+- General improvements to interface.
+- Persist show/hide tags preferences on local storage
+
+## 6.0.6 (2021-03-01)
+
+- General improvements to interface.
+- Fix: Can't create empty custom filters anymore.
+- Fix: Can't save filters with the same name as an existing filter.
+- Fix: Remove highlightjs default theme
+- Fix: Wrong filter us count in empty backlog
+- Fix: Highlight code when the user doesn't have edit permissions
+- Improve kanban render performance
+- Fix: Display warning in admin if reached max memberships in a project
+- Display issues tags in sprint taskboard
+- Fix: Fix incorrect count on filter
+
+## 6.0.5 (2021-02-22)
+
+- Added translation to Dansk
+- Added translation to Serbian
+- Added translation to Vietnamese
+- General improvements to interface.
+- Fix: Add new buttons and style to transfer owner, imports warnings lightbox and warnings on new projects
+- Fix: User mention with underscore
+- Fix: Drag and drop on empty backlog
+- Feat: Editor, image with links
+
+## 6.0.4 (2021-02-15)
+
+### Misc
+
+- Minor bug fix.
+- Improve configuration for docker
+
+
+## 6.0.3 (2021-02-07)
+
+### Misc
+
+- Debug mode now is disabled by default
+- Minor bug fix.
+
+## 6.0.0 (2021-02-02)
+
+### Features
+
+- Swimlanes
+
+- Generate docker image
+
+- Major UI changes
+
+### Misc
+
+- Improved performance in Kanban
+
+## 5.5.10 (2021-01-04)
+
+### Fix
+
+- Fix comments style.
+
+## 5.5.9 (2020-12-21)
+
+### Features
+
+- Render custom fields and block reason as Markdown.
+
+### Fix
+
+- Fix attachment refresh feature.
+
+- Fix welcome email template layout.
+
+### Misc
+
+- Several minor changes.
+
+### i18n
+
+- Add Arabic.
+
+- Update Russian.
+
+## 5.5.8 (2020-11-11)
+
+### Misc
+
+- Fix error when zendesk is not loaded.
+
+## 5.5.7 (2020-11-11) [YANKED]
+
+### i18n
+
+- Update Japanese and Italian translations.
+
+### Misc
+
+- Add Zendesk for integrated support.
+
+## 5.5.6 (2020-10-07)
+
+### Misc
+
+- Improve userpilot integration.
+
+- Fix typo.
+
+## 5.5.5 (2020-09-16)
+
+### Misc
+
+- Minor bug fix.
+
+## 5.5.4 (2020-09-08)
+
+### Misc
+
+- Several fixes.
+
+### i18n
+
+- Update French translation.
+
+## 5.5.3 (2020-09-02)
+
+### Misc
+
+- Fix CSS bug with WYSIWYG toolbar.
+
+## 5.5.0 (2020-08-19)
+
+### Features
+
+- Verify user email.
+
+- Task promotion creates user story and deletes original task.
+
+### Misc
+
+- Upgraded node, gulp and other development dependencies.
+
+- Several minor bugfixes.
+
+## 5.0.15 (2020-08-07)
+
+### Features
+
+- Added integration with userpilot.
+
+### Misc
+
+- Fixed redirect after change email confirmation.
+
+### i18n
+
+- Updated translations (fa and fr).
+
+## 5.0.13 (2020-06-08)
+
+### i18n
+
+- Updated translations (pt-br).
+
+## 5.0.12 (2020-05-12)
+
+### Misc
+
+- Fixed several minor bugs.
+
+### i18n
+
+- Updated translations (pl).
+
+## 5.0.11 (2020-05-04)
+
+### Misc
+
+- Fixed several minor bugs.
+
+### i18n
+
+- Updated translations (de, pl, ru, tr, uk).
+
+## 5.0.10 (2020-03-12)
+
+### Misc
+
+- Fixed CSS bug.
+
+## 5.0.9 (2020-03-11)
+
+### Misc
+
+- Fixed several minor bugs.
+
+### i18n
+
+- Updated lots of strings and updated their translations. Finally, oompa loompas have been substituted by the Taiga.
+
+## 5.0.8 (2020-02-17)
+
+### i18n
+
+- Update Latvian translation.
+
+### Misc
+
+- Add Google tag manager integration.
+
+## 5.0.7 (2020-02-06)
+
+### i18n
+
+- Update Korean translation.
+- Add Latvian translation.
+
+### Misc
+
+- Several minor bugfixes.
+
+## 5.0.6 (2020-01-15)
+
+### Features
+
+- Refresh default theme.
+
+### Misc
+
+- Several minor bugfixes.
+
+## 5.0.5 (2020-01-08)
+
+### Features
+
+- Set login form visibility based on instance configuration.
+
+- Promote task and issues to user story with watchers, attachments and comments.
+
+### Misc
+
+- Several minor bugfixes.
+
+## 5.0.4 (2019-12-04)
+
+- Fix translation problem with pluralization.
+
+## 5.0.3 (2019-12-02)
+
+- Fix several minor CSS bugs.
+
+## 5.0.2 (2019-11-21)
+
+- Update search counters on backlog when an US is moved.
+
+- Fix several minor CSS bugs.
+
+## 5.0.1 (2019-11-15)
+
+- Fix CSS issue.
+
+## 5.0.0 (2019-11-13)
+
+- BREAKING CHANGE Big refactor of base CSS for themes that can break custom themes.
+
+- Change comment box position based on comments order.
+
+- Refresh attachment URL on markdown fields to support protected backend.
+
+- Fixed drag&drop of attachments to text fields.
+
+- Redesign detail header.
+
+## 4.2.14 (2019-10-01)
+
+- Disabled malfunctioning notification infinite scroll.
+- Updated translations. Big improvement in Italian coverage (grazie mille!).
+- Several minor fixes.
+
+## 4.2.13 (2019-08-06)
+
+- Minor fixes
+
+## 4.2.12 (2019-08-06)
+
+- Add Taiga Fresh theme.
+- Minor fixes.
+
+## 4.2.11 (2019-07-24)
+
+- Progressive Kanban render.
+- Minor fixes.
+
+## 4.2.10 (2019-07-11)
+
+- Close loader before kanban/backlog filter request.
+
+## 4.2.8 (2019-07-03)
+
+- Fix multiple assign US button
+
+## 4.2.7 (2019-06-24)
+
+- Assign roles as watchers
+- Minor bug fixes
+
+## 4.2.6 (2019-06-12)
+
+- Vote button redesign
+- Minor bug fixes
+
+## 4.2.5 (2019-05-09)
+- Revet remove bluebird dependency
+
+## 4.2.4 (2019-05-09)
+
+- Fix moment local for Chinese
+- Multiple minor fixes
+- Remove bluebird dependency
+
+## 4.2.3 (2019-04-16)
+
+- Enable hiding list items on Dashboard
+- Minor fixes.
+
+## 4.2.3 (2019-03-21)
+
+## 4.2.1 (2019-03-20)
+
+- Add user stories dashboard filter
+- Change Kanban zoom level
+- Filter history by entry type
+- Minor fixes.
+
+## 4.2.0 (2019-02-28)
+
+- Promote Tasks to US
+- Display US status on Taskboard
+- Add closed user stories filter in epics dashboard
+- Activate Hebrew and Basque languages
+- Minor fixes.
+
+## 4.1.1 (2019-02-04)
+
+- Pin npm Flot dependence
+
+## 4.1.0 (2019-02-04)
+
+### Misc
+
+- Minor fixes
+
+### Features
+
+- Negative filters
+- Activate Ukrainian language
+
+## 4.0.4 (2019-01-15)
+
+### Misc
+
+- Minor bug fixes.
+
+## 4.0.3 (2018-12-11)
+
+### Misc
+
+- Update locales.
+- Remove tips
+- Minor bug fixes.
+
+## 4.0.2 (2018-12-04)
+
+### Misc
+
+- Update locales.
+- Minor bug fixes.
+
+## 4.0.0 Larix cajanderi (2018-11-28)
+
+### Features
+
+- Custom home section (https://tree.taiga.io/project/taiga/issue/3059)
+- Custom fields (https://tree.taiga.io/project/taiga/issue/3725):
+    - Dropdown
+    - Checkbox
+    - Number
+- Bulk move unfinished objects in sprint (https://tree.taiga.io/project/taiga/issue/5451)
+- Paginate history activity
+- Improve notifications area (https://tree.taiga.io/project/taiga/issue/2165 and
+  https://tree.taiga.io/project/taiga/issue/3752)
+
+### Misc
+
+- Minor icon changes
+- Lots of small bug fixes
+
+## 3.4.6 (2018-10-30)
+
+### Misc
+
+- Update subscriptions messages
+
+## 3.4.5 (2018-10-15)
+
+### Misc
+
+- Security bug fixes
+- Minor bug fixes.
+
+## 3.4.4 (2018-09-19)
+
+### Misc
+
+- Minor bug fixes.
+
+## 3.4.3 (2018-09-19)
+
+### Misc
+
+- Allow reorder tasks in US (https://tree.taiga.io/project/taiga/issue/5479)
+- Minor bug fixes.
+
+## 3.4.2 (2018-08-27)
+
+### Misc
+
+- Fix pickadate conflicts
+- Modify meeting module URL checking
+- Minor bug fixes.
+
+## 3.4.1 (2018-08-21)
+
+### Misc
+
+- Add auto CTRL+C in admin icon for reports URL's.
+- Minor bug fixes.
 
 ## 3.4.0 Pinus contorta (2018-08-13)
 

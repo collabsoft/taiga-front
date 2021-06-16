@@ -4,7 +4,7 @@ div.wrapper
         section.single-project-intro
             .project-logo(
                 href="#"
-                tg-nav="project:project=project.get('slug')"
+                tg-nav="project:project=project.get('slug'),section=project.get('my_homepage')"
                 title="{{::project.get('name')}}"
             )
                 img(
@@ -14,11 +14,10 @@ div.wrapper
             .single-project-title-wrapper
                 .intro-options
                     .intro-title
-                        h1
-                            span.project-name {{::vm.project.get("name")}}
+                        h1.project-name  {{::vm.project.get("name")}}
                         tg-svg(
                             ng-if="::vm.project.get('is_private')"
-                            svg-icon="icon-lock"
+                            svg-icon="icon-private"
                             svgTitleTranslate: "PROJECT.PRIVATE"
                         )
 
@@ -60,13 +59,28 @@ div.wrapper
                         src="/#{v}/images/looking-for-people.png"
                         title="{{'PROJECT.LOOKING_FOR_PEOPLE' | translate}}"
                     )
-                    h3(ng-class="{'is-empty': !vm.project.get('looking_for_people_note')}") {{'PROJECT.LOOKING_FOR_PEOPLE' | translate}}
-                    p(ng-if="vm.project.get('looking_for_people_note')") {{::vm.project.get('looking_for_people_note')}}
-                    tg-contact-project-button(
-                        ng-if="vm.project.get('is_contact_activated')"
-                        project="vm.project"
-                        layout="large"
-                    )
+                    .looking-for-people-content
+                        h3(ng-class="{'is-empty': !vm.project.get('looking_for_people_note')}") {{'PROJECT.LOOKING_FOR_PEOPLE' | translate}}
+                        p(ng-if="vm.project.get('looking_for_people_note')") {{::vm.project.get('looking_for_people_note')}}
+                        tg-contact-project-button(
+                            ng-if="vm.isAuthenticated && vm.project.get('is_contact_activated')"
+                            project="vm.project"
+                            layout="large"
+                        )
+                        div(ng-if="!vm.isAuthenticated")
+                            p
+                                a(
+                                    href="{{ vm.registerUrl }}"
+                                    ng-if="vm.publicRegisterEnabled"
+                                    title="{{ 'REGISTER_FORM.TITLE' | translate }}"
+                                    translate="REGISTER_FORM.TITLE"
+                                )
+                            p
+                                a(
+                                    href="{{ vm.loginUrl }}"
+                                    title="{{ 'REGISTER_FORM.LINK_LOGIN' | translate }}"
+                                    translate="REGISTER_FORM.LINK_LOGIN"
+                                )
 
                 h2.title {{"PROJECT.SECTION.TEAM" | translate}}
                 ul.involved-team

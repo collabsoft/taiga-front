@@ -8,20 +8,23 @@
         margin: 2rem 0 1rem;
         padding: .9rem 1rem;
         h1 {
+            @include font-type(regular);
             @include font-size(larger);
-            @include font-type(light);
+            color: $color-link-primary;
             margin: 0;
         }
     }
-    .icon-lock,
+    .icon-private,
     .icon-badge,
     .icon-blocked-project {
         @include svg-size();
     }
     .icon-badge {
-        margin-left: .5rem;
+        fill: $primary-light;
+        stroke: $primary-light;
     }
     .create-project-btn {
+        @include font-size(small);
         margin-right: .25rem;
         padding: .6rem 2.5rem;
     }

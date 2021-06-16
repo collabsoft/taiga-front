@@ -1,39 +1,76 @@
-.us-story-main-data {
-    margin-bottom: 1rem;
-    header {
-        align-content: center;
-        align-items: stretch;
+.detail {
+    background: $mass-white;
+    padding: 0;
+    .detail-header-container,
+    .detail-content {
+        background: $white;
+        padding: 1rem;
+    }
+    .detail-header-container {
         display: flex;
-        justify-content: center;
-        margin-bottom: .5rem;
+        margin: 0 0 .5rem;
+        position: relative;
+        @include until($tablet) {
+            display: block;
+        }
+    }
+    .detail-ref {
+        flex-shrink: 1;
+    }
+    .detail-header {
+        flex-grow: 1;
+        @include until($tablet) {
+            padding: 0;
+        }
+    }
+
+    .action-buttons {
+        margin-top: .5rem;
     }
 }
 
 .subheader {
-    align-items: flex-start;
+    align-items: flex-end;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
-    @include breakpoint(laptop) {
+    @include until($tablet) {
         flex-direction: column;
         justify-content: flex-start;
     }
     .ticket-created-by {
-        flex-basis: 250px;
-        flex-shrink: 0;
-        @include breakpoint(laptop) {
+        flex-shrink: 1;
+        @include until($tablet) {
+            align-self: flex-end;
             flex-basis: auto;
-            order: 1;
         }
     }
+    .tags-container {
+        align-items: flex-end;
+        column-gap: .5rem;
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: .25rem;
+        row-gap: .5rem;
+    }
     .tags-block {
+        align-items: flex-end;
         flex: 1;
-        @include breakpoint(laptop) {
-            order: 2;
-        }
+        flex-grow: 1;
         .tag {
-            border-color: transparent;
-            border-style: solid;
+            @include font-size(small);
+
+            align-items: center;
+            display: flex;
+            min-height: 2rem;
+            &:first-child {
+                margin-inline-start: 0;
+            }
         }
+    }
+    &.has-tags .relate-to-epic {
+        flex-basis: 100%;
+        margin-top: 0;
     }
 }
 
@@ -60,12 +97,19 @@
     &.wysiwyg {
         overflow: visible;
     }
-    .no-description {
-        color: $gray-light;
+
+    tg-wysiwyg {
+        max-width: calc(100% - 2rem);
     }
-    .markdown {
-        background: $white;
-        height: 10rem;
+
+    .read-mode .wysiwyg {
+        padding: 1rem;
+    }
+
+    .no-description {
+        color: $default-tags;
+        padding: 1rem;
+        padding-inline-start: 2rem;
     }
     .save-container {
         position: absolute;

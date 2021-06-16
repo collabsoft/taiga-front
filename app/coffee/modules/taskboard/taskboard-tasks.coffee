@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: home.service.coffee
+# File: modules/taskboard/taskboard-tasks.coffee
 ###
 
 groupBy = @.taiga.groupBy
@@ -28,6 +28,8 @@ class TaskboardTasksService extends taiga.Service
         @.tasksRaw = []
         @.foldStatusChanged = {}
         @.usTasks = Immutable.Map()
+        @.tasksByUs = Immutable.Map()
+        @.taskMap = Immutable.Map()
 
     init: (project, usersById) ->
         @.project = project
@@ -65,28 +67,10 @@ class TaskboardTasksService extends taiga.Service
         @.refresh()
 
     getTask: (id) ->
-        findedTask = null
-
-        @.usTasks.forEach (us) ->
-            us.forEach (status) ->
-                findedTask = status.find (task) -> return task.get('id') == id
-
-                return false if findedTask
-
-            return false if findedTask
-
-        return findedTask
+        return @.taskMap.get(id)
 
     replace: (task) ->
-        @.usTasks = @.usTasks.map (us) ->
-            return us.map (status) ->
-                findedIndex = status.findIndex (usItem) ->
-                    return usItem.get('id') == us.get('id')
-
-                if findedIndex != -1
-                    status = status.set(findedIndex, task)
-
-                return status
+        @.taskMap = @.taskMap.set(task.get('id'), task)
 
     getTaskModel: (id) ->
         return _.find @.tasksRaw, (task) -> return task.id == id
@@ -161,6 +145,11 @@ class TaskboardTasksService extends taiga.Service
             if usTasks[taskModel.user_story]? and usTasks[taskModel.user_story][taskModel.status]?
                 task = {}
 
+                if !@.tasksByUs.get(taskModel.user_story)
+                    @.tasksByUs = @.tasksByUs.set(taskModel.user_story, Immutable.fromJS([taskModel.id]))
+                else
+                    @.tasksByUs = @.tasksByUs.set(taskModel.user_story, @.tasksByUs.get(taskModel.user_story).push(taskModel.id))
+
                 model = taskModel.getAttrs()
 
                 task.foldStatusChanged = @.foldStatusChanged[taskModel.id]
@@ -171,7 +160,8 @@ class TaskboardTasksService extends taiga.Service
                 task.colorized_tags = _.map task.model.tags, (tag) =>
                     return {name: tag[0], color: tag[1]}
 
-                usTasks[taskModel.user_story][taskModel.status].push(task)
+                @.taskMap = @.taskMap.set(task.id, Immutable.fromJS(task))
+                usTasks[taskModel.user_story][taskModel.status].push(task.id)
 
         @.usTasks = Immutable.fromJS(usTasks)
 

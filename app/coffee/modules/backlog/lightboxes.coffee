@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -32,7 +27,7 @@ module = angular.module("taigaBacklog")
 ## Creare/Edit Sprint Lightbox Directive
 #############################################################################
 
-CreateEditSprint = ($repo, $confirm, $rs, $rootscope, lightboxService, $loading, $translate) ->
+CreateEditSprint = ($repo, $confirm, $rs, $rootscope, lightboxService, $loading, $translate, projectService) ->
     link = ($scope, $el, attrs) ->
         hasErrors = false
         createSprint = true
@@ -201,7 +196,8 @@ CreateEditSprint = ($repo, $confirm, $rs, $rootscope, lightboxService, $loading,
                 $scope.newSprint.estimated_start = moment($scope.newSprint.estimated_start).format(prettyDate)
                 $scope.newSprint.estimated_finish = moment($scope.newSprint.estimated_finish).format(prettyDate)
 
-            $el.find(".delete-sprint").removeClass("hidden")
+            if projectService.project.get('my_permissions').indexOf('delete_milestone') > -1
+                $el.find(".delete-sprint").removeClass("hidden")
 
             editSprint = $translate.instant("BACKLOG.EDIT_SPRINT")
             $el.find(".title").text(editSprint)
@@ -241,5 +237,6 @@ module.directive("tgLbCreateEditSprint", [
     "lightboxService"
     "$tgLoading",
     "$translate",
+    "tgProjectService"
     CreateEditSprint
 ])

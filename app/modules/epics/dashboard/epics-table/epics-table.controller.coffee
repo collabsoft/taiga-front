@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: epics-table.controller.coffee
+# File: epics/dashboard/epics-table/epics-table.controller.coffee
 ###
 
 taiga = @.taiga
@@ -33,14 +33,16 @@ class EpicsTableController
         @.hash = generateHash([@projectService.project.get('id'), 'epics'])
         @.displayOptions = false
         @.displayVotes = true
-        @.column = @storage.get(@.hash, {
+        @.options = @storage.get(@.hash, {
             votes: true,
             name: true,
             project: true,
             sprint: true,
             assigned: true,
             status: true,
-            progress: true
+            progress: true,
+            closed: true,
+            closed_us: true,
         })
 
         taiga.defineImmutableProperty @, 'epics', () => return @epicsService.epics
@@ -69,6 +71,6 @@ class EpicsTableController
         return @.timer = @timeout (=> @.displayOptions = false), 400
 
     updateViewOptions: () ->
-        @storage.set(@.hash, @.column)
+        @storage.set(@.hash, @.options)
 
 angular.module("taigaEpics").controller("EpicsTableCtrl", EpicsTableController)

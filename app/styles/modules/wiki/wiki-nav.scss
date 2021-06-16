@@ -1,29 +1,32 @@
 .wiki-nav {
+    @include sidebar-narrow-width;
+    background-color: $color-gray100;
     padding: 0;
-    width: 240px;
     .title {
-        @include font-size(larger);
-        padding: 2rem 1rem 0 2rem;
+        @include font-size(medium);
+        color: $color-black900;
+        padding: 2rem 1rem 0 1rem;
+        @include until($widescreen) {
+            font-size: 1.5rem;
+            padding: 2rem .75rem 0;
+        }
     }
     .add-button {
         align-items: center;
-        display: flex;
-        padding: 1rem 1rem 1rem 2rem;
-        text-transform: uppercase;
-        vertical-align: middle;
-        &:hover {
-            svg {
-                background: $primary-light;
-            }
+        display: inline-flex;
+        margin: 1rem 1rem 1rem .75rem;
+        @include until($widescreen) {
+            margin: .5rem .75rem;
         }
-        svg {
-            @include svg-size(1.25rem);
-            background: $gray-light;
-            border-radius: 2px;
-            fill: $white;
+        .button-small {
+            height: 28px;
             margin-right: .5rem;
-            padding: .25rem;
-            transition: background .2s linear;
+            width: 28px;
+            svg {
+                height: 1rem;
+                margin: 0;
+                width: 1rem;
+            }
         }
     }
     .wiki-link-container {
@@ -32,7 +35,7 @@
             border-top: 1px solid $gray-light;
         }
     }
-    input[type="text"] {
+    input[type='text'] {
         background: $whitish;
         color: $grayer;
         margin: 1rem 1rem 1rem 2rem;
@@ -40,21 +43,40 @@
         @include placeholder {
             color: $gray-light;
         }
+        @include until($widescreen) {
+            margin: .5rem .5rem .5rem 1rem;
+        }
     }
     .loading {
         padding: 1rem;
         text-align: center;
     }
 }
-.wiki-link {
+
+.menu-secondary .wiki-link {
+    @include font-type(regular);
+
     align-items: center;
-    border-bottom: 1px solid $whitish;
+    border-bottom: 1px solid $color-gray200;
     display: flex;
     justify-content: space-between;
-    margin-left: 2rem;
+    margin-left: 0;
+    padding-left: .75rem;
     padding-right: 1rem;
     position: relative;
+    text-transform: uppercase;
+    @include until($widescreen) {
+        padding-left: .75rem;
+    }
+    &:last-child {
+        border-bottom: 0;
+    }
     &:hover {
+        background: $color-white;
+        a {
+            @include font-type(regular);
+            color: $color-link-tertiary;
+        }
         .remove-wiki-page {
             cursor: pointer;
             opacity: 1;
@@ -68,6 +90,11 @@
             transition-delay: .1s;
         }
     }
+    a {
+        color: $color-link-tertiary;
+        display: block;
+        padding: 1rem 0 1rem 1rem;
+    }
     &.gu-mirror {
         border-bottom: 0;
     }
@@ -77,6 +104,20 @@
     }
     &.is-sortable {
         cursor: move;
+    }
+    &.active {
+        @include font-type(medium);
+        background: $color-white;
+        a {
+            color: $color-link-primary;
+        }
+        &:hover {
+            background: $color-white;
+            a {
+                @include font-type(medium);
+                color: $color-link-tertiary;
+            }
+        }
     }
     .link-title {
         cursor: pointer;
@@ -102,4 +143,5 @@
             }
         }
     }
+
 }

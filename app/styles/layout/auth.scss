@@ -1,6 +1,7 @@
 .auth {
     @include triangled-bg;
     align-items: center;
+    background: $color-link-primary;
     bottom: 0;
     display: flex;
     flex-direction: row;
@@ -10,7 +11,18 @@
     position: fixed;
     right: 0;
     top: 0;
-    z-index: 999;
+    z-index: $first-layer;
+
+    .white-link,
+    .white-link:visited {
+        color: $color-white;
+    }
+    .checksley-error-list {
+        color: $color-white;
+        li {
+            margin: .5rem 0;
+        }
+    }
     .auth-container {
         flex-basis: 400px;
     }
@@ -24,15 +36,15 @@
     }
     .logo {
         @include font-size(xxlarge);
-        @include font-type(light);
-        color: $white;
+        @include font-type(regular);
+        color: $color-white;
+        display: block;
         margin-bottom: 1rem;
         text-align: center;
-
     }
     .tagline {
         @include font-size(xlarge);
-        color: $white;
+        color: $color-white;
         line-height: 2rem;
         margin-bottom: 1rem;
         text-align: center;
@@ -43,29 +55,48 @@
     }
     fieldset {
         margin-bottom: .5rem;
+        &.end {
+            display: flex;
+            justify-content: flex-end;
+        }
     }
     .login-text,
     .register-text {
-        margin-left: .5rem;
+        color: $color-white;
+        font-size: .875rem;
+        margin-top: 2rem;
         padding-bottom: 1rem;
+        text-align: center;
         a {
+            color: $color-white;
             text-decoration: underline;
             &:hover {
-                color: $primary-light;
+                color: $color-gray400;
             }
         }
     }
     .register-terms {
         margin: .5rem 0 .75rem;
+
+        input[type='checkbox'],
+        input[type='radio'] {
+            margin-right: .5rem;
+        }
     }
     .button {
-        color: $white;
+        color: $color-white;
         display: block;
         text-align: center;
     }
     a {
         &:hover {
-            color: $white;
+            color: $color-white;
+        }
+    }
+    .btn-small {
+        margin: 0 0 0 auto;
+        &.full {
+            width: 100%;
         }
     }
 }

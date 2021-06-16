@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -205,7 +200,7 @@ module.directive("tgProjectProfile", ["$tgRepo", "$tgConfirm", "$tgLoading", "$t
 ## Project Default Values Directive
 #############################################################################
 
-ProjectDefaultValuesDirective = ($repo, $confirm, $loading) ->
+ProjectDefaultValuesDirective = ($rootScope, $repo, $confirm, $loading) ->
     link = ($scope, $el, $attrs) ->
         form = $el.find("form").checksley({"onlyOneErrorElement": true})
         submit = debounce 2000, (event) =>
@@ -221,6 +216,7 @@ ProjectDefaultValuesDirective = ($repo, $confirm, $loading) ->
             promise.then ->
                 currentLoading.finish()
                 $confirm.notify("success")
+                $rootScope.$broadcast("admin:project-default-values:updated")
 
             promise.then null, (data) ->
                 currentLoading.finish()
@@ -237,14 +233,14 @@ ProjectDefaultValuesDirective = ($repo, $confirm, $loading) ->
 
     return {link:link}
 
-module.directive("tgProjectDefaultValues", ["$tgRepo", "$tgConfirm", "$tgLoading",
+module.directive("tgProjectDefaultValues", ["$rootScope", "$tgRepo", "$tgConfirm", "$tgLoading",
                                             ProjectDefaultValuesDirective])
 
 #############################################################################
 ## Project Modules Directive
 #############################################################################
 
-ProjectModulesDirective = ($repo, $confirm, $loading, projectService) ->
+ProjectModulesDirective = ($rootScope, $repo, $confirm, $loading) ->
     link = ($scope, $el, $attrs) ->
         submit = =>
             form = $el.find("form").checksley()
@@ -255,9 +251,8 @@ ProjectModulesDirective = ($repo, $confirm, $loading, projectService) ->
             promise = $repo.save($scope.project)
             promise.then ->
                 $scope.$emit("project:loaded", $scope.project)
+                $rootScope.$broadcast("admin:project-modules:updated")
                 $confirm.notify("success")
-
-                projectService.fetchProject()
 
             promise.then null, (data) ->
                 form.setErrors(data)
@@ -269,9 +264,9 @@ ProjectModulesDirective = ($repo, $confirm, $loading, projectService) ->
 
             $scope.$applyAsync(submit)
 
+
         $el.on "submit", "form", (event) ->
             event.preventDefault()
-
             submit()
 
         $el.on "click", ".save", (event) ->
@@ -303,7 +298,7 @@ ProjectModulesDirective = ($repo, $confirm, $loading, projectService) ->
 
     return {link:link}
 
-module.directive("tgProjectModules", ["$tgRepo", "$tgConfirm", "$tgLoading", "tgProjectService",
+module.directive("tgProjectModules", ["$rootScope", "$tgRepo", "$tgConfirm", "$tgLoading",
                                       ProjectModulesDirective])
 
 
@@ -366,7 +361,7 @@ ProjectExportDirective = ($window, $rs, $confirm, $translate, $analytics) ->
             hideResult()
             showButtons()
 
-        $el.on "click", "a.button-export", debounce 2000, (event) =>
+        $el.on "click", ".button-export", debounce 2000, (event) =>
             event.preventDefault()
 
             onSuccess = (result) =>
@@ -438,6 +433,19 @@ class CsvExporterController extends taiga.Controller
             response.finish() if response
         return promise
 
+    _deleteUuid: (response=null) =>
+        promise = @rs.projects["delete_#{@.type}_csv_uuid"](@scope.projectId)
+
+        promise.then (data) =>
+            @scope.csvUuid = data.data?.uuid
+
+        promise.then null, =>
+            @confirm.notify("error")
+
+        promise.finally ->
+            response.finish() if response
+        return promise
+
     regenerateUuid: ->
         if @scope.csvUuid
             title = @translate.instant("ADMIN.REPORTS.REGENERATE_TITLE")
@@ -446,6 +454,15 @@ class CsvExporterController extends taiga.Controller
             @confirm.ask(title, subtitle).then @._generateUuid
         else
             @._generateUuid()
+
+    deleteUuid: ->
+        if @scope.csvUuid
+            title = @translate.instant("ADMIN.REPORTS.DELETE_TITLE")
+            subtitle = @translate.instant("ADMIN.REPORTS.DELETE_SUBTITLE")
+
+            @confirm.ask(title, subtitle).then @._deleteUuid
+        else
+            @._deleteUuid()
 
 
 class CsvExporterEpicsController extends CsvExporterController

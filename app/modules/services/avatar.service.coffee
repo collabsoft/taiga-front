@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: avatar.service.coffee
+# File: services/avatar.service.coffee
 ###
 
 class AvatarService
@@ -46,6 +46,7 @@ class AvatarService
     getUnnamed: () ->
         return {
             url: "/#{window._version}/images/unnamed.png"
+            username: ''
         }
 
     getAvatar: (user, type) ->
@@ -61,15 +62,21 @@ class AvatarService
         if user instanceof Immutable.Map
             gravatar = user.get('gravatar_id')
             photo = user.get(avatarParamName)
+            username = "@#{user.get('username')}"
+            fullName = user.get('full_name_display')
         else
             gravatar = user.gravatar_id
             photo = user[avatarParamName]
+            username = "@#{user.username}"
+            fullName = user.full_name_display
 
         return @.getUnnamed() if !gravatar
 
         if photo
             return {
-                url: photo
+                url: photo,
+                username: username,
+                fullName: fullName
             }
         else if location.host.indexOf('localhost') != -1 || !@config.get("gravatar", true)
             root = location.protocol + '//' + location.host
@@ -77,7 +84,9 @@ class AvatarService
 
             return {
                 url: root + logo.src,
-                bg: logo.color
+                bg: logo.color,
+                username: username,
+                fullName: fullName
             }
         else
             root = location.protocol + '//' + location.host
@@ -87,7 +96,9 @@ class AvatarService
 
             return {
                 url: 'https://www.gravatar.com/avatar/' + gravatar + "?s=200&d=" + logoUrl,
-                bg: logo.color
+                bg: logo.color,
+                username: username,
+                fullName: fullName
             }
 
 angular.module("taigaCommon").service("tgAvatarService", ["$tgConfig", AvatarService])

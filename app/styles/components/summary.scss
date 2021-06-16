@@ -19,19 +19,19 @@ $summary-background: $grayer;
     }
     .data {
         .number {
-            color: $primary-light;
+            color: $color-solid-primary;
         }
     }
     .number {
         @include font-size(xlarge);
-        @include font-type(light);
+        @include font-type(regular);
         line-height: .9;
         margin-right: .3rem;
     }
 
     .description {
         @include font-size(small);
-        @include font-type(light);
+        @include font-type(regular);
         line-height: 1;
     }
     .stats {
@@ -61,10 +61,11 @@ $summary-background: $grayer;
             }
         }
         svg {
-            fill: $black;
+            fill: $grey-40;
             height: 100%;
             max-height: 2rem;
             max-width: 2rem;
+            stroke: $grey-40;
             transition: all .2s;
             width: 100%;
         }
@@ -99,7 +100,7 @@ $summary-background: $grayer;
     position: relative;
     width: 15%;
     .current-progress {
-        background: $primary-light;
+        background-color: $color-link-primary;
         height: 24px;
     }
     .defined-points {
@@ -114,13 +115,14 @@ $summary-background: $grayer;
         position: absolute;
     }
     .closed-points-progress {
-        background: $primary-light;
+        background: $color-link-primary;
         height: 24px;
         position: absolute;
     }
 }
 
 .large-summary {
+    align-content: flex-start;
     align-items: stretch;
     justify-content: space-between;
     padding: .75rem 1rem;
@@ -128,14 +130,14 @@ $summary-background: $grayer;
         padding-top: .35rem;
     }
     .large-summary-wrapper {
-        align-content: center;
+        align-content: flex-start;
         display: flex;
         flex-wrap: wrap;
-        justify-content: flex-start;
     }
     .summary-progress-wrapper {
         align-items: center;
         display: flex;
+        height: calc(65px - 1.5rem);
     }
     .summary-progress-bar {
         flex-basis: 200px;
@@ -148,7 +150,7 @@ $summary-background: $grayer;
             margin: 0;
         }
         &.summary-completed-points,
-        &.summary-closed-tasks {
+        &.summary-move-unfinished {
             border-right: 1px solid $blackish;
             margin-right: 0;
             padding-right: 1rem;
@@ -162,7 +164,7 @@ $summary-background: $grayer;
     .icon {
         @include svg-size(1.3rem);
         fill: currentColor;
-        margin-right: .4rem;
+        margin: .1rem .4rem 0 0;
         vertical-align: middle;
         &.icon-stats {
             color: $primary;
@@ -180,6 +182,10 @@ $summary-background: $grayer;
                 transition: color .3s linear;
             }
         }
+    }
+    a:hover .icon {
+        fill: $primary-50;
+        stroke: $primary-50;
     }
     .points-per-role-stats-content {
         display: flex;
@@ -202,19 +208,28 @@ $summary-background: $grayer;
         .number {
             @include font-size(large);
             @include font-type(normal);
+            line-height: 1rem;
         }
         .role {
             @include font-size(xsmall);
-            @include font-type(light);
+            @include font-type(regular);
+        }
+    }
+    .points-per-role-stats-title {
+        display: flex;
+        margin-bottom: .25rem;
+
+        tg-svg {
+            transform: translateY(12px);
         }
     }
 }
 
 .empty-burndown {
-    @include font-type(light);
+    @include font-type(regular);
     align-content: center;
     align-items: center;
-    background: rgba($primary-dark, .15);
+    background: $grey-02;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -222,7 +237,7 @@ $summary-background: $grayer;
     padding: 2rem 6rem;
     svg {
         @include svg-size(4rem);
-        fill: $primary-dark;
+        fill: $color-link-primary;
         flex-basis: 4rem;
         flex-shrink: 0;
         margin-right: 2rem;
@@ -234,14 +249,14 @@ $summary-background: $grayer;
         flex: 1;
     }
     .title {
-        @include font-type(light);
+        @include font-type(medium);
         @include font-size(large);
-        color: $primary-dark;
+        color: $color-link-primary;
         margin: 0;
         text-transform: uppercase;
     }
     a {
-        @include font-type(bold);
+        @include font-type(medium);
         animation: blink 2s infinite;
     }
 }

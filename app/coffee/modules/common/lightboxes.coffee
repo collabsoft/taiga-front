@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -39,7 +34,7 @@ normalizeString = @.taiga.normalizeString
 class LightboxService extends taiga.Service
     constructor: (@animationFrame, @q, @rootScope) ->
 
-    open: ($el, onClose, onEsc) ->
+    open: ($el, onClose, onEsc, ignoreEsc) ->
         @.onClose = onClose
 
         if _.isString($el)
@@ -66,20 +61,22 @@ class LightboxService extends taiga.Service
             lightboxContent.show()
             defered.resolve()
 
-        docEl = angular.element(document)
-        docEl.on "keydown.lightbox", (e) =>
-            code = if e.keyCode then e.keyCode else e.which
-            if code == 27
-                if onEsc
-                    @rootScope.$applyAsync(onEsc)
-                else
-                    @.close($el)
+        if !ignoreEsc
+            docEl = angular.element(document)
+            docEl.on "keydown.lightbox", (e) =>
+                code = if e.keyCode then e.keyCode else e.which
+                if code == 27
+                    if onEsc
+                        @rootScope.$applyAsync(onEsc)
+                    else
+                        @.close($el)
 
 
+        @rootScope.$broadcast("lightbox:opened")
         return defered.promise
 
     close: ($el) ->
-        return new Promise (resolve) =>
+        return @q (resolve) =>
             if _.isString($el)
                 $el = $($el)
             docEl = angular.element(document)
@@ -107,6 +104,8 @@ class LightboxService extends taiga.Service
                 scope = $el.data("scope")
                 scope.$destroy() if scope
                 $el.remove()
+
+            @rootScope.$broadcast("lightbox:closed")
 
 
     getLightboxOpen: ->
@@ -187,6 +186,31 @@ LightboxDirective = (lightboxService) ->
 
 module.directive("lightbox", ["lightboxService", LightboxDirective])
 
+
+#############################################################################
+## Lightbox Close Directive
+#############################################################################
+
+LightboxClose = () ->
+    template = """
+        <a class="close" ng-click="onClose()" href="" title="{{'COMMON.CLOSE' | translate}}">
+            <tg-svg svg-icon="icon-close"></tg-svg>
+        </a>
+    """
+
+    link = (scope, elm, attrs) ->
+
+    return {
+        scope: {
+            onClose: '&'
+        },
+        link: link,
+        template: template
+    }
+
+module.directive("tgLightboxClose", [LightboxClose])
+
+
 #############################################################################
 ## Block Lightbox Directive
 #############################################################################
@@ -221,7 +245,7 @@ BlockLightboxDirective = ($rootscope, $tgrepo, $confirm, lightboxService, $loadi
 
         block = () ->
             currentLoading = $loading()
-                .target($el.find(".button-green"))
+                .target($el.find(".js-block-item"))
                 .start()
 
             transform = $modelTransform.save (item) ->
@@ -251,7 +275,7 @@ BlockLightboxDirective = ($rootscope, $tgrepo, $confirm, lightboxService, $loadi
         $scope.$on "$destroy", ->
             $el.off()
 
-        $el.on "click", ".button-green", (event) ->
+        $el.on "click", ".js-block-item", (event) ->
             event.preventDefault()
 
             block()
@@ -299,18 +323,41 @@ module.directive("tgBlockingMessageInput", ["$log", "$tgTemplate", "$compile", B
 ## Creare Bulk Userstories Lightbox Directive
 #############################################################################
 
-CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $loading, $model) ->
+CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $loading, $model, $timeout, $confirm, $translate) ->
     link = ($scope, $el, attrs) ->
         form = null
+        $scope.displayStatusSelector = false
 
-        $scope.$on "usform:bulk", (ctx, projectId, status) ->
+        getCurrentStatus = () =>
+            $scope.currentStatus = $scope.project.us_statuses.filter((status) ->
+                status.id == $scope.new.statusId
+            ).pop()
+
+        $scope.toggleStatus = () ->
+            $scope.displayStatusSelector = !$scope.displayStatusSelector
+
+        $scope.displayStatus = () ->
+            $scope.displayStatusSelector = true
+
+        $scope.hideStatus = () ->
+            $scope.displayStatusSelector = false
+            $scope.$apply()
+
+        $scope.setStatus = (status) =>
+            $scope.new.statusId = status.id
+            getCurrentStatus()
+            $scope.displayStatusSelector = false
+
+        $scope.$on "usform:bulk", (ctx, projectId, status, swimlaneId) ->
             form.reset() if form
 
             $scope.new = {
                 projectId: projectId
                 statusId: status
                 bulk: ""
+                swimlaneId: swimlaneId
             }
+            getCurrentStatus()
             lightboxService.open($el)
 
         submit = debounce 2000, (event) =>
@@ -320,26 +367,49 @@ CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $load
             if not form.validate()
                 return
 
+            swimlaneId = null
+            if $scope.project.is_kanban_activated
+                swimlaneId = $scope.new.swimlane
+
+                if swimlaneId == undefined
+                    swimlaneId = $scope.project.default_swimlane
+
             currentLoading = $loading()
                 .target(submitButton)
                 .start()
 
-            promise = $rs.userstories.bulkCreate($scope.new.projectId, $scope.new.statusId, $scope.new.bulk)
+            promise = $rs.userstories.bulkCreate($scope.new.projectId, $scope.new.statusId, $scope.new.bulk, swimlaneId)
             promise.then (result) ->
                 result =  _.map(result.data, (x) => $model.make_model('userstories', x))
                 currentLoading.finish()
                 $rootscope.$broadcast("usform:bulk:success", result)
                 lightboxService.close($el)
 
-            promise.then null, (data) ->
+            promise.then null, (response) ->
                 currentLoading.finish()
-                form.setErrors(data)
-                if data._error_message
-                    $confirm.notify("error", data._error_message)
+                form.setErrors(response)
+                if response.data.status
+                    text = $translate.instant("LIGHTBOX.CREATE_EDIT.ERROR_STATUS")
+                    $confirm.notify("error", text)
+                if response.data.swimlane_id
+                    text = $translate.instant("LIGHTBOX.CREATE_EDIT.ERROR_SWIMLANE")
+                    $confirm.notify("error", text)
+                if response._error_message
+                    $confirm.notify("error", response._error_message)
 
         submitButton = $el.find(".submit-button")
 
         $el.on "submit", "form", submit
+
+        $el.on "click", (event) =>
+            target = angular.element(event.target)
+
+            parentNodes = _.filter(target.parents(), (parent) ->
+                return parent.className == "bulk-status-selector-wrapper"
+            )
+
+            if (!parentNodes.length)
+                $scope.hideStatus()
 
         $scope.$on "$destroy", ->
             $el.off()
@@ -353,304 +423,11 @@ module.directive("tgLbCreateBulkUserstories", [
     "lightboxService",
     "$tgLoading",
     "$tgModel",
+    "$timeout",
+    "$tgConfirm",
+    "$translate",
     CreateBulkUserstoriesDirective
 ])
-
-
-#############################################################################
-## AssignedTo Lightbox Directive
-#############################################################################
-
-AssignedToLightboxDirective = (lightboxService, lightboxKeyboardNavigationService, $template, $compile, avatarService) ->
-    link = ($scope, $el, $attrs) ->
-        selectedUser = null
-        selectedItem = null
-        usersTemplate = $template.get("common/lightbox/lightbox-assigned-to-users.html", true)
-
-        filterUsers = (text, user) ->
-            username = user.full_name_display.toUpperCase()
-            username = normalizeString(username)
-            text = text.toUpperCase()
-            text = normalizeString(text)
-            return _.includes(username, text)
-
-        render = (selected, text) ->
-            users = _.clone($scope.activeUsers, true)
-            users = _.reject(users, {"id": selected.id}) if selected?
-            users = _.sortBy(users, (o) -> if o.id is $scope.user.id then 0 else o.id)
-            users = _.filter(users, _.partial(filterUsers, text)) if text?
-
-            visibleUsers = _.slice(users, 0, 5)
-
-            visibleUsers = _.map visibleUsers, (user) ->
-                user.avatar = avatarService.getAvatar(user)
-
-            if selected
-                selected.avatar = avatarService.getAvatar(selected) if selected
-
-            ctx = {
-                selected: selected
-                users: _.slice(users, 0, 5)
-                showMore: users.length > 5
-            }
-
-            html = usersTemplate(ctx)
-            html = $compile(html)($scope)
-
-            $el.find(".assigned-to-list").html(html)
-
-        closeLightbox = () ->
-            lightboxKeyboardNavigationService.stop()
-            lightboxService.close($el)
-
-        $scope.$on "assigned-to:add", (ctx, item) ->
-            selectedItem = item
-            assignedToId = item.assigned_to
-            selectedUser = $scope.usersById[assignedToId]
-            render(selectedUser)
-            lightboxService.open($el).then ->
-                $el.find('input').focus()
-                lightboxKeyboardNavigationService.init($el)
-
-        $scope.$watch "usersSearch", (searchingText) ->
-            if searchingText?
-                render(selectedUser, searchingText)
-                $el.find('input').focus()
-
-        $el.on "click", ".user-list-single", (event) ->
-            event.preventDefault()
-            target = angular.element(event.currentTarget)
-
-            closeLightbox()
-
-            $scope.$apply ->
-                $scope.$broadcast("assigned-to:added", target.data("user-id"), selectedItem)
-                $scope.usersSearch = null
-
-        $el.on "click", ".remove-assigned-to", (event) ->
-            event.preventDefault()
-            event.stopPropagation()
-
-            closeLightbox()
-
-            $scope.$apply ->
-                $scope.usersSearch = null
-                $scope.$broadcast("assigned-to:added", null, selectedItem)
-
-        $el.on "click", ".close", (event) ->
-            event.preventDefault()
-
-            closeLightbox()
-
-            $scope.$apply ->
-                $scope.usersSearch = null
-
-        $scope.$on "$destroy", ->
-            $el.off()
-
-    return {
-        templateUrl: "common/lightbox/lightbox-assigned-to.html"
-        link:link
-    }
-
-module.directive("tgLbAssignedto", ["lightboxService", "lightboxKeyboardNavigationService", "$tgTemplate", "$compile", "tgAvatarService", AssignedToLightboxDirective])
-
-
-#############################################################################
-## Assigned Users Lightbox directive
-#############################################################################
-
-AssignedUsersLightboxDirective = ($repo, lightboxService, lightboxKeyboardNavigationService, $template, $compile, avatarService) ->
-    link = ($scope, $el, $attrs) ->
-        selectedUsers = []
-        selectedItem = null
-        usersTemplate = $template.get("common/lightbox/lightbox-assigned-users-users.html", true)
-
-        filterUsers = (text, user) ->
-            username = user.full_name_display.toUpperCase()
-            username = normalizeString(username)
-            text = text.toUpperCase()
-            text = normalizeString(text)
-
-            return _.includes(username, text)
-
-        # Render the specific list of users.
-        render = (assignedUsersIds, text) ->
-            users = _.clone($scope.activeUsers, true)
-            users = _.sortBy(users, (o) -> if o.id is $scope.user.id then 0 else o.id)
-            users = _.filter(users, _.partial(filterUsers, text)) if text?
-
-            # Add selected users
-            selected = []
-            _.map users, (user) ->
-                if user.id in assignedUsersIds
-                    user.avatar = avatarService.getAvatar(user)
-                    selected.push(user)
-
-            # Filter users in searchs
-
-            visible = []
-            _.map users, (user) ->
-                if user.id not in assignedUsersIds
-                    user.avatar = avatarService.getAvatar(user)
-                    visible.push(user)
-
-            ctx = {
-                selected: selected
-                users:  _.slice(visible, 0, 5)
-                showMore: users.length > 5
-            }
-
-            html = usersTemplate(ctx)
-            html = $compile(html)($scope)
-            $el.find(".assigned-to-list").html(html)
-
-        closeLightbox = () ->
-            lightboxKeyboardNavigationService.stop()
-            lightboxService.close($el)
-
-        $scope.$on "assigned-user:add", (ctx, item) ->
-            selectedItem = item
-            selectedUsers = item.assigned_users
-            render(selectedUsers)
-
-            lightboxService.open($el).then ->
-                $el.find("input").focus()
-                lightboxKeyboardNavigationService.init($el)
-
-        $scope.$watch "usersSearch", (searchingText) ->
-            if searchingText?
-                render(selectedUsers, searchingText)
-                $el.find('input').focus()
-
-        $el.on "click", ".user-list-single", debounce 200, (event) ->
-            closeLightbox()
-
-            event.preventDefault()
-            target = angular.element(event.currentTarget)
-
-            $scope.$apply ->
-                $scope.usersSearch = null
-                $scope.$broadcast("assigned-user:added", target.data("user-id"), selectedItem)
-
-        $el.on "click", ".remove-assigned-to", (event) ->
-            event.preventDefault()
-            target = angular.element(event.currentTarget)
-            event.stopPropagation()
-
-            $scope.$apply ->
-                $scope.usersSearch = null
-                $scope.$broadcast("assigned-user:deleted", target.data("user-id"), selectedItem)
-            closeLightbox()
-
-        $el.on "click", ".close", (event) ->
-            event.preventDefault()
-
-            closeLightbox()
-
-        $scope.$on "$destroy", ->
-            $el.off()
-
-    return {
-        templateUrl: "common/lightbox/lightbox-assigned-users.html"
-        link:link
-    }
-
-module.directive("tgLbAssignedUsers", ["$tgRepo", "lightboxService", "lightboxKeyboardNavigationService", "$tgTemplate", "$compile", "tgAvatarService", AssignedUsersLightboxDirective])
-
-
-#############################################################################
-## Watchers Lightbox directive
-#############################################################################
-
-WatchersLightboxDirective = ($repo, lightboxService, lightboxKeyboardNavigationService, $template, $compile, avatarService) ->
-    link = ($scope, $el, $attrs) ->
-        selectedItem = null
-        usersTemplate = $template.get("common/lightbox/lightbox-assigned-to-users.html", true)
-
-        # Get prefiltered users by text
-        # and without now watched users.
-        getFilteredUsers = (text="") ->
-            _filterUsers = (text, user) ->
-                if selectedItem && _.find(selectedItem.watchers, (x) -> x == user.id)
-                    return false
-
-                username = user.full_name_display.toUpperCase()
-                text = text.toUpperCase()
-                return _.includes(username, text)
-
-            users = _.clone($scope.activeUsers, true)
-            users = _.filter(users, _.partial(_filterUsers, text))
-            return users
-
-        # Render the specific list of users.
-        render = (users) ->
-            visibleUsers = _.slice(users, 0, 5)
-
-            visibleUsers = _.map visibleUsers, (user) ->
-                user.avatar = avatarService.getAvatar(user)
-
-                return user
-
-            ctx = {
-                selected: false
-                users: visibleUsers
-                showMore: users.length > 5
-            }
-
-            html = usersTemplate(ctx)
-            html = $compile(html)($scope)
-            $el.find(".ticket-watchers").html(html)
-
-        closeLightbox = () ->
-            lightboxKeyboardNavigationService.stop()
-            lightboxService.close($el)
-
-        $scope.$on "watcher:add", (ctx, item) ->
-            selectedItem = item
-
-            users = getFilteredUsers()
-            render(users)
-
-            lightboxService.open($el).then ->
-                $el.find("input").focus()
-                lightboxKeyboardNavigationService.init($el)
-
-        $scope.$watch "usersSearch", (searchingText) ->
-            if not searchingText?
-                return
-
-            users = getFilteredUsers(searchingText)
-            render(users)
-            $el.find("input").focus()
-
-        $el.on "click", ".user-list-single", debounce 200, (event) ->
-            closeLightbox()
-
-            event.preventDefault()
-            target = angular.element(event.currentTarget)
-
-            $scope.$apply ->
-                $scope.usersSearch = null
-                $scope.$broadcast("watcher:added", target.data("user-id"))
-
-        $el.on "click", ".close", (event) ->
-            event.preventDefault()
-
-            closeLightbox()
-
-            $scope.$apply ->
-                $scope.usersSearch = null
-
-        $scope.$on "$destroy", ->
-            $el.off()
-
-    return {
-        templateUrl: "common/lightbox/lightbox-users.html"
-        link:link
-    }
-
-module.directive("tgLbWatchers", ["$tgRepo", "lightboxService", "lightboxKeyboardNavigationService", "$tgTemplate", "$compile", "tgAvatarService", WatchersLightboxDirective])
 
 
 LightboxLeaveProjectWarningDirective = (lightboxService, $template, $compile) ->
@@ -777,6 +554,8 @@ $confirm, $q, attachmentsService, $template, $compile) ->
                 params: { include_attachments: true, include_tasks: true },
                 data: (project) ->
                     return {
+                        translationID: 'US'
+                        translationIDPlural: 'US'
                         statusList: _.sortBy(project.us_statuses, "order")
                     }
                 initialData: (data) ->
@@ -786,6 +565,7 @@ $confirm, $q, attachmentsService, $template, $compile) ->
                         description: ""
                         tags: []
                         points : {}
+                        swimlane: if data.project.is_kanban_activated then data.project.default_swimlane else null
                         status: if data.statusId then data.statusId else data.project.default_us_status
                         is_archived: false
                     }
@@ -796,6 +576,8 @@ $confirm, $q, attachmentsService, $template, $compile) ->
                 params: { include_attachments: true },
                 data: (project) ->
                     return {
+                        translationID: 'TASK'
+                        translationIDPlural: 'TASKS'
                         statusList: _.sortBy(project.task_statuses, "order")
                     }
                 initialData: (data) ->
@@ -817,6 +599,8 @@ $confirm, $q, attachmentsService, $template, $compile) ->
                 params: { include_attachments: true },
                 data: (project) ->
                     return {
+                        translationID: 'ISSUE'
+                        translationIDPlural: 'ISSUES'
                         project: project
                         statusList: _.sortBy(project.issue_statuses, "order")
                         typeById: groupBy(project.issue_types, (x) -> x.id)
@@ -892,7 +676,7 @@ $confirm, $q, attachmentsService, $template, $compile) ->
             setStatus($scope.obj.status)
             render()
             $scope.lightboxOpen = true
-            lightboxService.open($el)
+            lightboxService.open($el, null, null, true)
 
         resetAttachments = () ->
             attachmentsToAdd = Immutable.List()
@@ -948,21 +732,17 @@ $confirm, $q, attachmentsService, $template, $compile) ->
                 return attachmentsService.delete($scope.objType, attachment.id)
             return $q.all(promises)
 
-        addExisting = (item) ->
+        addExistingToSprint = (item) ->
             currentLoading = $loading().target($el.find(".add-existing-button")).start()
 
             if item.milestone
-                currentLoading.finish()
-                lightboxService.close($el)
                 sprintChangeConfirmAndSave(item)
             else
                 onSuccess = ->
-                    currentLoading.finish()
-                    lightboxService.close($el)
+                    close()
                     $rootScope.$broadcast("#{$scope.objType}form:add:success", item)
                 onError = ->
-                    currentLoading.finish()
-                    lightboxService.close($el)
+                    close()
                 saveItem(item, onSuccess, onError)
 
         sprintChangeConfirmAndSave = (item) ->
@@ -975,7 +755,8 @@ $confirm, $q, attachmentsService, $template, $compile) ->
             $confirm.ask(title, null, message).then (askResponse) ->
                 onSuccess = ->
                     askResponse.finish()
-                    lightboxService.close($el)
+                    lightboxService.closeAll()
+                    $scope.lightboxOpen = false
                     $rootScope.$broadcast("#{$scope.objType}form:add:success", item)
 
                 onError = ->
@@ -987,23 +768,21 @@ $confirm, $q, attachmentsService, $template, $compile) ->
             item.setAttr($scope.relatedField, $scope.relatedObjectId)
             $repo.save(item, true).then(onSuccess, onError)
 
-
         isDisabledExisting = (item) ->
             return item && item[$scope.relatedField] == $scope.relatedObjectId
 
         $scope.isDisabledExisting = (selectedItem) ->
             isDisabledExisting(selectedItem)
 
-        $scope.addExisting = (selectedItem) ->
-            event.preventDefault()
-            addExisting(selectedItem)
+        $scope.addExistingToSprint = (selectedItem) ->
+            addExistingToSprint(selectedItem)
 
         submit = debounce 2000, (event) ->
             form = $el.find("form").checksley()
             if not form.validate()
                 return
 
-            currentLoading = $loading().target($el.find(".submit-button")).start()
+            currentLoading = $loading().target($el.find("#submitButton")).start()
 
             if $scope.mode == 'new'
                 promise = $repo.create(schema.model, $scope.obj)
@@ -1020,25 +799,47 @@ $confirm, $q, attachmentsService, $template, $compile) ->
                 deleteAttachments(data).then () ->
                     createAttachments(data).then () ->
                         currentLoading.finish()
-                        lightboxService.close($el)
-                        $rs[schema.model].getByRef(data.project, data.ref, schema.params).then (obj) ->
-                            $rootScope.$broadcast(broadcastEvent, obj)
-            promise.then null, (data) ->
+                        $confirm.notify("success")
+                        close()
+                        if data.ref
+                            $rs[schema.model].getByRef(data.project, data.ref, schema.params).then (obj) ->
+                                $rootScope.$broadcast(broadcastEvent, obj)
+            promise.then null, (response) ->
                 currentLoading.finish()
-                form.setErrors(data)
-                if data._error_message
-                    $confirm.notify("error", data._error_message)
+                form.setErrors(response)
+                console.log({response})
+                if response.status
+                    text = $translate.instant("LIGHTBOX.CREATE_EDIT.ERROR_STATUS")
+                    $confirm.notify("error", text)
+                if response.swimlane
+                    text = $translate.instant("LIGHTBOX.CREATE_EDIT.ERROR_SWIMLANE")
+                    $confirm.notify("error", text)
+                if response._error_message
+                    $confirm.notify("error", response._error_message)
 
         checkClose = () ->
             if !$scope.obj.isModified()
-                lightboxService.close($el)
+                close()
                 $scope.$apply ->
                     $scope.obj.revert()
             else
                 $confirm.ask(
-                    $translate.instant("LIGHTBOX.CREATE_EDIT.CONFIRM_CLOSE")).then (result) ->
+                    $translate.instant("LIGHTBOX.CREATE_EDIT.CONFIRM_CLOSE"))
+                    .then (result) ->
                         result.finish()
-                        lightboxService.close($el)
+                        close()
+
+        close = () ->
+            lightboxService.closeAll()
+            $scope.lightboxOpen = false
+
+        docEl = angular.element(document)
+        docEl.on "keydown.lightbox-create-edit", (event) ->
+            if $scope.lightboxOpen
+                event.stopPropagation()
+                code = if event.keyCode then event.keyCode else event.which
+                if code == 27
+                    checkClose()
 
         $el.on "submit", "form", submit
 
@@ -1046,12 +847,6 @@ $confirm, $q, attachmentsService, $template, $compile) ->
             event.preventDefault()
             event.stopPropagation()
             checkClose()
-
-        $el.keydown (event) ->
-            event.stopPropagation()
-            code = if event.keyCode then event.keyCode else event.which
-            if code == 27
-                checkClose()
 
         $el.on "click", ".status-dropdown", (event) ->
             event.preventDefault()
@@ -1065,11 +860,6 @@ $confirm, $q, attachmentsService, $template, $compile) ->
             $scope.$apply()
             $scope.$broadcast("status:changed", $scope.obj.status)
             $el.find(".pop-status").popover().close()
-
-        $el.on "click", ".users-dropdown", (event) ->
-            event.preventDefault()
-            event.stopPropagation()
-            $el.find(".pop-users").popover().open()
 
         $el.on "click", ".team-requirement", (event) ->
             $scope.obj.team_requirement = not $scope.obj.team_requirement
@@ -1085,6 +875,7 @@ $confirm, $q, attachmentsService, $template, $compile) ->
 
         $el.on "click", ".iocaine", (event) ->
             $scope.obj.is_iocaine = not $scope.obj.is_iocaine
+            $scope.$apply()
             $scope.$broadcast("isiocaine:changed", $scope.obj)
 
         $scope.isTeamRequirement = () ->
@@ -1245,3 +1036,5 @@ tgResources, $tgResources, $epicsService, tgAnalytics) ->
 module.directive("tgLbRelatetoepic", [
     "$rootScope", "$tgConfirm", "lightboxService", "tgCurrentUserService", "tgResources",
     "$tgResources", "tgEpicsService", "$tgAnalytics", RelateToEpicLightboxDirective])
+
+

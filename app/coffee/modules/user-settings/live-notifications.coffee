@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -86,31 +81,31 @@ UserLiveNotificationsListDirective = ($repo, $confirm, $compile) ->
         <div class="policy-table-row" data-index="<%- index %>">
           <div class="policy-table-project"><span><%- notifyPolicy.project_name %></span></div>
           <div class="policy-table-all">
-            <fieldset>
+            <div class="button-check">
               <input type="radio"
                      name="policy-<%- notifyPolicy.id %>" id="policy-all-<%- notifyPolicy.id %>"
                      value="2" <% if (notifyPolicy.live_notify_level == 2) { %>checked="checked"<% } %>/>
               <label for="policy-all-<%- notifyPolicy.id %>"
                      translate="USER_SETTINGS.NOTIFICATIONS.OPTION_ALL"></label>
-            </fieldset>
+            </div>
           </div>
           <div class="policy-table-involved">
-            <fieldset>
+            <div class="button-check">
               <input type="radio"
                      name="policy-<%- notifyPolicy.id %>" id="policy-involved-<%- notifyPolicy.id %>"
                      value="1" <% if (notifyPolicy.live_notify_level == 1) { %>checked="checked"<% } %> />
               <label for="policy-involved-<%- notifyPolicy.id %>"
                      translate="USER_SETTINGS.NOTIFICATIONS.OPTION_INVOLVED"></label>
-            </fieldset>
+            </div>
           </div>
           <div class="policy-table-none">
-            <fieldset>
+            <div class="button-check">
               <input type="radio"
                      name="policy-<%- notifyPolicy.id %>" id="policy-none-<%- notifyPolicy.id %>"
                      value="3" <% if (notifyPolicy.live_notify_level == 3) { %>checked="checked"<% } %> />
               <label for="policy-none-<%- notifyPolicy.id %>"
                      translate="USER_SETTINGS.NOTIFICATIONS.OPTION_NONE"></label>
-            </fieldset>
+            </div>
           </div>
         </div>
         <% }) %>

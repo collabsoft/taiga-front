@@ -1,10 +1,8 @@
 .severity-data(class!="<% if(editable){ %>clickable<% }%>")
-    span.level(style!="background-color:<%- severity.color %>")
-    span.severity-severity <%- severity.name %>
-    <% if(editable){ %>
-    tg-svg(svg-icon="icon-arrow-down")
-    <% }%>
-    span.level-name(translate="COMMON.FIELDS.SEVERITY")
+    .label.level-name(translate="COMMON.FIELDS.SEVERITY")
+    .level-data
+        span.label <%- severity.name %>
+        span.level-color(style!="background-color:<%- severity.color %>")
 
     ul.popover.pop-severity
         <% _.each(severityes, function(sv) { %>
@@ -14,5 +12,5 @@
                 title!="<%- sv.name %>"
                 data-severity-id!="<%- sv.id %>"
             )
-                <%- sv.name %>
+                span.item-text <%- sv.name %>
         <% }); %>

@@ -9,14 +9,10 @@
         }
         a,
         .username {
-            color: $primary;
             &:first-child {
-                @include font-type(bold);
+                @include font-type(medium);
                 color: $gray;
             }
-        }
-        a:hover {
-            color: $primary-light;
         }
         blockquote {
             line-height: 1.4rem;
@@ -26,6 +22,10 @@
             overflow-x: auto;
             overflow-y: hidden;
             white-space: pre-line;
+
+            a {
+                display: flex;
+            }
         }
         img {
             max-height: 640px;
@@ -53,7 +53,7 @@
             vertical-align: center;
             width: 2rem;
             img {
-                width: 100%;
+                @include avatar-img(2rem);
             }
         }
         .new-color {
@@ -79,7 +79,7 @@
             flex: 1;
         }
         a {
-            @include font-type(bold);
+            @include font-type(medium);
         }
         p {
             color: $gray-light;
@@ -89,7 +89,7 @@
         border: 0;
         padding: 0;
         span {
-            @include font-type(text);
+            @include font-type(regular);
             @include font-size(medium);
             display: inline-block;
             max-width: 95%;

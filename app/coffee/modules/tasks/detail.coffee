@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -52,15 +47,19 @@ class TaskDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         "$translate",
         "$tgQueueModelTransformation",
         "tgErrorHandlingService",
-        "tgProjectService"
+        "tgProjectService",
+        "tgAttachmentsFullService",
     ]
 
     constructor: (@scope, @rootscope, @repo, @confirm, @rs, @params, @q, @location,
-                  @log, @appMetaService, @navUrls, @analytics, @translate, @modelTransform, @errorHandlingService, @projectService) ->
+                  @log, @appMetaService, @navUrls, @analytics, @translate, @modelTransform, @errorHandlingService, @projectService, @attachmentsFullService) ->
         bindMethods(@)
 
         @scope.taskRef = @params.taskref
         @scope.sectionName = @translate.instant("TASK.SECTION_NAME")
+        @scope.attachmentsReady = false
+        @scope.$on "attachments:loaded", () =>
+            @scope.attachmentsReady = true
         @.initializeEventHandlers()
 
         promise = @.loadInitialData()
@@ -83,7 +82,15 @@ class TaskDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         })
         @appMetaService.setAll(title, description)
 
+    loadAttachments: ->
+        @attachmentsFullService.loadAttachments('task', @scope.taskId, @scope.projectId)
+
     initializeEventHandlers: ->
+        @scope.$on "promote-task-to-us:success", (e, ref) =>
+            @analytics.trackEvent("task", "promoteToUserstory", "promote task to userstory", 1)
+            ctx = {project: @scope.project.slug, ref: ref}
+            @location.path(@navUrls.resolve("project-userstories-detail", ctx))
+
         @scope.$on "attachment:create", =>
             @analytics.trackEvent("attachment", "create", "create attachment on task", 1)
         @scope.$on "custom-attributes-values:edit", =>
@@ -121,6 +128,13 @@ class TaskDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
             @scope.task = task
             @scope.taskId = task.id
             @scope.commentModel = task
+
+            @.loadAttachments()
+
+            window.legacyChannel.next({
+                type: 'SET_DETAIL_OBJ',
+                value: task._attrs
+            })
 
             @modelTransform.setObject(@scope, 'task')
 

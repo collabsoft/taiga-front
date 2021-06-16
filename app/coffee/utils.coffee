@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -220,7 +215,7 @@ _.mixin
 
 
 isImage = (name) ->
-    return name.match(/\.(jpe?g|png|gif|gifv|webm|svg|psd)/i) != null
+    return name.match(/\.(jpe?g|png|gif|gifv|svg|psd|webp)/i) != null
 
 isEmail = (name) ->
     return name? and name.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) != null
@@ -242,9 +237,9 @@ patch = (oldImmutable, newImmutable) ->
     return pathObj
 
 DEFAULT_COLOR_LIST = [
-    '#fce94f', '#edd400', '#c4a000', '#8ae234', '#73d216', '#4e9a06', '#d3d7cf',
-    '#fcaf3e', '#f57900', '#ce5c00', '#729fcf', '#3465a4', '#204a87', '#888a85',
-    '#ad7fa8', '#75507b', '#5c3566', '#ef2929', '#cc0000', '#a40000', '#222222'
+    '#D35163', '#D351CF', '#AC51D3', '#8151D3', '#5551D3', '#5178D3', '#78D351',
+    '#51D355', '#51D381', '#51D3AC', '#51CFD3', '#51A3D3', '#A3D350', '#CFD350',
+    '#D3AC50', '#D38050', '#D35450', '#E44057', '#4C566A', '#70728F', '#A9AABC'
 ]
 
 getRandomDefaultColor = () ->

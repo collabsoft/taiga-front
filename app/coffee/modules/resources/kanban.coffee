@@ -1,10 +1,5 @@
 ###
-# Copyright (C) 2014-2017 Andrey Antukh <niwi@niwi.nz>
-# Copyright (C) 2014-2017 Jesús Espino Garcia <jespinog@gmail.com>
-# Copyright (C) 2014-2017 David Barragán Merino <bameda@dbarragan.com>
-# Copyright (C) 2014-2017 Alejandro Alonso <alejandro.alonso@kaleidos.net>
-# Copyright (C) 2014-2017 Juan Francisco Alcántara <juanfran.alcantara@kaleidos.net>
-# Copyright (C) 2014-2017 Xavi Julian <xavier.julian@kaleidos.net>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,6 +26,7 @@ resourceProvider = ($storage) ->
     service = {}
     hashSuffixStatusViewModes = "kanban-statusviewmodels"
     hashSuffixStatusColumnModes = "kanban-statuscolumnmodels"
+    hashSuffixSwimlanesModes = "kanban-swimlanesmodels"
 
     service.storeStatusColumnModes = (projectId, params) ->
         ns = "#{projectId}:#{hashSuffixStatusColumnModes}"
@@ -39,6 +35,16 @@ resourceProvider = ($storage) ->
 
     service.getStatusColumnModes = (projectId) ->
         ns = "#{projectId}:#{hashSuffixStatusColumnModes}"
+        hash = generateHash([projectId, ns])
+        return $storage.get(hash) or {}
+
+    service.storeSwimlanesModes = (projectId, params) ->
+        ns = "#{projectId}:#{hashSuffixSwimlanesModes}"
+        hash = generateHash([projectId, ns])
+        $storage.set(hash, params)
+
+    service.getSwimlanesModes = (projectId) ->
+        ns = "#{projectId}:#{hashSuffixSwimlanesModes}"
         hash = generateHash([projectId, ns])
         return $storage.get(hash) or {}
 

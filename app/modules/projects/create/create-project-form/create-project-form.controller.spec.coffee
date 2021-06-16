@@ -1,5 +1,5 @@
 ###
-# Copyright (C) 2014-2015 Taiga Agile LLC <taiga@taiga.io>
+# Copyright (C) 2014-present Taiga Agile LLC
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-# File: create-project-form.controller.spec.coffee
+# File: projects/create/create-project-form/create-project-form.controller.spec.coffee
 ###
 
 describe "CreateProjectFormCtrl", ->
@@ -32,7 +32,8 @@ describe "CreateProjectFormCtrl", ->
     _mockCurrentUserService = ->
         mocks.currentUserService = {
             canCreatePublicProjects: sinon.stub().returns({valid: true}),
-            canCreatePrivateProjects: sinon.stub().returns({valid: true})
+            canCreatePrivateProjects: sinon.stub().returns({valid: true}),
+            loadProjects: sinon.stub()
         }
 
         $provide.value("tgCurrentUserService", mocks.currentUserService)
@@ -94,9 +95,12 @@ describe "CreateProjectFormCtrl", ->
     it "submit project form", () ->
         ctrl = $controller("CreateProjectFormCtrl")
 
-        ctrl.projectForm = 'form'
+        ctrl.projectForm = {
+            name: 'name',
+            description: 'description'
+        }
 
-        mocks.projectsService.create.withArgs('form').promise().resolve(Immutable.fromJS({slug: 'project1', id: 1}))
+        mocks.projectsService.create.withArgs(ctrl.projectForm).promise().resolve(Immutable.fromJS({slug: 'project1', id: 1, name: 'name', description: 'description'}))
         mocks.projectUrl.get.returns('project-url')
 
         ctrl.submit().then () ->
